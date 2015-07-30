@@ -73,6 +73,7 @@ public class TsFilterTest {
         options.output = OutputOptions.of(out, XML_UTF_8, false);
         options.so = new StandardOptions(false, false, false);
         options.periodSelector = new TsPeriodSelector();
+        options.itemsToRemove = EnumSet.noneOf(TsItem.class);
 
         app.exec(options);
 
