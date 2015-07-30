@@ -158,7 +158,7 @@ public final class Ts2Chart extends StandardApp<Ts2Chart.Parameters> {
             result.so = so.value(options);
             result.input = input.value(options);
             result.outputFile = options.has(outputFile) ? outputFile.value(options) : null;
-            result.mediaType = options.has(mediaType) ? MediaType.parse(mediaType.value(options)) : (result.outputFile != null ? Utils.getMediaType(result.outputFile) : MediaType.ANY_APPLICATION_TYPE);
+            result.mediaType = options.has(mediaType) ? MediaType.parse(mediaType.value(options)) : (result.outputFile != null ? Utils.getMediaType(result.outputFile).or(MediaType.SVG_UTF_8) : MediaType.SVG_UTF_8);
             result.chart = chart.value(options);
             return result;
         }

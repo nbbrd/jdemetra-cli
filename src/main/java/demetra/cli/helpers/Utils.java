@@ -72,12 +72,37 @@ public final class Utils {
     }
 
     @Nonnull
-    public static MediaType getMediaType(@Nonnull File file) {
+    public static Optional<MediaType> getMediaType(@Nonnull File file) {
+        Optional<MediaType> result = probeMediaType(file);
+        return result.isPresent() ? result : getMediaTypeByExtension(file);
+    }
+
+    private static Optional<MediaType> probeMediaType(File file) {
         try {
-            return MediaType.parse(Files.probeContentType(file.toPath()));
-        } catch (IOException ex) {
-            return MediaType.ANY_APPLICATION_TYPE;
+            String contentType = Files.probeContentType(file.toPath());
+            if (contentType != null) {
+                return Optional.of(MediaType.parse(contentType));
+            }
+        } catch (IOException | IllegalArgumentException ex) {
         }
+        return Optional.absent();
+    }
+
+    private static Optional<MediaType> getMediaTypeByExtension(File file) {
+        String fileName = file.getName().toLowerCase(Locale.ROOT);
+        if (fileName.endsWith(".json")) {
+            return Optional.of(MediaType.JSON_UTF_8);
+        }
+        if (fileName.endsWith(".xml")) {
+            return Optional.of(MediaType.XML_UTF_8);
+        }
+        if (fileName.endsWith(".png")) {
+            return Optional.of(MediaType.PNG);
+        }
+        if (fileName.endsWith(".svg")) {
+            return Optional.of(MediaType.SVG_UTF_8);
+        }
+        return Optional.absent();
     }
 
     public static MediaType[] supportedMediaTypes() {
