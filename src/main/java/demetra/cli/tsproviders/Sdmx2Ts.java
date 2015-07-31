@@ -25,7 +25,6 @@ import demetra.cli.helpers.StandardApp;
 import demetra.cli.helpers.OutputOptions;
 import demetra.cli.helpers.StandardOptions;
 import ec.tss.TsCollectionInformation;
-import ec.tss.TsInformation;
 import ec.tss.TsInformationType;
 import ec.tss.tsproviders.sdmx.SdmxBean;
 import ec.tss.tsproviders.sdmx.SdmxProvider;
@@ -60,13 +59,6 @@ public final class Sdmx2Ts extends StandardApp<Sdmx2Ts.Parameters> {
         provider.setCompactNaming(true);
         XProviders.applyWorkingDir(provider);
         TsCollectionInformation result = XProviders.getTsCollection(provider, params.sdmx, TsInformationType.All);
-        if (!params.sdmx.getTitleAttribute().isEmpty()) {
-            for (TsInformation o : result.items) {
-                if (o.hasMetaData()) {
-                    o.name = o.metaData.get(params.sdmx.getTitleAttribute());
-                }
-            }
-        }
         params.output.writeValue(XmlTsCollection.class, result);
         provider.dispose();
     }
