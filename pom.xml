@@ -25,7 +25,7 @@
     <properties>
         <demetra.version>2.0.0</demetra.version>
         <jopt-simple.version>4.9</jopt-simple.version>
-        <jackson.version>2.6.0</jackson.version>
+        <jackson.version>2.6.3</jackson.version>
         <lombok.version>1.16.4</lombok.version>
     </properties>
     
