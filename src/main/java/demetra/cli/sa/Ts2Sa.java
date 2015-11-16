@@ -18,6 +18,7 @@ package demetra.cli.sa;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import com.google.common.base.Supplier;
 import demetra.cli.helpers.StandardApp;
 import demetra.cli.helpers.BasicArgsParser;
 import demetra.cli.helpers.InputOptions;
@@ -32,6 +33,8 @@ import demetra.cli.helpers.Utils;
 import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformation;
 import ec.tss.xml.XmlTsCollection;
+import ec.tstoolkit.algorithm.CompositeResults;
+import ec.tstoolkit.algorithm.IProcessing;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import java.util.List;
 import java.util.Map;
@@ -79,15 +82,21 @@ public final class Ts2Sa extends StandardApp<Ts2Sa.Parameters> {
         if (verbose) {
             System.err.println("Processing " + input.items.size() + " time series");
         }
-        Function<List<TsInformation>, List<Map<String, TsData>>> processor = asFunc(saOptions);
+        Supplier<Function<TsInformation, Map<String, TsData>>> processor = asSupplier(saOptions);
         return ForkJoinTasks.invoke(verbose ? Utils.withProgress(processor, input.items.size()) : processor, 10, input.items);
     }
 
-    private static Function<List<TsInformation>, List<Map<String, TsData>>> asFunc(final SaOptions saOptions) {
-        return new Function<List<TsInformation>, List<Map<String, TsData>>>() {
+    private static Supplier<Function<TsInformation, Map<String, TsData>>> asSupplier(final SaOptions options) {
+        return new Supplier<Function<TsInformation, Map<String, TsData>>>() {
             @Override
-            public List<Map<String, TsData>> apply(List<TsInformation> input) {
-                return saOptions.process(input);
+            public Function<TsInformation, Map<String, TsData>> get() {
+                final IProcessing<TsData, CompositeResults> processing = options.newProcessing();
+                return new Function<TsInformation, Map<String, TsData>>() {
+                    @Override
+                    public Map<String, TsData> apply(TsInformation input) {
+                        return SaOptions.processData(input.data, processing);
+                    }
+                };
             }
         };
     }

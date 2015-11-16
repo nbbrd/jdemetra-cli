@@ -18,6 +18,7 @@ package demetra.cli.helpers;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Supplier;
 import com.google.common.net.MediaType;
 import java.io.File;
 import java.io.IOException;
@@ -125,21 +126,54 @@ public final class Utils {
         }
     };
 
+    private static final class ProgressHandler {
+
+        final int size;
+        final AtomicInteger cpt = new AtomicInteger(0);
+        final AtomicInteger previous = new AtomicInteger(0);
+
+        public ProgressHandler(int size) {
+            this.size = size;
+        }
+
+        public void inc(int value) {
+            int percent = 100 * cpt.addAndGet(value) / size;
+            int old = previous.getAndSet(percent);
+            if (old != percent) {
+                synchronized (System.err) {
+                    System.err.println("Processed: " + percent + "%");
+                }
+            }
+        }
+    }
+
+    public static <X, Y> Supplier<Function<X, Y>> withProgress(final Supplier<Function<X, Y>> supplier, final int size) {
+        return new Supplier<Function<X, Y>>() {
+            final ProgressHandler progressHandler = new ProgressHandler(size);
+
+            @Override
+            public Function<X, Y> get() {
+                final Function<X, Y> func = supplier.get();
+                return new Function<X, Y>() {
+                    @Override
+                    public Y apply(X input) {
+                        Y result = func.apply(input);
+                        progressHandler.inc(1);
+                        return result;
+                    }
+                };
+            }
+        };
+    }
+
     public static <X, Y> Function<List<X>, List<Y>> withProgress(final Function<List<X>, List<Y>> func, final int size) {
         return new Function<List<X>, List<Y>>() {
-            final AtomicInteger cpt = new AtomicInteger(0);
-            final AtomicInteger previous = new AtomicInteger(0);
+            final ProgressHandler progressHandler = new ProgressHandler(size);
 
             @Override
             public List<Y> apply(List<X> input) {
                 List<Y> result = func.apply(input);
-
-                int percent = 100 * cpt.addAndGet(input.size()) / size;
-                int old = previous.getAndSet(percent);
-                if (old != percent) {
-                    System.err.println("Processed: " + percent + "%");
-                }
-
+                progressHandler.inc(input.size());
                 return result;
             }
         };

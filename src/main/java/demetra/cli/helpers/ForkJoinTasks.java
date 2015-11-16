@@ -17,6 +17,8 @@
 package demetra.cli.helpers;
 
 import com.google.common.base.Function;
+import com.google.common.base.Supplier;
+import com.google.common.collect.FluentIterable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
@@ -36,8 +38,18 @@ public final class ForkJoinTasks {
     }
 
     @Nonnull
+    public static <X, Y> ForkJoinTask<List<Y>> asTask(final @Nonnull Supplier<Function<X, Y>> processor, @Nonnegative int threshold, @Nonnull List<X> input) {
+        return asTask(new Adapter<>(processor), threshold, input);
+    }
+
+    @Nonnull
     public static <X, Y> ForkJoinTask<List<Y>> asTask(@Nonnull Function<List<X>, List<Y>> processor, @Nonnegative int threshold, @Nonnull List<X> input) {
         return new ExtRecursiveTask<>(processor, threshold, input);
+    }
+
+    @Nonnull
+    public static <X, Y> List<Y> invoke(@Nonnull Supplier<Function<X, Y>> processor, @Nonnegative int threshold, @Nonnull List<X> input) {
+        return invoke(new Adapter<>(processor), threshold, input);
     }
 
     @Nonnull
@@ -52,6 +64,20 @@ public final class ForkJoinTasks {
     }
 
     //<editor-fold defaultstate="collapsed" desc="Internal implementation">
+    private static final class Adapter<X, Y> implements Function<List<X>, List<Y>> {
+
+        private final Supplier<Function<X, Y>> processor;
+
+        public Adapter(Supplier<Function<X, Y>> processor) {
+            this.processor = processor;
+        }
+
+        @Override
+        public List<Y> apply(List<X> input) {
+            return FluentIterable.from(input).transform(processor.get()).toList();
+        }
+    }
+
     private static final class ExtRecursiveTask<X, Y> extends RecursiveTask<List<Y>> {
 
         private final Function<List<X>, List<Y>> resource;

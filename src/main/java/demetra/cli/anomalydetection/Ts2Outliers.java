@@ -17,8 +17,11 @@
 package demetra.cli.anomalydetection;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Supplier;
 import demetra.cli.helpers.StandardApp;
 import demetra.cli.helpers.BasicArgsParser;
+import demetra.cli.helpers.ForkJoinTasks;
 import demetra.cli.helpers.InputOptions;
 import demetra.cli.helpers.OptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newInputOptionsSpec;
@@ -26,9 +29,12 @@ import static demetra.cli.helpers.OptionsSpec.newOutputOptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newStandardOptionsSpec;
 import demetra.cli.helpers.OutputOptions;
 import demetra.cli.helpers.StandardOptions;
+import demetra.cli.helpers.Utils;
 import ec.tss.TsCollectionInformation;
+import ec.tss.TsInformation;
 import ec.tss.xml.XmlTsCollection;
 import ec.tstoolkit.modelling.DefaultTransformationType;
+import ec.tstoolkit.modelling.arima.IPreprocessor;
 import ec.tstoolkit.timeseries.regression.OutlierEstimation;
 import ec.tstoolkit.timeseries.regression.OutlierType;
 import static ec.tstoolkit.timeseries.regression.OutlierType.AO;
@@ -38,7 +44,6 @@ import static ec.tstoolkit.timeseries.regression.OutlierType.TC;
 import static java.util.Arrays.asList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -67,15 +72,9 @@ public final class Ts2Outliers extends StandardApp<Ts2Outliers.Parameters> {
     public void exec(Parameters params) throws Exception {
         TsCollectionInformation input = params.input.readValue(XmlTsCollection.class);
 
-        if (params.so.isVerbose()) {
-            summarize(input);
-        }
-
-        OutliersFactory.Callback callback = params.so.isVerbose() ? new PrintPercent(input.items.size()) : new OutliersFactory.Callback();
-        List<OutlierEstimation[]> data = params.spec.newOutliersFactory().process(input, callback);
+        List<OutlierEstimation[]> data = process(input, params.spec, params.getSo().isVerbose());
 
         XmlOutliersTsCollection output = XmlOutliersTsCollection.create(input, data);
-
         params.output.write(XmlOutliersTsCollection.class, output);
     }
 
@@ -84,8 +83,28 @@ public final class Ts2Outliers extends StandardApp<Ts2Outliers.Parameters> {
         return params.so;
     }
 
-    private static void summarize(TsCollectionInformation info) {
-        System.err.println("Processing " + info.items.size() + " time series");
+    @VisibleForTesting
+    static List<OutlierEstimation[]> process(TsCollectionInformation input, OutliersOptions options, boolean verbose) {
+        if (verbose) {
+            System.err.println("Processing " + input.items.size() + " time series");
+        }
+        Supplier<Function<TsInformation, OutlierEstimation[]>> processor = asSupplier(options);
+        return ForkJoinTasks.invoke(verbose ? Utils.withProgress(processor, input.items.size()) : processor, 10, input.items);
+    }
+
+    private static Supplier<Function<TsInformation, OutlierEstimation[]>> asSupplier(final OutliersOptions options) {
+        return new Supplier<Function<TsInformation, OutlierEstimation[]>>() {
+            @Override
+            public Function<TsInformation, OutlierEstimation[]> get() {
+                final IPreprocessor preprocessor = options.newPreprocessor();
+                return new Function<TsInformation, OutlierEstimation[]>() {
+                    @Override
+                    public OutlierEstimation[] apply(TsInformation input) {
+                        return OutliersOptions.processData(input.data, preprocessor);
+                    }
+                };
+            }
+        };
     }
 
     @VisibleForTesting
@@ -136,26 +155,6 @@ public final class Ts2Outliers extends StandardApp<Ts2Outliers.Parameters> {
         @Override
         public OutliersOptions value(OptionSet options) {
             return new OutliersOptions(defaultSpec.value(options), critVal.value(options), transformation.value(options), EnumSet.copyOf(outlierTypes.values(options)));
-        }
-    }
-
-    private static final class PrintPercent extends OutliersFactory.Callback {
-
-        final int size;
-        final AtomicInteger cpt = new AtomicInteger(0);
-        final AtomicInteger previous = new AtomicInteger(0);
-
-        public PrintPercent(int size) {
-            this.size = size;
-        }
-
-        @Override
-        public void publish(int index, OutlierEstimation[][] outliers) {
-            int percent = 100 * cpt.addAndGet(outliers.length) / size;
-            int old = previous.getAndSet(percent);
-            if (old != percent) {
-                System.err.println("Processed: " + percent + "%");
-            }
         }
     }
 }

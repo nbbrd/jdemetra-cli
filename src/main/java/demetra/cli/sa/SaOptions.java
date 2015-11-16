@@ -16,18 +16,14 @@
  */
 package demetra.cli.sa;
 
-import com.google.common.annotations.VisibleForTesting;
 import ec.satoolkit.algorithm.implementation.TramoSeatsProcessingFactory;
 import ec.satoolkit.algorithm.implementation.X13ProcessingFactory;
 import ec.satoolkit.tramoseats.TramoSeatsSpecification;
 import ec.satoolkit.x13.X13Specification;
-import ec.tss.TsInformation;
 import ec.tstoolkit.algorithm.CompositeResults;
 import ec.tstoolkit.algorithm.IProcessing;
 import ec.tstoolkit.timeseries.simplets.TsData;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import lombok.Value;
@@ -42,7 +38,6 @@ public class SaOptions {
     String algorithm;
     String spec;
 
-    @VisibleForTesting
     @Nonnull
     IProcessing<TsData, CompositeResults> newProcessing() {
         switch (getAlgorithm().toLowerCase()) {
@@ -63,18 +58,9 @@ public class SaOptions {
         }
     }
 
-    @VisibleForTesting
     @Nonnull
-    List<Map<String, TsData>> process(@Nonnull List<TsInformation> input) {
-        IProcessing<TsData, CompositeResults> processing = newProcessing();
-        List<Map<String, TsData>> result = new ArrayList<>();
-        for (TsInformation o : input) {
-            result.add(extractData(processing.process(o.data)));
-        }
-        return result;
-    }
-
-    private static Map<String, TsData> extractData(CompositeResults results) {
+    static Map<String, TsData> processData(@Nonnull TsData input, IProcessing<TsData, CompositeResults> processing) {
+        CompositeResults results = processing.process(input);
         if (results == null) {
             throw new IllegalArgumentException("The processing returned no results !");
         }

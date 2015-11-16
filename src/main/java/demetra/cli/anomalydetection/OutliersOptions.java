@@ -17,9 +17,14 @@
 package demetra.cli.anomalydetection;
 
 import ec.tstoolkit.modelling.DefaultTransformationType;
+import ec.tstoolkit.modelling.arima.IPreprocessor;
+import ec.tstoolkit.modelling.arima.PreprocessingModel;
 import ec.tstoolkit.modelling.arima.tramo.TramoSpecification;
+import ec.tstoolkit.timeseries.regression.OutlierEstimation;
 import ec.tstoolkit.timeseries.regression.OutlierType;
+import ec.tstoolkit.timeseries.simplets.TsData;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import lombok.Value;
 
 /**
@@ -34,7 +39,8 @@ public class OutliersOptions {
     DefaultTransformationType transformation;
     Set<OutlierType> outlierTypes;
 
-    public TramoSpecification newTramoSpecification() {
+    @Nonnull
+    TramoSpecification newTramoSpecification() {
         TramoSpecification result = this.getDefaultSpec().newInstance();
         result.getOutliers().setCriticalValue(this.getCriticalValue());
         result.getTransform().setFunction(this.getTransformation());
@@ -43,7 +49,21 @@ public class OutliersOptions {
         return result;
     }
 
-    public OutliersFactory newOutliersFactory() {
-        return OutliersFactory.smart(newTramoSpecification());
+    @Nonnull
+    IPreprocessor newPreprocessor() {
+        return newTramoSpecification().build();
+    }
+
+    static OutlierEstimation[] processData(TsData data, IPreprocessor preprocessor) {
+        if (data != null && !data.isEmpty()) {
+            PreprocessingModel model = preprocessor.process(data, null);
+            if (model != null) {
+                return model.outliersEstimation(true, false);
+            } else {
+                // BUG
+                return null;
+            }
+        }
+        return new OutlierEstimation[0];
     }
 }
