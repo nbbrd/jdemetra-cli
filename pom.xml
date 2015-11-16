@@ -177,6 +177,10 @@
                             <mainClass>demetra.cli.sa.Sa2Ts</mainClass>
                             <id>sa2ts</id>
                         </program>
+                        <program>
+                            <mainClass>demetra.cli.various.TsAggregate</mainClass>
+                            <id>tsaggregate</id>
+                        </program>
                     </programs>
                 </configuration>
                 <executions>
