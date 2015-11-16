@@ -24,8 +24,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nonnull;
 
 /**
@@ -115,10 +117,31 @@ public final class Utils {
             return new File(input);
         }
     };
+
     static final Function<File, String> FROM_FILE = new Function<File, String>() {
         @Override
         public String apply(File input) {
             return input.toString();
         }
     };
+
+    public static <X, Y> Function<List<X>, List<Y>> withProgress(final Function<List<X>, List<Y>> func, final int size) {
+        return new Function<List<X>, List<Y>>() {
+            final AtomicInteger cpt = new AtomicInteger(0);
+            final AtomicInteger previous = new AtomicInteger(0);
+
+            @Override
+            public List<Y> apply(List<X> input) {
+                List<Y> result = func.apply(input);
+
+                int percent = 100 * cpt.addAndGet(input.size()) / size;
+                int old = previous.getAndSet(percent);
+                if (old != percent) {
+                    System.err.println("Processed: " + percent + "%");
+                }
+
+                return result;
+            }
+        };
+    }
 }

@@ -169,6 +169,14 @@
                             <mainClass>demetra.cli.various.Ts2Chart</mainClass>
                             <id>ts2chart</id>
                         </program>
+                        <program>
+                            <mainClass>demetra.cli.sa.Ts2Sa</mainClass>
+                            <id>ts2sa</id>
+                        </program>
+                        <program>
+                            <mainClass>demetra.cli.sa.Sa2Ts</mainClass>
+                            <id>sa2ts</id>
+                        </program>
                     </programs>
                 </configuration>
                 <executions>
