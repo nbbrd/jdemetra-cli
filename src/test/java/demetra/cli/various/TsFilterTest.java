@@ -14,7 +14,7 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package demetra.cli;
+package demetra.cli.various;
 
 import static com.google.common.net.MediaType.XML_UTF_8;
 import demetra.cli.tsproviders.XProviders;

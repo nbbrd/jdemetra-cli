@@ -14,7 +14,7 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package demetra.cli.various;
+package demetra.cli.chart;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.net.MediaType;

@@ -158,7 +158,7 @@
                             <id>ts2dstats</id>
                         </program>
                         <program>
-                            <mainClass>demetra.cli.TsFilter</mainClass>
+                            <mainClass>demetra.cli.various.TsFilter</mainClass>
                             <id>tsfilter</id>
                         </program>
                         <program>
@@ -166,7 +166,7 @@
                             <id>ts2outliers</id>
                         </program>
                         <program>
-                            <mainClass>demetra.cli.various.Ts2Chart</mainClass>
+                            <mainClass>demetra.cli.chart.Ts2Chart</mainClass>
                             <id>ts2chart</id>
                         </program>
                         <program>

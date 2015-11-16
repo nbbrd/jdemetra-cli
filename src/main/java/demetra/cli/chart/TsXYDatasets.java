@@ -14,7 +14,7 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package demetra.cli.various;
+package demetra.cli.chart;
 
 import com.google.common.base.Preconditions;
 import static com.google.common.base.Preconditions.checkNotNull;

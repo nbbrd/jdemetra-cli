@@ -14,7 +14,7 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package demetra.cli;
+package demetra.cli.various;
 
 import com.google.common.annotations.VisibleForTesting;
 import demetra.cli.helpers.StandardApp;
