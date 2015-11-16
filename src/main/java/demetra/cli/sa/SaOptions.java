@@ -24,6 +24,7 @@ import ec.tstoolkit.algorithm.CompositeResults;
 import ec.tstoolkit.algorithm.IProcessing;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import lombok.Value;
@@ -37,6 +38,7 @@ public class SaOptions {
 
     String algorithm;
     String spec;
+    List<String> items;
 
     @Nonnull
     IProcessing<TsData, CompositeResults> newProcessing() {
@@ -59,13 +61,13 @@ public class SaOptions {
     }
 
     @Nonnull
-    static Map<String, TsData> processData(@Nonnull TsData input, IProcessing<TsData, CompositeResults> processing) {
+    static Map<String, TsData> processData(@Nonnull TsData input, IProcessing<TsData, CompositeResults> processing, List<String> items) {
         CompositeResults results = processing.process(input);
         if (results == null) {
             throw new IllegalArgumentException("The processing returned no results !");
         }
         Map<String, TsData> result = new HashMap<>();
-        for (String id : new String[]{"sa", "t", "s", "i"}) {
+        for (String id : items) {
             if (results.contains(id)) {
                 result.put(id, results.getData(id, TsData.class));
             }

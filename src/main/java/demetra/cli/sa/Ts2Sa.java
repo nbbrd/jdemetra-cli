@@ -94,7 +94,7 @@ public final class Ts2Sa extends StandardApp<Ts2Sa.Parameters> {
                 return new Function<TsInformation, Map<String, TsData>>() {
                     @Override
                     public Map<String, TsData> apply(TsInformation input) {
-                        return SaOptions.processData(input.data, processing);
+                        return SaOptions.processData(input.data, processing, options.getItems());
                     }
                 };
             }
@@ -124,6 +124,7 @@ public final class Ts2Sa extends StandardApp<Ts2Sa.Parameters> {
 
         private final OptionSpec<String> algorithm;
         private final OptionSpec<String> spec;
+        private final OptionSpec<String> items;
 
         public SaOptionsSpec(OptionParser parser) {
             this.algorithm = parser
@@ -136,11 +137,17 @@ public final class Ts2Sa extends StandardApp<Ts2Sa.Parameters> {
                     .withRequiredArg()
                     .defaultsTo("RSA0")
                     .ofType(String.class);
+            this.items = parser
+                    .accepts("items", "Comma-separated list of items to include")
+                    .withRequiredArg()
+                    .withValuesSeparatedBy(",")
+                    .defaultsTo("sa", "t", "s", "i")
+                    .ofType(String.class);
         }
 
         @Override
         public SaOptions value(OptionSet options) {
-            return new SaOptions(algorithm.value(options), spec.value(options));
+            return new SaOptions(algorithm.value(options), spec.value(options), items.values(options));
         }
     }
 }

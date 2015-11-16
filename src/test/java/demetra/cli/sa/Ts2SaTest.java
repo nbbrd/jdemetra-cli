@@ -21,6 +21,7 @@ import ec.tss.TsInformationType;
 import ec.tss.tsproviders.common.random.RandomBean;
 import ec.tss.tsproviders.common.random.RandomProvider;
 import ec.tstoolkit.timeseries.simplets.TsData;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -45,7 +46,7 @@ public class Ts2SaTest {
     @Test
     public void testProcess() {
         TsCollectionInformation input = getData();
-        SaOptions options = new SaOptions("tramoseats", "RSA1");
+        SaOptions options = new SaOptions("tramoseats", "RSA1", Arrays.asList("sa"));
 
         List<Map<String, TsData>> output = Ts2Sa.process(input, options, false);
         for (Map<String, TsData> o : output) {
