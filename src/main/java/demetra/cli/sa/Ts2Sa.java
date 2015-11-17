@@ -17,8 +17,6 @@
 package demetra.cli.sa;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Supplier;
 import demetra.cli.helpers.StandardApp;
 import demetra.cli.helpers.BasicArgsParser;
 import demetra.cli.helpers.InputOptions;
@@ -38,6 +36,8 @@ import ec.tstoolkit.algorithm.IProcessing;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -87,17 +87,9 @@ public final class Ts2Sa extends StandardApp<Ts2Sa.Parameters> {
     }
 
     private static Supplier<Function<TsInformation, Map<String, TsData>>> asSupplier(final SaOptions options) {
-        return new Supplier<Function<TsInformation, Map<String, TsData>>>() {
-            @Override
-            public Function<TsInformation, Map<String, TsData>> get() {
-                final IProcessing<TsData, CompositeResults> processing = options.newProcessing();
-                return new Function<TsInformation, Map<String, TsData>>() {
-                    @Override
-                    public Map<String, TsData> apply(TsInformation input) {
-                        return SaOptions.processData(input.data, processing, options.getItems());
-                    }
-                };
-            }
+        return () -> {
+            IProcessing<TsData, CompositeResults> processing = options.newProcessing();
+            return (TsInformation input) -> SaOptions.processData(input.data, processing, options.getItems());
         };
     }
 

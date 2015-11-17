@@ -16,10 +16,10 @@
  */
 package demetra.cli.tsproviders;
 
-import com.google.common.base.Optional;
 import com.google.common.net.MediaType;
 import static demetra.cli.helpers.OutputOptionsAssert.assertThat;
 import java.io.File;
+import java.util.Optional;
 import org.junit.Test;
 
 /**
@@ -35,7 +35,7 @@ public class Random2TsTest {
         assertThat(p.parse().output)
                 .isNotFormatted()
                 .hasMediaType(MediaType.XML_UTF_8)
-                .hasFile(Optional.absent());
+                .hasFile(Optional.empty());
 
         assertThat(p.parse("--format").output)
                 .isFormatted();

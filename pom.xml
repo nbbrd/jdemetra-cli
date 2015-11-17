@@ -19,7 +19,14 @@
     </licenses>        
     
     <properties>
+        <!-- build -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jdk.version>1.8</jdk.version>
+        <netbeans.hint.jdkPlatform>JDK_1.8</netbeans.hint.jdkPlatform>
+        <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+        <appassembler-maven-plugin.version>1.10</appassembler-maven-plugin.version>
+        <assertj.version>1.6.0</assertj.version>
+        <!-- dependencies -->
         <demetra.version>2.0.0</demetra.version>
         <jopt-simple.version>4.9</jopt-simple.version>
         <jackson.version>2.6.3</jackson.version>
@@ -120,16 +127,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>${jdk.version}</source>
+                    <target>${jdk.version}</target>
                 </configuration>
             </plugin>            
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>appassembler-maven-plugin</artifactId>
-                <version>1.10</version>
+                <version>${appassembler-maven-plugin.version}</version>
                 <configuration>
                     <repositoryLayout>flat</repositoryLayout>
                     <programs>
@@ -195,7 +202,7 @@
             <plugin>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-assertions-generator-maven-plugin</artifactId>
-                <version>1.6.0</version>
+                <version>${assertj.version}</version>
                 <executions>
                     <execution>
                         <goals>

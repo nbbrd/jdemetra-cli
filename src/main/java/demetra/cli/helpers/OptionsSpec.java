@@ -16,9 +16,9 @@
  */
 package demetra.cli.helpers;
 
-import com.google.common.base.Optional;
 import java.io.File;
 import static java.util.Arrays.asList;
+import java.util.Optional;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -46,7 +46,7 @@ public abstract class OptionsSpec<T> {
 
     //<editor-fold defaultstate="collapsed" desc="Implementation details">
     private static <X> Optional<X> optional(OptionSet options, OptionSpec<X> spec) {
-        return Optional.fromNullable(options.has(spec) ? spec.value(options) : null);
+        return Optional.ofNullable(options.has(spec) ? spec.value(options) : null);
     }
 
     private static final class MegaOptionSpecImpl extends OptionsSpec<StandardOptions> {

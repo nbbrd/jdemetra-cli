@@ -131,11 +131,9 @@ public final class Ts2Chart extends StandardApp<Ts2Chart.Parameters> {
 
     private IntervalXYDataset getDataset(TsCollectionInformation info) {
         TsXYDatasets.Builder result = TsXYDatasets.builder();
-        for (TsInformation o : info.items) {
-            if (o.hasData()) {
-                result.add(o.name, o.data);
-            }
-        }
+        info.items.stream().filter(TsInformation::hasData).forEach((o) -> {
+            result.add(o.name, o.data);
+        });
         return result.build();
     }
 
@@ -158,7 +156,7 @@ public final class Ts2Chart extends StandardApp<Ts2Chart.Parameters> {
             result.so = so.value(options);
             result.input = input.value(options);
             result.outputFile = options.has(outputFile) ? outputFile.value(options) : null;
-            result.mediaType = options.has(mediaType) ? MediaType.parse(mediaType.value(options)) : (result.outputFile != null ? Utils.getMediaType(result.outputFile).or(MediaType.SVG_UTF_8) : MediaType.SVG_UTF_8);
+            result.mediaType = options.has(mediaType) ? MediaType.parse(mediaType.value(options)) : (result.outputFile != null ? Utils.getMediaType(result.outputFile).orElse(MediaType.SVG_UTF_8) : MediaType.SVG_UTF_8);
             result.chart = chart.value(options);
             return result;
         }

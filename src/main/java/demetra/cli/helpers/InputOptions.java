@@ -16,11 +16,11 @@
  */
 package demetra.cli.helpers;
 
-import com.google.common.base.Optional;
 import com.google.common.net.MediaType;
 import ec.tss.xml.IXmlConverter;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -76,13 +76,13 @@ public final class InputOptions {
 
         @Override
         public InputOptions unmarshal(XmlBean v) throws Exception {
-            return new InputOptions(Optional.fromNullable(v.file).transform(Utils.TO_FILE), MediaType.parse(v.mediaType));
+            return new InputOptions(Optional.ofNullable(v.file).map(Utils.TO_FILE), MediaType.parse(v.mediaType));
         }
 
         @Override
         public XmlBean marshal(InputOptions v) throws Exception {
             XmlBean result = new XmlBean();
-            result.file = v.getFile().transform(Utils.FROM_FILE).orNull();
+            result.file = v.getFile().map(Utils.FROM_FILE).orElse(null);
             result.mediaType = v.getMediaType().toString();
             return result;
         }

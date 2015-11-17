@@ -16,9 +16,6 @@
  */
 package demetra.cli.helpers;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Supplier;
 import com.google.common.net.MediaType;
 import java.io.File;
 import java.io.IOException;
@@ -27,8 +24,11 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 
 /**
@@ -88,7 +88,7 @@ public final class Utils {
             }
         } catch (IOException | IllegalArgumentException ex) {
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     private static Optional<MediaType> getMediaTypeByExtension(File file) {
@@ -105,26 +105,16 @@ public final class Utils {
         if (fileName.endsWith(".svg")) {
             return Optional.of(MediaType.SVG_UTF_8);
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     public static MediaType[] supportedMediaTypes() {
         return new MediaType[]{MediaType.XML_UTF_8, MediaType.JSON_UTF_8};
     }
 
-    static final Function<String, File> TO_FILE = new Function<String, File>() {
-        @Override
-        public File apply(String input) {
-            return new File(input);
-        }
-    };
+    static final Function<String, File> TO_FILE = (String input) -> new File(input);
 
-    static final Function<File, String> FROM_FILE = new Function<File, String>() {
-        @Override
-        public String apply(File input) {
-            return input.toString();
-        }
-    };
+    static final Function<File, String> FROM_FILE = File::toString;
 
     private static final class ProgressHandler {
 
@@ -153,14 +143,11 @@ public final class Utils {
 
             @Override
             public Function<X, Y> get() {
-                final Function<X, Y> func = supplier.get();
-                return new Function<X, Y>() {
-                    @Override
-                    public Y apply(X input) {
-                        Y result = func.apply(input);
-                        progressHandler.inc(1);
-                        return result;
-                    }
+                Function<X, Y> func = supplier.get();
+                return (X input) -> {
+                    Y result = func.apply(input);
+                    progressHandler.inc(1);
+                    return result;
                 };
             }
         };

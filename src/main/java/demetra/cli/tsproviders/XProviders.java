@@ -17,7 +17,6 @@
 package demetra.cli.tsproviders;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.base.StandardSystemProperty;
 import com.google.common.collect.FluentIterable;
 import ec.tss.ITsProvider;
@@ -105,12 +104,7 @@ public class XProviders {
     private static <X extends IDataSourceProvider> Optional<X> lookup(Iterable<ITsProvider> providers, Class<X> providerClass, final String providerName) {
         return FluentIterable.from(providers)
                 .filter(providerClass)
-                .firstMatch(new Predicate<X>() {
-                    @Override
-                    public boolean apply(X input) {
-                        return input.getSource().equals(providerName);
-                    }
-                });
+                .firstMatch((X input) -> input.getSource().equals(providerName));
     }
     //</editor-fold>
 }

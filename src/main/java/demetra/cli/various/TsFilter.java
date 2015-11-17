@@ -90,21 +90,21 @@ public final class TsFilter extends StandardApp<TsFilter.Parameters> {
         info.metaData = items.contains(TsItem.metaData) ? null : info.metaData;
         info.invalidDataCause = items.contains(TsItem.cause) ? null : info.invalidDataCause;
         info.type = items.contains(TsItem.type) ? TsInformationType.UserDefined : info.type;
-        for (TsInformation o : info.items) {
+        info.items.forEach(o -> {
             o.name = items.contains(TsItem.name) ? null : o.name;
             o.moniker = items.contains(TsItem.moniker) ? new TsMoniker() : o.moniker;
             o.metaData = o.hasMetaData() ? (items.contains(TsItem.metaData) ? null : o.metaData) : null;
             o.invalidDataCause = items.contains(TsItem.cause) ? null : o.invalidDataCause;
             o.type = items.contains(TsItem.type) ? TsInformationType.UserDefined : o.type;
             o.data = o.hasData() ? (items.contains(TsItem.data) ? null : o.data) : null;
-        }
+        });
     }
 
     @VisibleForTesting
     static void selectPeriods(TsCollectionInformation info, TsPeriodSelector selector) {
-        for (TsInformation o : info.items) {
+        info.items.forEach(o -> {
             o.data = o.hasData() ? o.data.select(selector) : null;
-        }
+        });
     }
 
     @VisibleForTesting

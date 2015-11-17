@@ -16,14 +16,14 @@
  */
 package demetra.cli.helpers;
 
-import com.google.common.base.Function;
-import com.google.common.base.Supplier;
-import com.google.common.collect.FluentIterable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveTask;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
@@ -74,7 +74,7 @@ public final class ForkJoinTasks {
 
         @Override
         public List<Y> apply(List<X> input) {
-            return FluentIterable.from(input).transform(processor.get()).toList();
+            return input.stream().map(processor.get()).collect(Collectors.toList());
         }
     }
 

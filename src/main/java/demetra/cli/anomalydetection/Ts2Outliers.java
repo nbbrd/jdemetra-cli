@@ -17,8 +17,6 @@
 package demetra.cli.anomalydetection;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Supplier;
 import demetra.cli.helpers.StandardApp;
 import demetra.cli.helpers.BasicArgsParser;
 import demetra.cli.helpers.ForkJoinTasks;
@@ -44,6 +42,8 @@ import static ec.tstoolkit.timeseries.regression.OutlierType.TC;
 import static java.util.Arrays.asList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -93,17 +93,9 @@ public final class Ts2Outliers extends StandardApp<Ts2Outliers.Parameters> {
     }
 
     private static Supplier<Function<TsInformation, OutlierEstimation[]>> asSupplier(final OutliersOptions options) {
-        return new Supplier<Function<TsInformation, OutlierEstimation[]>>() {
-            @Override
-            public Function<TsInformation, OutlierEstimation[]> get() {
-                final IPreprocessor preprocessor = options.newPreprocessor();
-                return new Function<TsInformation, OutlierEstimation[]>() {
-                    @Override
-                    public OutlierEstimation[] apply(TsInformation input) {
-                        return OutliersOptions.processData(input.data, preprocessor);
-                    }
-                };
-            }
+        return () -> {
+            IPreprocessor preprocessor = options.newPreprocessor();
+            return (TsInformation input) -> OutliersOptions.processData(input.data, preprocessor);
         };
     }
 

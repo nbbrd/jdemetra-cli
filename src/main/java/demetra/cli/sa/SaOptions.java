@@ -23,9 +23,9 @@ import ec.satoolkit.x13.X13Specification;
 import ec.tstoolkit.algorithm.CompositeResults;
 import ec.tstoolkit.algorithm.IProcessing;
 import ec.tstoolkit.timeseries.simplets.TsData;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import lombok.Value;
 
@@ -66,12 +66,8 @@ public class SaOptions {
         if (results == null) {
             throw new IllegalArgumentException("The processing returned no results !");
         }
-        Map<String, TsData> result = new HashMap<>();
-        for (String id : items) {
-            if (results.contains(id)) {
-                result.put(id, results.getData(id, TsData.class));
-            }
-        }
-        return result;
+        return items.stream()
+                .filter(o -> (results.contains(o)))
+                .collect(Collectors.toMap(o -> o, o -> results.getData(o, TsData.class)));
     }
 }

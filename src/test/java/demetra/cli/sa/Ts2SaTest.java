@@ -20,11 +20,7 @@ import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformationType;
 import ec.tss.tsproviders.common.random.RandomBean;
 import ec.tss.tsproviders.common.random.RandomProvider;
-import ec.tstoolkit.timeseries.simplets.TsData;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import org.junit.Test;
 
 /**
@@ -48,12 +44,11 @@ public class Ts2SaTest {
         TsCollectionInformation input = getData();
         SaOptions options = new SaOptions("tramoseats", "RSA1", Arrays.asList("sa"));
 
-        List<Map<String, TsData>> output = Ts2Sa.process(input, options, false);
-        for (Map<String, TsData> o : output) {
-            for (Entry<String, TsData> x : o.entrySet()) {
-                System.out.println(x.getKey() + " > " + x.getValue().getObsCount());
-            }
-        }
+        Ts2Sa.process(input, options, false).stream()
+                .flatMap(o -> o.entrySet().stream())
+                .forEach(x -> {
+                    System.out.println(x.getKey() + " > " + x.getValue().getObsCount());
+                });
     }
 
 }

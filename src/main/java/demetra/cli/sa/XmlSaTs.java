@@ -19,10 +19,7 @@ package demetra.cli.sa;
 import ec.tss.TsInformation;
 import ec.tss.xml.XmlTsData;
 import ec.tstoolkit.timeseries.simplets.TsData;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
@@ -53,14 +50,12 @@ public final class XmlSaTs {
         result.algorithm = saOptions.getAlgorithm();
         result.spec = saOptions.getSpec();
         if (ts.hasData() && !ts.data.isEmpty()) {
-            List<XmlTsData> tmp = new ArrayList<>();
-            for (Entry<String, TsData> o : data.entrySet()) {
+            result.values = data.entrySet().stream().map((o) -> {
                 XmlTsData item = new XmlTsData();
                 item.copy(o.getValue());
                 item.name = o.getKey();
-                tmp.add(item);
-            }
-            result.values = tmp.toArray(new XmlTsData[tmp.size()]);
+                return item;
+            }).toArray(o -> new XmlTsData[o]);
         }
         return result;
     }
