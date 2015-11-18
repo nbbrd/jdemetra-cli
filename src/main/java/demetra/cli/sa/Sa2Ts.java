@@ -17,7 +17,6 @@
 package demetra.cli.sa;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Strings;
 import demetra.cli.helpers.StandardApp;
 import demetra.cli.helpers.BasicArgsParser;
 import demetra.cli.helpers.InputOptions;
@@ -28,15 +27,7 @@ import static demetra.cli.helpers.OptionsSpec.newStandardOptionsSpec;
 import demetra.cli.helpers.OutputOptions;
 import demetra.cli.helpers.StandardOptions;
 import ec.tss.TsCollectionInformation;
-import ec.tss.TsInformation;
 import ec.tss.xml.XmlTsCollection;
-import ec.tss.xml.XmlTsData;
-import ec.tstoolkit.MetaData;
-import ec.tstoolkit.design.IBuilder;
-import java.util.HashMap;
-import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionSet;
 
@@ -60,78 +51,20 @@ public final class Sa2Ts extends StandardApp<Sa2Ts.Parameters> {
 
     @Override
     public void exec(Parameters params) throws Exception {
-        XmlSaTsCollection input = params.input.read(XmlSaTsCollection.class);
+        SaTsCollection input = params.input.readValue(XmlSaTsCollection.class);
 
-        TsCollectionInformation data = process(input, params.so.isVerbose());
+        if (params.so.isVerbose()) {
+            System.err.println("Processing " + input.getItems().size() + " items");
+        }
 
-        params.output.writeValue(XmlTsCollection.class, data);
+        TsCollectionInformation output = input.toTsCollection();
+
+        params.output.writeValue(XmlTsCollection.class, output);
     }
 
     @Override
     protected StandardOptions getStandardOptions(Parameters params) {
         return params.so;
-    }
-
-    @VisibleForTesting
-    static TsCollectionInformation process(XmlSaTsCollection input, boolean verbose) {
-        if (verbose) {
-            System.err.println("Processing " + input.items.length + " items");
-        }
-        TsCollectionInformation result = new TsCollectionInformation();
-        result.metaData = new MetaDataBuilder("sa_")
-                .put("algorithm", input.algorithm)
-                .put("spec", input.spec)
-                .put("name", input.name)
-                .put("identifier", input.identifier)
-                .put("source", input.source)
-                .build();
-        for (XmlSaTs o : input.items) {
-            for (XmlTsData data : o.values) {
-                TsInformation item = new TsInformation();
-                item.metaData = new MetaDataBuilder("sa_")
-                        .put("algorithm", o.algorithm)
-                        .put("spec", o.spec)
-                        .put("name", o.name)
-                        .put("identifier", o.identifier)
-                        .put("source", o.source)
-                        .put("id", data.name)
-                        .build();
-                item.name = o.name + " #" + data.name;
-                item.data = data.create();
-                result.items.add(item);
-            }
-        }
-        return result;
-    }
-
-    private static final class MetaDataBuilder implements IBuilder<MetaData> {
-
-        private final String prefix;
-        private final Map<String, String> map;
-
-        public MetaDataBuilder(String prefix) {
-            this.prefix = prefix;
-            this.map = new HashMap<>();
-        }
-
-        public MetaDataBuilder clear() {
-            map.clear();
-            return this;
-        }
-
-        public MetaDataBuilder put(@Nonnull String key, @Nullable String value) {
-            if (Strings.isNullOrEmpty(value)) {
-                map.remove(prefix + key);
-            } else {
-                map.put(prefix + key, value);
-            }
-            return this;
-        }
-
-        @Override
-        public MetaData build() {
-            return new MetaData(map);
-        }
     }
 
     @VisibleForTesting

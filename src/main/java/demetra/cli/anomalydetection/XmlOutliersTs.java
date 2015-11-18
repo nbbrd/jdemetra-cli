@@ -17,9 +17,11 @@
 package demetra.cli.anomalydetection;
 
 import demetra.xml.XmlOutlierEstimation;
-import ec.tss.TsInformation;
-import ec.tss.tsproviders.utils.MultiLineNameUtil;
+import ec.tss.TsMoniker;
+import ec.tss.xml.IXmlConverter;
 import ec.tstoolkit.timeseries.regression.OutlierEstimation;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
@@ -27,7 +29,7 @@ import javax.xml.bind.annotation.XmlElement;
  *
  * @author Philippe Charles
  */
-public final class XmlOutliersTs {
+public final class XmlOutliersTs implements IXmlConverter<OutliersTs> {
 
     @XmlAttribute
     public String name;
@@ -37,24 +39,37 @@ public final class XmlOutliersTs {
     public String identifier;
     @XmlElement(name = "outlier")
     public XmlOutlierEstimation[] outliers;
+    @XmlElement
+    public String invalidDataCause;
 
-    public static XmlOutliersTs create(TsInformation ts, OutlierEstimation[] outliers) {
-        XmlOutliersTs result = new XmlOutliersTs();
-        result.name = ts.name;
-        result.source = ts.moniker.getSource();
-        result.identifier = ts.moniker.getId();
-        if (ts.hasData() && !ts.data.isEmpty()) {
-            if (outliers != null) {
-                result.outliers = new XmlOutlierEstimation[outliers.length];
-                for (int i = 0; i < outliers.length; i++) {
-                    XmlOutlierEstimation xxx = new XmlOutlierEstimation();
-                    xxx.copy(outliers[i]);
-                    result.outliers[i] = xxx;
-                }
-            } else {
-                System.err.println("BUG: " + MultiLineNameUtil.join(result.name, " \\n "));
-            }
+    @Override
+    public OutliersTs create() {
+        OutliersTs result = new OutliersTs();
+        result.setName(name);
+        result.setMoniker(new TsMoniker(source, identifier));
+        if (invalidDataCause == null) {
+            result.setOutliers(Arrays.asList(outliers).stream().map(XmlOutlierEstimation::create).collect(Collectors.toList()));
+        } else {
+            result.setInvalidDataCause(invalidDataCause);
         }
+        return result;
+    }
+
+    @Override
+    public void copy(OutliersTs t) {
+        name = t.getName();
+        source = t.getMoniker().getSource();
+        identifier = t.getMoniker().getId();
+        if (t.getInvalidDataCause() == null) {
+            outliers = t.getOutliers().stream().map(o -> convert(o)).toArray(o -> new XmlOutlierEstimation[o]);
+        } else {
+            invalidDataCause = t.getInvalidDataCause();
+        }
+    }
+
+    private static XmlOutlierEstimation convert(OutlierEstimation o) {
+        XmlOutlierEstimation result = new XmlOutlierEstimation();
+        result.copy(o);
         return result;
     }
 }

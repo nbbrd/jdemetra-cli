@@ -16,10 +16,11 @@
  */
 package demetra.cli.sa;
 
-import ec.tss.TsCollectionInformation;
-import ec.tstoolkit.timeseries.simplets.TsData;
-import java.util.List;
-import java.util.Map;
+import ec.tss.TsMoniker;
+import ec.tss.xml.IXmlConverter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.stream.Collectors;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -30,7 +31,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Philippe Charles
  */
 @XmlRootElement(name = "sa_tscollection")
-public final class XmlSaTsCollection {
+public final class XmlSaTsCollection implements IXmlConverter<SaTsCollection> {
 
     @XmlAttribute
     public String name;
@@ -46,17 +47,32 @@ public final class XmlSaTsCollection {
     @XmlElementWrapper(name = "data")
     public XmlSaTs[] items;
 
-    public static XmlSaTsCollection create(TsCollectionInformation col, List<Map<String, TsData>> data, SaOptions saOptions) {
-        XmlSaTsCollection result = new XmlSaTsCollection();
-        result.name = col.name;
-        result.source = col.moniker.getSource();
-        result.identifier = col.moniker.getId();
-        result.algorithm = saOptions.getAlgorithm();
-        result.spec = saOptions.getSpec();
-        result.items = new XmlSaTs[data.size()];
-        for (int i = 0; i < result.items.length; i++) {
-            result.items[i] = XmlSaTs.create(col.items.get(i), data.get(i), saOptions);
+    @Override
+    public SaTsCollection create() {
+        SaTsCollection result = new SaTsCollection();
+        result.setName(name);
+        result.setMoniker(new TsMoniker(source, identifier));
+        if (items != null) {
+            result.setItems(Arrays.asList(items).stream().map(XmlSaTs::create).collect(Collectors.toList()));
+        } else {
+            result.setItems(Collections.emptyList());
         }
+        return result;
+    }
+
+    @Override
+    public void copy(SaTsCollection t) {
+        name = t.getName();
+        source = t.getMoniker().getSource();
+        identifier = t.getMoniker().getId();
+        algorithm = t.getAlgorithm();
+        spec = t.getSpec();
+        items = t.getItems().stream().map(o -> convert(o)).toArray(o -> new XmlSaTs[o]);
+    }
+
+    private static XmlSaTs convert(SaTs o) {
+        XmlSaTs result = new XmlSaTs();
+        result.copy(o);
         return result;
     }
 }

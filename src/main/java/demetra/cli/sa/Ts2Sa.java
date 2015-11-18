@@ -25,19 +25,9 @@ import static demetra.cli.helpers.OptionsSpec.newInputOptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newOutputOptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newStandardOptionsSpec;
 import demetra.cli.helpers.OutputOptions;
-import demetra.cli.helpers.ForkJoinTasks;
 import demetra.cli.helpers.StandardOptions;
-import demetra.cli.helpers.Utils;
 import ec.tss.TsCollectionInformation;
-import ec.tss.TsInformation;
 import ec.tss.xml.XmlTsCollection;
-import ec.tstoolkit.algorithm.CompositeResults;
-import ec.tstoolkit.algorithm.IProcessing;
-import ec.tstoolkit.timeseries.simplets.TsData;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -66,31 +56,18 @@ public final class Ts2Sa extends StandardApp<Ts2Sa.Parameters> {
     public void exec(Parameters params) throws Exception {
         TsCollectionInformation input = params.input.readValue(XmlTsCollection.class);
 
-        List<Map<String, TsData>> data = process(input, params.saOptions, params.so.isVerbose());
+        if (params.so.isVerbose()) {
+            System.err.println("Processing " + input.items.size() + " time series");
+        }
 
-        XmlSaTsCollection output = XmlSaTsCollection.create(input, data, params.saOptions);
-        params.output.write(XmlSaTsCollection.class, output);
+        SaTsCollection output = SaTsCollection.create(input, params.saOptions);
+
+        params.output.writeValue(XmlSaTsCollection.class, output);
     }
 
     @Override
     protected StandardOptions getStandardOptions(Parameters params) {
         return params.so;
-    }
-
-    @VisibleForTesting
-    static List<Map<String, TsData>> process(TsCollectionInformation input, SaOptions saOptions, boolean verbose) {
-        if (verbose) {
-            System.err.println("Processing " + input.items.size() + " time series");
-        }
-        Supplier<Function<TsInformation, Map<String, TsData>>> processor = asSupplier(saOptions);
-        return ForkJoinTasks.invoke(verbose ? Utils.withProgress(processor, input.items.size()) : processor, 10, input.items);
-    }
-
-    private static Supplier<Function<TsInformation, Map<String, TsData>>> asSupplier(final SaOptions options) {
-        return () -> {
-            IProcessing<TsData, CompositeResults> processing = options.newProcessing();
-            return (TsInformation input) -> SaOptions.processData(input.data, processing, options.getItems());
-        };
     }
 
     @VisibleForTesting

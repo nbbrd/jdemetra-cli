@@ -19,7 +19,6 @@ package demetra.cli.anomalydetection;
 import com.google.common.annotations.VisibleForTesting;
 import demetra.cli.helpers.StandardApp;
 import demetra.cli.helpers.BasicArgsParser;
-import demetra.cli.helpers.ForkJoinTasks;
 import demetra.cli.helpers.InputOptions;
 import demetra.cli.helpers.OptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newInputOptionsSpec;
@@ -27,13 +26,9 @@ import static demetra.cli.helpers.OptionsSpec.newOutputOptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newStandardOptionsSpec;
 import demetra.cli.helpers.OutputOptions;
 import demetra.cli.helpers.StandardOptions;
-import demetra.cli.helpers.Utils;
 import ec.tss.TsCollectionInformation;
-import ec.tss.TsInformation;
 import ec.tss.xml.XmlTsCollection;
 import ec.tstoolkit.modelling.DefaultTransformationType;
-import ec.tstoolkit.modelling.arima.IPreprocessor;
-import ec.tstoolkit.timeseries.regression.OutlierEstimation;
 import ec.tstoolkit.timeseries.regression.OutlierType;
 import static ec.tstoolkit.timeseries.regression.OutlierType.AO;
 import static ec.tstoolkit.timeseries.regression.OutlierType.LS;
@@ -41,9 +36,6 @@ import static ec.tstoolkit.timeseries.regression.OutlierType.SO;
 import static ec.tstoolkit.timeseries.regression.OutlierType.TC;
 import static java.util.Arrays.asList;
 import java.util.EnumSet;
-import java.util.List;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -72,31 +64,18 @@ public final class Ts2Outliers extends StandardApp<Ts2Outliers.Parameters> {
     public void exec(Parameters params) throws Exception {
         TsCollectionInformation input = params.input.readValue(XmlTsCollection.class);
 
-        List<OutlierEstimation[]> data = process(input, params.spec, params.getSo().isVerbose());
+        if (params.so.isVerbose()) {
+            System.err.println("Processing " + input.items.size() + " time series");
+        }
 
-        XmlOutliersTsCollection output = XmlOutliersTsCollection.create(input, data);
-        params.output.write(XmlOutliersTsCollection.class, output);
+        OutliersTsCollection output = OutliersTsCollection.create(input, params.spec);
+
+        params.output.writeValue(XmlOutliersTsCollection.class, output);
     }
 
     @Override
     protected StandardOptions getStandardOptions(Parameters params) {
         return params.so;
-    }
-
-    @VisibleForTesting
-    static List<OutlierEstimation[]> process(TsCollectionInformation input, OutliersOptions options, boolean verbose) {
-        if (verbose) {
-            System.err.println("Processing " + input.items.size() + " time series");
-        }
-        Supplier<Function<TsInformation, OutlierEstimation[]>> processor = asSupplier(options);
-        return ForkJoinTasks.invoke(verbose ? Utils.withProgress(processor, input.items.size()) : processor, 10, input.items);
-    }
-
-    private static Supplier<Function<TsInformation, OutlierEstimation[]>> asSupplier(final OutliersOptions options) {
-        return () -> {
-            IPreprocessor preprocessor = options.newPreprocessor();
-            return (TsInformation input) -> OutliersOptions.processData(input.data, preprocessor);
-        };
     }
 
     @VisibleForTesting

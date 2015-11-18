@@ -16,9 +16,11 @@
  */
 package demetra.cli.anomalydetection;
 
-import ec.tss.TsCollectionInformation;
-import ec.tstoolkit.timeseries.regression.OutlierEstimation;
-import java.util.List;
+import ec.tss.TsMoniker;
+import ec.tss.xml.IXmlConverter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.stream.Collectors;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -29,7 +31,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Philippe Charles
  */
 @XmlRootElement(name = "outliers_tscollection")
-public final class XmlOutliersTsCollection {
+public final class XmlOutliersTsCollection implements IXmlConverter<OutliersTsCollection> {
 
     @XmlAttribute
     public String name;
@@ -41,15 +43,30 @@ public final class XmlOutliersTsCollection {
     @XmlElementWrapper(name = "data")
     public XmlOutliersTs[] items;
 
-    public static XmlOutliersTsCollection create(TsCollectionInformation col, List<OutlierEstimation[]> data) {
-        XmlOutliersTsCollection result = new XmlOutliersTsCollection();
-        result.name = col.name;
-        result.source = col.moniker.getSource();
-        result.identifier = col.moniker.getId();
-        result.items = new XmlOutliersTs[data.size()];
-        for (int i = 0; i < result.items.length; i++) {
-            result.items[i] = XmlOutliersTs.create(col.items.get(i), data.get(i));
+    @Override
+    public OutliersTsCollection create() {
+        OutliersTsCollection result = new OutliersTsCollection();
+        result.setName(name);
+        result.setMoniker(new TsMoniker(source, identifier));
+        if (items != null) {
+            result.setItems(Arrays.asList(items).stream().map(XmlOutliersTs::create).collect(Collectors.toList()));
+        } else {
+            result.setItems(Collections.emptyList());
         }
+        return result;
+    }
+
+    @Override
+    public void copy(OutliersTsCollection t) {
+        name = t.getName();
+        source = t.getMoniker().getSource();
+        identifier = t.getMoniker().getId();
+        items = t.getItems().stream().map(XmlOutliersTsCollection::convert).toArray(o -> new XmlOutliersTs[o]);
+    }
+
+    private static XmlOutliersTs convert(OutliersTs o) {
+        XmlOutliersTs result = new XmlOutliersTs();
+        result.copy(o);
         return result;
     }
 }

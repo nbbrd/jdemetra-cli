@@ -44,11 +44,10 @@ public class Ts2SaTest {
         TsCollectionInformation input = getData();
         SaOptions options = new SaOptions("tramoseats", "RSA1", Arrays.asList("sa"));
 
-        Ts2Sa.process(input, options, false).stream()
-                .flatMap(o -> o.entrySet().stream())
+        SaTsCollection.create(input, options).getItems().stream()
+                .flatMap(o -> o.getData().entrySet().stream())
                 .forEach(x -> {
                     System.out.println(x.getKey() + " > " + x.getValue().getObsCount());
                 });
     }
-
 }

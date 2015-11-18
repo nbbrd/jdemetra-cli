@@ -23,11 +23,10 @@ import lombok.Value;
  * @author Philippe Charles
  */
 @Value
-public final class ChartOptions {
+public class ChartOptions {
 
-    private final int width;
-    private final int height;
-    private final String colorScheme;
-    private final String title;
-
+    private int width;
+    private int height;
+    private String colorScheme;
+    private String title;
 }

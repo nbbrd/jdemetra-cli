@@ -16,10 +16,13 @@
  */
 package demetra.cli.sa;
 
-import ec.tss.TsInformation;
+import ec.tss.TsMoniker;
+import ec.tss.xml.IXmlConverter;
 import ec.tss.xml.XmlTsData;
 import ec.tstoolkit.timeseries.simplets.TsData;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
@@ -27,7 +30,7 @@ import javax.xml.bind.annotation.XmlElement;
  *
  * @author Philippe Charles
  */
-public final class XmlSaTs {
+public final class XmlSaTs implements IXmlConverter<SaTs> {
 
     @XmlAttribute
     public String name;
@@ -41,22 +44,44 @@ public final class XmlSaTs {
     public String spec;
     @XmlElement(name = "sa")
     public XmlTsData[] values;
+    @XmlElement
+    public String invalidDataCause;
 
-    public static XmlSaTs create(TsInformation ts, Map<String, TsData> data, SaOptions saOptions) {
-        XmlSaTs result = new XmlSaTs();
-        result.name = ts.name;
-        result.source = ts.moniker.getSource();
-        result.identifier = ts.moniker.getId();
-        result.algorithm = saOptions.getAlgorithm();
-        result.spec = saOptions.getSpec();
-        if (ts.hasData() && !ts.data.isEmpty()) {
-            result.values = data.entrySet().stream().map((o) -> {
-                XmlTsData item = new XmlTsData();
-                item.copy(o.getValue());
-                item.name = o.getKey();
-                return item;
-            }).toArray(o -> new XmlTsData[o]);
+    @Override
+    public SaTs create() {
+        SaTs result = new SaTs();
+        result.setName(name);
+        result.setMoniker(new TsMoniker(source, identifier));
+        result.setAlgorithm(algorithm);
+        result.setSpec(spec);
+        if (invalidDataCause == null) {
+            result.setData(Arrays.asList(values).stream().collect(Collectors.toMap(o -> o.name, o -> o.create())));
+            result.setInvalidDataCause(null);
+        } else {
+            result.setData(null);
+            result.setInvalidDataCause(invalidDataCause);
         }
+        return result;
+    }
+
+    @Override
+    public void copy(SaTs t) {
+        name = t.getName();
+        source = t.getMoniker().getSource();
+        identifier = t.getMoniker().getId();
+        algorithm = t.getAlgorithm();
+        spec = t.getSpec();
+        if (t.getInvalidDataCause() == null) {
+            values = t.getData().entrySet().stream().map(o -> convert(o)).toArray(o -> new XmlTsData[o]);
+        } else {
+            invalidDataCause = t.getInvalidDataCause();
+        }
+    }
+
+    private static XmlTsData convert(Entry<String, TsData> o) {
+        XmlTsData result = new XmlTsData();
+        result.copy(o.getValue());
+        result.name = o.getKey();
         return result;
     }
 }
