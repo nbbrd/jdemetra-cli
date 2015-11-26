@@ -175,6 +175,10 @@
                             <id>xml2ts</id>
                         </program>
                         <program>
+                            <mainClass>demetra.cli.tsproviders.Txt2Ts</mainClass>
+                            <id>txt2ts</id>
+                        </program>
+                        <program>
                             <mainClass>demetra.cli.tsproviders.Ts2SpreadSheet</mainClass>
                             <id>ts2spreadsheet</id>
                         </program>
