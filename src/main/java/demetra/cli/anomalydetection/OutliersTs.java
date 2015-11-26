@@ -18,12 +18,15 @@ package demetra.cli.anomalydetection;
 
 import ec.tss.TsInformation;
 import ec.tss.TsMoniker;
+import static ec.tstoolkit.modelling.arima.CheckLast.MAX_MISSING_COUNT;
+import static ec.tstoolkit.modelling.arima.CheckLast.MAX_REPEAT_COUNT;
 import ec.tstoolkit.modelling.arima.PreprocessingModel;
 import ec.tstoolkit.timeseries.regression.OutlierEstimation;
+import ec.tstoolkit.timeseries.simplets.TsData;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import lombok.Data;
 
 /**
@@ -43,20 +46,47 @@ public class OutliersTs {
         OutliersTs result = new OutliersTs();
         result.setName(info.name);
         result.setMoniker(info.moniker);
-        if (info.data != null && !info.data.isEmpty()) {
+        String error = checkData(info.data);
+        if (error == null) {
             PreprocessingModel model = options.newPreprocessor().process(info.data, null);
             if (model != null) {
-                result.setOutliers(Arrays.asList(model.outliersEstimation(true, false)));
-                result.setInvalidDataCause(null);
+                OutlierEstimation[] outliers = model.outliersEstimation(true, false);
+                if (outliers != null) {
+                    result.setOutliers(Arrays.asList(outliers));
+                    result.setInvalidDataCause(null);
+                } else {
+                    result.setOutliers(null);
+                    result.setInvalidDataCause("Bug: missing likelihood");
+                }
             } else {
-                // BUG
                 result.setOutliers(null);
-                result.setInvalidDataCause("No preprocessing model");
+                result.setInvalidDataCause("Bug: no preprocessing model");
             }
         } else {
-            result.setOutliers(Collections.emptyList());
-            result.setInvalidDataCause(null);
+            result.setOutliers(null);
+            result.setInvalidDataCause(error);
         }
         return result;
+    }
+
+    @Nullable
+    private static String checkData(@Nullable final TsData y) {
+        if (y == null || y.isEmpty()) {
+            return "Missing data";
+        }
+        int nz = y.getObsCount();
+        int ifreq = y.getFrequency().intValue();
+        if (nz < Math.max(8, 3 * ifreq)) {
+            return "Not enough obs";
+        }
+        int nrepeat = y.getValues().getRepeatCount();
+        if (nrepeat > MAX_REPEAT_COUNT * nz / 100) {
+            return "Too much repeated obs";
+        }
+        int nm = y.getValues().getMissingValuesCount();
+        if (nm > MAX_MISSING_COUNT * nz / 100) {
+            return "Too much missing obs";
+        }
+        return null;
     }
 }
