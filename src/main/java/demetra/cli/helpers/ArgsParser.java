@@ -27,10 +27,10 @@ import javax.annotation.Nonnull;
  * @author Philippe Charles
  * @param <T>
  */
-public abstract class ArgsParser<T> {
+public interface ArgsParser<T> {
 
     @Nonnull
-    abstract public T parse(@Nonnull String... args) throws IllegalArgumentException;
+    T parse(@Nonnull String... args) throws IllegalArgumentException;
 
-    abstract public void printHelp(@Nonnull PrintStream stream);
+    void printHelp(@Nonnull PrintStream stream);
 }

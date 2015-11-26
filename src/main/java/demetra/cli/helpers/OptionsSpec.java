@@ -19,6 +19,7 @@ package demetra.cli.helpers;
 import java.io.File;
 import static java.util.Arrays.asList;
 import java.util.Optional;
+import javax.annotation.Nonnull;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -28,28 +29,31 @@ import joptsimple.OptionSpec;
  * @author Philippe Charles
  * @param <T>
  */
-public abstract class OptionsSpec<T> {
+public interface OptionsSpec<T> {
 
-    abstract public T value(OptionSet options);
+    T value(@Nonnull OptionSet options);
 
-    public static OptionsSpec<StandardOptions> newStandardOptionsSpec(OptionParser parser) {
+    @Nonnull
+    public static OptionsSpec<StandardOptions> newStandardOptionsSpec(@Nonnull OptionParser parser) {
         return new MegaOptionSpecImpl(parser);
     }
 
-    public static OptionsSpec<InputOptions> newInputOptionsSpec(OptionParser parser) {
+    @Nonnull
+    public static OptionsSpec<InputOptions> newInputOptionsSpec(@Nonnull OptionParser parser) {
         return new InputParser(parser);
     }
 
-    public static OptionsSpec<OutputOptions> newOutputOptionsSpec(OptionParser parser) {
+    @Nonnull
+    public static OptionsSpec<OutputOptions> newOutputOptionsSpec(@Nonnull OptionParser parser) {
         return new OutputParser(parser);
     }
 
     //<editor-fold defaultstate="collapsed" desc="Implementation details">
-    private static <X> Optional<X> optional(OptionSet options, OptionSpec<X> spec) {
+    static <X> Optional<X> optional(OptionSet options, OptionSpec<X> spec) {
         return Optional.ofNullable(options.has(spec) ? spec.value(options) : null);
     }
 
-    private static final class MegaOptionSpecImpl extends OptionsSpec<StandardOptions> {
+    static final class MegaOptionSpecImpl implements OptionsSpec<StandardOptions> {
 
         private final OptionSpec<Void> help;
         private final OptionSpec<Void> version;
@@ -71,7 +75,7 @@ public abstract class OptionsSpec<T> {
         }
     }
 
-    private static final class InputParser extends OptionsSpec<InputOptions> {
+    static final class InputParser implements OptionsSpec<InputOptions> {
 
         private final OptionSpec<File> file;
         private final OptionSpec<String> mediaType;
@@ -94,7 +98,7 @@ public abstract class OptionsSpec<T> {
         }
     }
 
-    private static final class OutputParser extends OptionsSpec<OutputOptions> {
+    static final class OutputParser implements OptionsSpec<OutputOptions> {
 
         private final OptionSpec<File> file;
         private final OptionSpec<String> mediaType;

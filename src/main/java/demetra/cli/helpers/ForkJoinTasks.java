@@ -26,16 +26,14 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import lombok.experimental.UtilityClass;
 
 /**
  *
  * @author Philippe Charles
  */
-public final class ForkJoinTasks {
-
-    private ForkJoinTasks() {
-        // static class
-    }
+@UtilityClass
+public class ForkJoinTasks {
 
     @Nonnull
     public static <X, Y> ForkJoinTask<List<Y>> asTask(final @Nonnull Supplier<Function<X, Y>> processor, @Nonnegative int threshold, @Nonnull List<X> input) {

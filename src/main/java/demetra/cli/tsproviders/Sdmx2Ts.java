@@ -36,6 +36,7 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
 /**
+ * Retrieves time series from an SDMX file.
  *
  * @author Philippe Charles
  */
@@ -76,30 +77,30 @@ public final class Sdmx2Ts extends StandardApp<Sdmx2Ts.Parameters> {
         private final OptionsSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet options) {
+        protected Parameters parse(OptionSet o) {
             Parameters result = new Parameters();
-            result.sdmx = sdmx.value(options);
-            result.output = output.value(options);
-            result.so = so.value(options);
+            result.sdmx = sdmx.value(o);
+            result.output = output.value(o);
+            result.so = so.value(o);
             return result;
         }
     }
 
-    private static final class SdmxOptionsSpec extends OptionsSpec<SdmxBean> {
+    private static final class SdmxOptionsSpec implements OptionsSpec<SdmxBean> {
 
         private final OptionSpec<File> file;
         private final OptionSpec<String> label;
 
-        public SdmxOptionsSpec(OptionParser parser) {
-            this.file = parser.nonOptions("Input file").ofType(File.class);
-            this.label = parser.accepts("label").withRequiredArg().defaultsTo("");
+        public SdmxOptionsSpec(OptionParser p) {
+            this.file = p.nonOptions("Input file").ofType(File.class);
+            this.label = p.accepts("label").withRequiredArg().defaultsTo("");
         }
 
         @Override
-        public SdmxBean value(OptionSet options) {
+        public SdmxBean value(OptionSet o) {
             SdmxBean input = new SdmxBean();
-            input.setFile(options.has(file) ? file.value(options) : null);
-            input.setTitleAttribute(label.value(options));
+            input.setFile(o.has(file) ? file.value(o) : null);
+            input.setTitleAttribute(label.value(o));
             return input;
         }
     }

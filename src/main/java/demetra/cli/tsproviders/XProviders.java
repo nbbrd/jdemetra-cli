@@ -30,6 +30,7 @@ import ec.tss.tsproviders.IDataSourceProvider;
 import ec.tss.tsproviders.IFileLoader;
 import java.io.File;
 import java.net.URI;
+import javax.annotation.Nonnull;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -39,7 +40,8 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class XProviders {
 
-    public static TsCollectionInformation getTsCollection(Iterable<ITsProvider> providers, URI uri, TsInformationType scope) {
+    @Nonnull
+    public static TsCollectionInformation getTsCollection(@Nonnull Iterable<ITsProvider> providers, @Nonnull URI uri, @Nonnull TsInformationType scope) {
         Optional<DataSource> dataSource = DataSource.uriParser().tryParse(uri.toString());
         if (dataSource.isPresent()) {
             Optional<IDataSourceProvider> provider = lookup(providers, IDataSourceProvider.class, dataSource.get().getProviderName());
@@ -68,11 +70,12 @@ public class XProviders {
         throw new IllegalArgumentException(uri.toString());
     }
 
-    public static TsCollectionInformation getTsCollection(IDataSourceLoader loader, Object bean, TsInformationType scope) {
+    @Nonnull
+    public static TsCollectionInformation getTsCollection(@Nonnull IDataSourceLoader loader, @Nonnull Object bean, @Nonnull TsInformationType scope) {
         return getTsCollection((IDataSourceProvider) loader, loader.encodeBean(bean), scope);
     }
 
-    public static void applyWorkingDir(IFileLoader provider) {
+    public static void applyWorkingDir(@Nonnull IFileLoader provider) {
         provider.setPaths(new File[]{new File(StandardSystemProperty.USER_DIR.value())});
     }
 

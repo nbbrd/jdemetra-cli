@@ -37,17 +37,17 @@ import javax.xml.bind.Unmarshaller;
  * @author Philippe Charles
  * @param <T>
  */
-public abstract class BasicSerializer<T> {
+public interface BasicSerializer<T> {
 
-    abstract public void serialize(@Nonnull T value, @Nonnull File output) throws IOException;
+    void serialize(@Nonnull T value, @Nonnull File output) throws IOException;
 
-    abstract public void serialize(@Nonnull T value, @Nonnull OutputStream output) throws IOException;
-
-    @Nonnull
-    abstract public T deserialize(@Nonnull File output) throws IOException;
+    void serialize(@Nonnull T value, @Nonnull OutputStream output) throws IOException;
 
     @Nonnull
-    abstract public T deserialize(@Nonnull InputStream output) throws IOException;
+    T deserialize(@Nonnull File output) throws IOException;
+
+    @Nonnull
+    T deserialize(@Nonnull InputStream output) throws IOException;
 
     @Nonnull
     public static <X> BasicSerializer<X> of(@Nonnull MediaType type, @Nonnull Class<X> x, boolean formattedOutput) {
@@ -61,7 +61,7 @@ public abstract class BasicSerializer<T> {
     }
 
     //<editor-fold defaultstate="collapsed" desc="Implementation details">
-    private static <X> BasicSerializer<X> jackson(final Class<X> x, final boolean formattedOutput) {
+    static <X> BasicSerializer<X> jackson(final Class<X> x, final boolean formattedOutput) {
         return new BasicSerializer<X>() {
 
             private ObjectWriter getWriter() {
@@ -83,7 +83,7 @@ public abstract class BasicSerializer<T> {
 
             @Override
             public void serialize(X value, OutputStream output) throws IOException {
-                getWriter().writeValue(new Adapter(output), value);
+                getWriter().writeValue(new NonCloseableOutputStream(output), value);
             }
 
             @Override
@@ -98,7 +98,7 @@ public abstract class BasicSerializer<T> {
         };
     }
 
-    private static <X> BasicSerializer<X> jaxb(final Class<X> x, final boolean formattedOutput) {
+    static <X> BasicSerializer<X> jaxb(final Class<X> x, final boolean formattedOutput) {
         return new BasicSerializer<X>() {
             private Marshaller getMarshaller() throws JAXBException {
                 JAXBContext context = JAXBContext.newInstance(x);
@@ -150,11 +150,11 @@ public abstract class BasicSerializer<T> {
         };
     }
 
-    private static final class Adapter extends OutputStream {
+    static final class NonCloseableOutputStream extends OutputStream {
 
         private final OutputStream delegate;
 
-        public Adapter(OutputStream stream) {
+        public NonCloseableOutputStream(OutputStream stream) {
             this.delegate = stream;
         }
 

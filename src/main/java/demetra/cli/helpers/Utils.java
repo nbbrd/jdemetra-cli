@@ -30,16 +30,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
+import lombok.experimental.UtilityClass;
 
 /**
  *
  * @author Philippe Charles
  */
-public final class Utils {
-
-    private Utils() {
-        // static class
-    }
+@UtilityClass
+public class Utils {
 
     public static void printVersion(Class<?> clazz, PrintStream stream) {
         stream.println(clazz.getSimpleName() + " " + getAPIVersion(clazz));

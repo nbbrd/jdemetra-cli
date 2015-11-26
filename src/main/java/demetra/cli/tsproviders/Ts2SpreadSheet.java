@@ -39,6 +39,7 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
 /**
+ * Converts time series to a spreadsheet file.
  *
  * @author Philippe Charles
  */
@@ -92,33 +93,33 @@ public final class Ts2SpreadSheet extends StandardApp<Ts2SpreadSheet.Parameters>
         private final OptionsSpec<TsExportOptions> exportOptions = new TsExportOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet options) {
+        protected Parameters parse(OptionSet o) {
             Parameters result = new Parameters();
-            result.input = input.value(options);
-            result.outputFile = options.has(outputFile) ? outputFile.value(options) : null;
-            result.exportOptions = exportOptions.value(options);
-            result.so = so.value(options);
+            result.input = input.value(o);
+            result.outputFile = o.has(outputFile) ? outputFile.value(o) : null;
+            result.exportOptions = exportOptions.value(o);
+            result.so = so.value(o);
             return result;
         }
     }
 
-    private static final class TsExportOptionsSpec extends OptionsSpec<TsExportOptions> {
+    private static final class TsExportOptionsSpec implements OptionsSpec<TsExportOptions> {
 
         private final OptionSpec<Void> horizontal;
         private final OptionSpec<Void> hideDates;
         private final OptionSpec<Void> hideNames;
         private final OptionSpec<Void> endPeriod;
 
-        public TsExportOptionsSpec(OptionParser parser) {
-            this.horizontal = parser.accepts("horizontal");
-            this.hideDates = parser.accepts("hideDates");
-            this.hideNames = parser.accepts("hideNames");
-            this.endPeriod = parser.accepts("endPeriod");
+        public TsExportOptionsSpec(OptionParser p) {
+            this.horizontal = p.accepts("horizontal");
+            this.hideDates = p.accepts("hideDates");
+            this.hideNames = p.accepts("hideNames");
+            this.endPeriod = p.accepts("endPeriod");
         }
 
         @Override
-        public TsExportOptions value(OptionSet options) {
-            return TsExportOptions.create(!options.has(horizontal), !options.has(hideDates), !options.has(hideNames), !options.has(endPeriod));
+        public TsExportOptions value(OptionSet o) {
+            return TsExportOptions.create(!o.has(horizontal), !o.has(hideDates), !o.has(hideNames), !o.has(endPeriod));
         }
     }
 }

@@ -42,6 +42,7 @@ import joptsimple.OptionSpec;
 import lombok.Value;
 
 /**
+ * Computes outliers from time series.
  *
  * @author Philippe Charles
  */
@@ -87,35 +88,35 @@ public final class Ts2Outliers extends StandardApp<Ts2Outliers.Parameters> {
         private final OptionsSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet options) {
-            return new Parameters(so.value(options), input.value(options), spec.value(options), output.value(options));
+        protected Parameters parse(OptionSet o) {
+            return new Parameters(so.value(o), input.value(o), spec.value(o), output.value(o));
         }
     }
 
-    private static final class OutliersOptionsSpec extends OptionsSpec<OutliersOptions> {
+    private static final class OutliersOptionsSpec implements OptionsSpec<OutliersOptions> {
 
         private final OptionSpec<DefaultSpec> defaultSpec;
         private final OptionSpec<Double> critVal;
         private final OptionSpec<DefaultTransformationType> transformation;
         private final OptionSpec<OutlierType> outlierTypes;
 
-        public OutliersOptionsSpec(OptionParser parser) {
-            this.defaultSpec = parser
+        public OutliersOptionsSpec(OptionParser p) {
+            this.defaultSpec = p
                     .acceptsAll(asList("s", "default-spec"), "Default spec " + BasicArgsParser.toString(DefaultSpec.values()))
                     .withRequiredArg()
                     .ofType(DefaultSpec.class)
                     .defaultsTo(DefaultSpec.TR4);
-            this.critVal = parser
+            this.critVal = p
                     .acceptsAll(asList("c", "critical-value"), "Critical value")
                     .withRequiredArg()
                     .ofType(Double.class)
                     .defaultsTo(0d);
-            this.transformation = parser
+            this.transformation = p
                     .acceptsAll(asList("t", "transformation"), "Transformation " + BasicArgsParser.toString(DefaultTransformationType.values()))
                     .withRequiredArg()
                     .ofType(DefaultTransformationType.class)
                     .defaultsTo(DefaultTransformationType.None);
-            this.outlierTypes = parser
+            this.outlierTypes = p
                     .acceptsAll(asList("x", "outlier-types"), "Comma-separated list of outlier types " + BasicArgsParser.toString(AO, LS, TC, SO))
                     .withRequiredArg()
                     .ofType(OutlierType.class)
@@ -124,8 +125,8 @@ public final class Ts2Outliers extends StandardApp<Ts2Outliers.Parameters> {
         }
 
         @Override
-        public OutliersOptions value(OptionSet options) {
-            return new OutliersOptions(defaultSpec.value(options), critVal.value(options), transformation.value(options), EnumSet.copyOf(outlierTypes.values(options)));
+        public OutliersOptions value(OptionSet o) {
+            return new OutliersOptions(defaultSpec.value(o), critVal.value(o), transformation.value(o), EnumSet.copyOf(outlierTypes.values(o)));
         }
     }
 }

@@ -38,6 +38,7 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
 /**
+ * Computes descriptive statistics from time series.
  *
  * @author Philippe Charles
  */
@@ -137,22 +138,22 @@ public final class Ts2DStats extends StandardApp<Ts2DStats.Parameters> {
         private final OptionsSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet options) {
+        protected Parameters parse(OptionSet o) {
             Parameters result = new Parameters();
-            result.input = input.value(options);
-            result.items = items.value(options);
-            result.output = output.value(options);
-            result.so = so.value(options);
+            result.input = input.value(o);
+            result.items = items.value(o);
+            result.output = output.value(o);
+            result.so = so.value(o);
             return result;
         }
     }
 
-    private static final class ItemsToIncludeOptionsSpec extends OptionsSpec<EnumSet<DStatsItem>> {
+    private static final class ItemsToIncludeOptionsSpec implements OptionsSpec<EnumSet<DStatsItem>> {
 
         private final OptionSpec<DStatsItem> items;
 
-        public ItemsToIncludeOptionsSpec(OptionParser parser) {
-            this.items = parser
+        public ItemsToIncludeOptionsSpec(OptionParser p) {
+            this.items = p
                     .accepts("include", "Comma-separated list of items to include " + Arrays.toString(DStatsItem.values()))
                     .withRequiredArg()
                     .ofType(DStatsItem.class)
@@ -160,8 +161,8 @@ public final class Ts2DStats extends StandardApp<Ts2DStats.Parameters> {
         }
 
         @Override
-        public EnumSet<DStatsItem> value(OptionSet options) {
-            return options.has(items) ? EnumSet.copyOf(items.values(options)) : EnumSet.allOf(DStatsItem.class);
+        public EnumSet<DStatsItem> value(OptionSet o) {
+            return o.has(items) ? EnumSet.copyOf(items.values(o)) : EnumSet.allOf(DStatsItem.class);
         }
     }
 }

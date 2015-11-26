@@ -150,22 +150,22 @@ public final class TsAggregate extends StandardApp<TsAggregate.Parameters> {
         private final OptionsSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected TsAggregate.Parameters parse(OptionSet options) {
+        protected TsAggregate.Parameters parse(OptionSet o) {
             Parameters result = new Parameters();
-            result.input = input.value(options);
-            result.weights = weights.value(options);
-            result.output = output.value(options);
-            result.so = so.value(options);
+            result.input = input.value(o);
+            result.weights = weights.value(o);
+            result.output = output.value(o);
+            result.so = so.value(o);
             return result;
         }
     }
 
-    private static final class WeightsSpec extends OptionsSpec<List<Integer>> {
+    private static final class WeightsSpec implements OptionsSpec<List<Integer>> {
 
         private final OptionSpec<Integer> itemsToRemove;
 
-        public WeightsSpec(OptionParser parser) {
-            this.itemsToRemove = parser
+        public WeightsSpec(OptionParser p) {
+            this.itemsToRemove = p
                     .acceptsAll(asList("w", "weights"), "Comma-separated list of weights")
                     .withRequiredArg()
                     .ofType(Integer.class)
@@ -173,8 +173,8 @@ public final class TsAggregate extends StandardApp<TsAggregate.Parameters> {
         }
 
         @Override
-        public List<Integer> value(OptionSet options) {
-            return itemsToRemove.values(options);
+        public List<Integer> value(OptionSet o) {
+            return itemsToRemove.values(o);
         }
     }
 }

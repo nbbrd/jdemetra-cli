@@ -32,7 +32,7 @@ import joptsimple.OptionSet;
  * @author Philippe Charles
  * @param <T>
  */
-public abstract class BasicArgsParser<T> extends ArgsParser<T> {
+public abstract class BasicArgsParser<T> implements ArgsParser<T> {
 
     protected final OptionParser parser = newOptionParser();
 

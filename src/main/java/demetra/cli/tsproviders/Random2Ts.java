@@ -36,6 +36,7 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
 /**
+ * Creates random time series.
  *
  * @author Philippe Charles
  */
@@ -74,16 +75,16 @@ public final class Random2Ts extends StandardApp<Random2Ts.Parameters> {
         private final OptionsSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet options) {
+        protected Parameters parse(OptionSet o) {
             Parameters result = new Parameters();
-            result.input = random.value(options);
-            result.output = output.value(options);
-            result.so = so.value(options);
+            result.input = random.value(o);
+            result.output = output.value(o);
+            result.so = so.value(o);
             return result;
         }
     }
 
-    private static final class RandomOptionsSpec extends OptionsSpec<RandomBean> {
+    private static final class RandomOptionsSpec implements OptionsSpec<RandomBean> {
 
         private final OptionSpec<Integer> seed;
         private final OptionSpec<Integer> length;
@@ -97,45 +98,34 @@ public final class Random2Ts extends StandardApp<Random2Ts.Parameters> {
         private final OptionSpec<Double> coeff;
         private final OptionSpec<Integer> count;
 
-        public RandomOptionsSpec(OptionParser parser) {
-            this.seed = parser.accepts("seed")
-                    .withRequiredArg().ofType(Integer.class).defaultsTo(0);
-            this.length = parser.accepts("length")
-                    .withRequiredArg().ofType(Integer.class).defaultsTo(240);
-            this.p = parser.accepts("p")
-                    .withRequiredArg().ofType(Integer.class).defaultsTo(0);
-            this.d = parser.accepts("d")
-                    .withRequiredArg().ofType(Integer.class).defaultsTo(1);
-            this.q = parser.accepts("q")
-                    .withRequiredArg().ofType(Integer.class).defaultsTo(1);
-            this.s = parser.accepts("s")
-                    .withRequiredArg().ofType(Integer.class).defaultsTo(12);
-            this.bp = parser.accepts("bp")
-                    .withRequiredArg().ofType(Integer.class).defaultsTo(0);
-            this.bd = parser.accepts("bd")
-                    .withRequiredArg().ofType(Integer.class).defaultsTo(1);
-            this.bq = parser.accepts("bq")
-                    .withRequiredArg().ofType(Integer.class).defaultsTo(1);
-            this.coeff = parser.accepts("coeff")
-                    .withRequiredArg().ofType(Double.class).defaultsTo(-.8, -.6);
-            this.count = parser.accepts("count")
-                    .withRequiredArg().ofType(Integer.class).defaultsTo(100);
+        public RandomOptionsSpec(OptionParser p) {
+            this.seed = p.accepts("seed").withRequiredArg().ofType(Integer.class).defaultsTo(0);
+            this.length = p.accepts("length").withRequiredArg().ofType(Integer.class).defaultsTo(240);
+            this.p = p.accepts("p").withRequiredArg().ofType(Integer.class).defaultsTo(0);
+            this.d = p.accepts("d").withRequiredArg().ofType(Integer.class).defaultsTo(1);
+            this.q = p.accepts("q").withRequiredArg().ofType(Integer.class).defaultsTo(1);
+            this.s = p.accepts("s").withRequiredArg().ofType(Integer.class).defaultsTo(12);
+            this.bp = p.accepts("bp").withRequiredArg().ofType(Integer.class).defaultsTo(0);
+            this.bd = p.accepts("bd").withRequiredArg().ofType(Integer.class).defaultsTo(1);
+            this.bq = p.accepts("bq").withRequiredArg().ofType(Integer.class).defaultsTo(1);
+            this.coeff = p.accepts("coeff").withRequiredArg().ofType(Double.class).defaultsTo(-.8, -.6);
+            this.count = p.accepts("count").withRequiredArg().ofType(Integer.class).defaultsTo(100);
         }
 
         @Override
-        public RandomBean value(OptionSet options) {
+        public RandomBean value(OptionSet o) {
             RandomBean result = new RandomBean();
-            result.setSeed(seed.value(options));
-            result.setLength(length.value(options));
-            result.setP(p.value(options));
-            result.setD(d.value(options));
-            result.setQ(q.value(options));
-            result.setS(s.value(options));
-            result.setBp(bp.value(options));
-            result.setBd(bd.value(options));
-            result.setBq(bq.value(options));
-            result.setCoeff(Doubles.toArray(coeff.values(options)));
-            result.setCount(count.value(options));
+            result.setSeed(seed.value(o));
+            result.setLength(length.value(o));
+            result.setP(p.value(o));
+            result.setD(d.value(o));
+            result.setQ(q.value(o));
+            result.setS(s.value(o));
+            result.setBp(bp.value(o));
+            result.setBd(bd.value(o));
+            result.setBq(bq.value(o));
+            result.setCoeff(Doubles.toArray(coeff.values(o)));
+            result.setCount(count.value(o));
             return result;
         }
     }

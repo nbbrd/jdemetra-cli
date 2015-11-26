@@ -39,6 +39,7 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
 /**
+ * Retrieves time series from an ODBC DSN.
  *
  * @author Philippe Charles
  */
@@ -73,20 +74,20 @@ public final class Odbc2Ts extends StandardApp<Odbc2Ts.Parameters> {
     static final class Parser extends BasicArgsParser<Parameters> {
 
         private final OptionsSpec<StandardOptions> so = newStandardOptionsSpec(parser);
-        private final OptionsSpec<OdbcBean> random = new RandomOptionsSpec(parser);
+        private final OptionsSpec<OdbcBean> input = new OdbcOptionsSpec(parser);
         private final OptionsSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet options) {
+        protected Parameters parse(OptionSet o) {
             Parameters result = new Parameters();
-            result.input = random.value(options);
-            result.output = output.value(options);
-            result.so = so.value(options);
+            result.input = input.value(o);
+            result.output = output.value(o);
+            result.so = so.value(o);
             return result;
         }
     }
 
-    private static final class RandomOptionsSpec extends OptionsSpec<OdbcBean> {
+    private static final class OdbcOptionsSpec implements OptionsSpec<OdbcBean> {
 
         private final OptionSpec<String> dbName;
         private final OptionSpec<String> tableName;
@@ -100,7 +101,7 @@ public final class Odbc2Ts extends StandardApp<Odbc2Ts.Parameters> {
         private final OptionSpec<TsFrequency> frequency;
         private final OptionSpec<TsAggregationType> aggregationType;
 
-        public RandomOptionsSpec(OptionParser p) {
+        public OdbcOptionsSpec(OptionParser p) {
             this.dbName = p.accepts("dsn").withRequiredArg().ofType(String.class).defaultsTo("");
             this.tableName = p.accepts("table").withRequiredArg().ofType(String.class).defaultsTo("");
             this.dimColumns = p.accepts("dims").withRequiredArg().ofType(String.class).withValuesSeparatedBy(',').defaultsTo("");

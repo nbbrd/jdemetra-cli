@@ -32,6 +32,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionSet;
 
 /**
+ * Converts seasonal adjustment report to time series.
  *
  * @author Philippe Charles
  */
@@ -75,11 +76,11 @@ public final class Sa2Ts extends StandardApp<Sa2Ts.Parameters> {
         private final OptionsSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet options) {
+        protected Parameters parse(OptionSet o) {
             Parameters result = new Parameters();
-            result.input = input.value(options);
-            result.output = output.value(options);
-            result.so = so.value(options);
+            result.input = input.value(o);
+            result.output = output.value(o);
+            result.so = so.value(o);
             return result;
         }
     }

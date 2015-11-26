@@ -28,7 +28,6 @@ import demetra.cli.helpers.OutputOptions;
 import demetra.cli.helpers.StandardOptions;
 import demetra.xml.TsPeriodSelectorAdapter;
 import ec.tss.TsCollectionInformation;
-import ec.tss.TsInformation;
 import ec.tss.TsInformationType;
 import ec.tss.TsMoniker;
 import ec.tss.xml.XmlTsCollection;
@@ -117,50 +116,50 @@ public final class TsFilter extends StandardApp<TsFilter.Parameters> {
         private final OptionsSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet options) {
+        protected Parameters parse(OptionSet o) {
             Parameters result = new Parameters();
-            result.input = input.value(options);
-            result.periodSelector = periodSelector.value(options);
-            result.itemsToRemove = itemsToRemove.value(options);
-            result.output = output.value(options);
-            result.so = so.value(options);
+            result.input = input.value(o);
+            result.periodSelector = periodSelector.value(o);
+            result.itemsToRemove = itemsToRemove.value(o);
+            result.output = output.value(o);
+            result.so = so.value(o);
             return result;
         }
     }
 
-    private static final class PeriodSelectorOptionsSpec extends OptionsSpec<TsPeriodSelector> {
+    private static final class PeriodSelectorOptionsSpec implements OptionsSpec<TsPeriodSelector> {
 
         private final OptionSpec<Date> from;
         private final OptionSpec<Date> to;
         private final OptionSpec<Integer> first;
         private final OptionSpec<Integer> last;
 
-        public PeriodSelectorOptionsSpec(OptionParser parser) {
-            this.from = parser.accepts("from").withRequiredArg().ofType(Date.class);
-            this.to = parser.accepts("to").withRequiredArg().ofType(Date.class);
-            this.first = parser.accepts("first").withRequiredArg().ofType(Integer.class);
-            this.last = parser.accepts("last").withRequiredArg().ofType(Integer.class);
+        public PeriodSelectorOptionsSpec(OptionParser p) {
+            this.from = p.accepts("from").withRequiredArg().ofType(Date.class);
+            this.to = p.accepts("to").withRequiredArg().ofType(Date.class);
+            this.first = p.accepts("first").withRequiredArg().ofType(Integer.class);
+            this.last = p.accepts("last").withRequiredArg().ofType(Integer.class);
         }
 
         @Override
-        public TsPeriodSelector value(OptionSet options) {
+        public TsPeriodSelector value(OptionSet o) {
             TsPeriodSelector result = new TsPeriodSelector();
-            if (options.has(from)) {
-                if (options.has(to)) {
-                    result.between(new Day(from.value(options)), new Day(to.value(options)));
+            if (o.has(from)) {
+                if (o.has(to)) {
+                    result.between(new Day(from.value(o)), new Day(to.value(o)));
                 } else {
-                    result.from(new Day(from.value(options)));
+                    result.from(new Day(from.value(o)));
                 }
-            } else if (options.has(to)) {
-                result.to(new Day(to.value(options)));
-            } else if (options.has(first)) {
-                if (options.has(last)) {
-                    result.excluding(first.value(options), last.value(options));
+            } else if (o.has(to)) {
+                result.to(new Day(to.value(o)));
+            } else if (o.has(first)) {
+                if (o.has(last)) {
+                    result.excluding(first.value(o), last.value(o));
                 } else {
-                    result.first(first.value(options));
+                    result.first(first.value(o));
                 }
-            } else if (options.has(last)) {
-                result.last(last.value(options));
+            } else if (o.has(last)) {
+                result.last(last.value(o));
             } else {
                 result.all();
             }
@@ -168,12 +167,12 @@ public final class TsFilter extends StandardApp<TsFilter.Parameters> {
         }
     }
 
-    private static final class ItemsToRemoveSpec extends OptionsSpec<EnumSet<TsItem>> {
+    private static final class ItemsToRemoveSpec implements OptionsSpec<EnumSet<TsItem>> {
 
         private final OptionSpec<TsItem> itemsToRemove;
 
-        public ItemsToRemoveSpec(OptionParser parser) {
-            this.itemsToRemove = parser
+        public ItemsToRemoveSpec(OptionParser p) {
+            this.itemsToRemove = p
                     .accepts("remove", "Comma-separated list of items to remove " + Arrays.toString(TsItem.values()))
                     .withRequiredArg()
                     .ofType(TsItem.class)
@@ -181,8 +180,8 @@ public final class TsFilter extends StandardApp<TsFilter.Parameters> {
         }
 
         @Override
-        public EnumSet<TsItem> value(OptionSet options) {
-            return options.has(itemsToRemove) ? EnumSet.copyOf(itemsToRemove.values(options)) : EnumSet.noneOf(TsItem.class);
+        public EnumSet<TsItem> value(OptionSet o) {
+            return o.has(itemsToRemove) ? EnumSet.copyOf(itemsToRemove.values(o)) : EnumSet.noneOf(TsItem.class);
         }
     }
 }

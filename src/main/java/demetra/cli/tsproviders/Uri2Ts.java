@@ -37,6 +37,7 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
 /**
+ * Retrieves time series from an URI.
  *
  * @author Philippe Charles
  */
@@ -80,11 +81,11 @@ public final class Uri2Ts extends StandardApp<Uri2Ts.Parameters> {
         private final OptionsSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet options) {
+        protected Parameters parse(OptionSet o) {
             Parameters result = new Parameters();
-            result.uri = options.has(uri) ? uri.value(options) : null;
-            result.output = output.value(options);
-            result.so = so.value(options);
+            result.uri = o.has(uri) ? uri.value(o) : null;
+            result.output = output.value(o);
+            result.so = so.value(o);
             return result;
         }
     }

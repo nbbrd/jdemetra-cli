@@ -48,6 +48,7 @@ import joptsimple.OptionSpec;
 import org.jfree.data.xy.IntervalXYDataset;
 
 /**
+ * Generates a chart from time series.
  *
  * @author Philippe Charles
  */
@@ -151,41 +152,41 @@ public final class Ts2Chart extends StandardApp<Ts2Chart.Parameters> {
         private final ChartOptionsSpec chart = new ChartOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet options) {
+        protected Parameters parse(OptionSet o) {
             Parameters result = new Parameters();
-            result.so = so.value(options);
-            result.input = input.value(options);
-            result.outputFile = options.has(outputFile) ? outputFile.value(options) : null;
-            result.mediaType = options.has(mediaType) ? MediaType.parse(mediaType.value(options)) : (result.outputFile != null ? Utils.getMediaType(result.outputFile).orElse(MediaType.SVG_UTF_8) : MediaType.SVG_UTF_8);
-            result.chart = chart.value(options);
+            result.so = so.value(o);
+            result.input = input.value(o);
+            result.outputFile = o.has(outputFile) ? outputFile.value(o) : null;
+            result.mediaType = o.has(mediaType) ? MediaType.parse(mediaType.value(o)) : (result.outputFile != null ? Utils.getMediaType(result.outputFile).orElse(MediaType.SVG_UTF_8) : MediaType.SVG_UTF_8);
+            result.chart = chart.value(o);
             return result;
         }
     }
 
-    private static final class ChartOptionsSpec extends OptionsSpec<ChartOptions> {
+    private static final class ChartOptionsSpec implements OptionsSpec<ChartOptions> {
 
         private final OptionSpec<Integer> width;
         private final OptionSpec<Integer> height;
         private final OptionSpec<String> colorScheme;
         private final OptionSpec<String> title;
 
-        public ChartOptionsSpec(OptionParser parser) {
-            this.width = parser
+        public ChartOptionsSpec(OptionParser p) {
+            this.width = p
                     .acceptsAll(asList("w", "width"), "Width")
                     .withRequiredArg()
                     .ofType(Integer.class)
                     .defaultsTo(400);
-            this.height = parser
+            this.height = p
                     .acceptsAll(asList("h", "height"), "Height")
                     .withRequiredArg()
                     .ofType(Integer.class)
                     .defaultsTo(300);
-            this.colorScheme = parser
+            this.colorScheme = p
                     .acceptsAll(asList("c", "color-scheme"), "Color scheme")
                     .withRequiredArg()
                     .ofType(String.class)
                     .defaultsTo(SmartColorScheme.NAME);
-            this.title = parser
+            this.title = p
                     .acceptsAll(asList("t", "title"), "Title")
                     .withRequiredArg()
                     .ofType(String.class)
@@ -193,8 +194,8 @@ public final class Ts2Chart extends StandardApp<Ts2Chart.Parameters> {
         }
 
         @Override
-        public ChartOptions value(OptionSet options) {
-            return new ChartOptions(width.value(options), height.value(options), colorScheme.value(options), title.value(options));
+        public ChartOptions value(OptionSet o) {
+            return new ChartOptions(width.value(o), height.value(o), colorScheme.value(o), title.value(o));
         }
     }
 }

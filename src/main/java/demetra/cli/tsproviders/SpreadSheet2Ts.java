@@ -39,6 +39,7 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
 /**
+ * Retrieves time series from a spreadsheet file.
  *
  * @author Philippe Charles
  */
@@ -78,16 +79,16 @@ public final class SpreadSheet2Ts extends StandardApp<SpreadSheet2Ts.Parameters>
         private final OptionsSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet options) {
+        protected Parameters parse(OptionSet o) {
             Parameters result = new Parameters();
-            result.input = input.value(options);
-            result.output = output.value(options);
-            result.so = so.value(options);
+            result.input = input.value(o);
+            result.output = output.value(o);
+            result.so = so.value(o);
             return result;
         }
     }
 
-    private static final class SpreadSheetOptionsSpec extends OptionsSpec<SpreadSheetBean> {
+    private static final class SpreadSheetOptionsSpec implements OptionsSpec<SpreadSheetBean> {
 
         private final OptionSpec<File> inputFile;
         private final OptionSpec<String> locale;
@@ -97,30 +98,30 @@ public final class SpreadSheet2Ts extends StandardApp<SpreadSheet2Ts.Parameters>
         private final OptionSpec<TsAggregationType> aggregation;
         private final OptionSpec<Boolean> clean;
 
-        public SpreadSheetOptionsSpec(OptionParser parser) {
-            this.inputFile = parser.nonOptions("Input file").ofType(File.class);
-            this.locale = parser.accepts("l", "Locale used to parse dates and numbers")
+        public SpreadSheetOptionsSpec(OptionParser p) {
+            this.inputFile = p.nonOptions("Input file").ofType(File.class);
+            this.locale = p.accepts("l", "Locale used to parse dates and numbers")
                     .withRequiredArg().ofType(String.class).describedAs("Locale");
-            this.date = parser.accepts("d", "Pattern used to parse dates")
+            this.date = p.accepts("d", "Pattern used to parse dates")
                     .withRequiredArg().ofType(String.class).describedAs("Date pattern");
-            this.number = parser.accepts("n", "Pattern used to parse numbers")
+            this.number = p.accepts("n", "Pattern used to parse numbers")
                     .withRequiredArg().ofType(String.class).describedAs("Number pattern");
-            this.freq = parser.accepts("f", "Time series frequency")
+            this.freq = p.accepts("f", "Time series frequency")
                     .withRequiredArg().ofType(TsFrequency.class).defaultsTo(TsFrequency.Undefined);
-            this.aggregation = parser.accepts("a", "Aggregation type used in conjonction with the frequency")
+            this.aggregation = p.accepts("a", "Aggregation type used in conjonction with the frequency")
                     .withRequiredArg().ofType(TsAggregationType.class).defaultsTo(TsAggregationType.None);
-            this.clean = parser.accepts("c", "Cleans the missing values")
+            this.clean = p.accepts("c", "Cleans the missing values")
                     .withRequiredArg().ofType(Boolean.class).defaultsTo(Boolean.TRUE).describedAs("Clean missing");
         }
 
         @Override
-        public SpreadSheetBean value(OptionSet options) {
+        public SpreadSheetBean value(OptionSet o) {
             SpreadSheetBean result = new SpreadSheetBean();
-            result.setFile(options.has(inputFile) ? inputFile.value(options) : null);
-            result.setDataFormat(DataFormat.create(locale.value(options), date.value(options), number.value(options)));
-            result.setFrequency(freq.value(options));
-            result.setAggregationType(aggregation.value(options));
-            result.setCleanMissing(clean.value(options));
+            result.setFile(o.has(inputFile) ? inputFile.value(o) : null);
+            result.setDataFormat(DataFormat.create(locale.value(o), date.value(o), number.value(o)));
+            result.setFrequency(freq.value(o));
+            result.setAggregationType(aggregation.value(o));
+            result.setCleanMissing(clean.value(o));
             return result;
         }
     }

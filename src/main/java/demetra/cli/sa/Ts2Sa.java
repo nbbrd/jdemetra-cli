@@ -34,6 +34,7 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
 /**
+ * Computes seasonal adjustment report from time series.
  *
  * @author Philippe Charles
  */
@@ -79,34 +80,34 @@ public final class Ts2Sa extends StandardApp<Ts2Sa.Parameters> {
         private final OptionsSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet options) {
+        protected Parameters parse(OptionSet o) {
             Parameters result = new Parameters();
-            result.input = input.value(options);
-            result.saOptions = saOptions.value(options);
-            result.output = output.value(options);
-            result.so = so.value(options);
+            result.input = input.value(o);
+            result.saOptions = saOptions.value(o);
+            result.output = output.value(o);
+            result.so = so.value(o);
             return result;
         }
     }
 
-    private static final class SaOptionsSpec extends OptionsSpec<SaOptions> {
+    private static final class SaOptionsSpec implements OptionsSpec<SaOptions> {
 
         private final OptionSpec<String> algorithm;
         private final OptionSpec<String> spec;
         private final OptionSpec<String> items;
 
-        public SaOptionsSpec(OptionParser parser) {
-            this.algorithm = parser
+        public SaOptionsSpec(OptionParser p) {
+            this.algorithm = p
                     .accepts("algorithm", "Algorithm")
                     .withRequiredArg()
                     .defaultsTo("tramoseats")
                     .ofType(String.class);
-            this.spec = parser
+            this.spec = p
                     .accepts("spec", "Specification")
                     .withRequiredArg()
                     .defaultsTo("RSA0")
                     .ofType(String.class);
-            this.items = parser
+            this.items = p
                     .accepts("items", "Comma-separated list of items to include")
                     .withRequiredArg()
                     .withValuesSeparatedBy(",")
@@ -115,8 +116,8 @@ public final class Ts2Sa extends StandardApp<Ts2Sa.Parameters> {
         }
 
         @Override
-        public SaOptions value(OptionSet options) {
-            return new SaOptions(algorithm.value(options), spec.value(options), items.values(options));
+        public SaOptions value(OptionSet o) {
+            return new SaOptions(algorithm.value(o), spec.value(o), items.values(o));
         }
     }
 }
