@@ -72,6 +72,16 @@
         
         <dependency>
             <groupId>eu.europa.ec.joinup.sat</groupId>
+            <artifactId>demetra-odbc</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.java.dev.jna</groupId>
+                    <artifactId>jna-platform</artifactId>
+                </exclusion>                
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>eu.europa.ec.joinup.sat</groupId>
             <artifactId>demetra-spreadsheet</artifactId>
         </dependency>
         <dependency>
@@ -140,6 +150,10 @@
                 <configuration>
                     <repositoryLayout>flat</repositoryLayout>
                     <programs>
+                        <program>
+                            <mainClass>demetra.cli.tsproviders.Odbc2Ts</mainClass>
+                            <id>odbc2ts</id>
+                        </program>
                         <program>
                             <mainClass>demetra.cli.tsproviders.SpreadSheet2Ts</mainClass>
                             <id>spreadsheet2ts</id>
