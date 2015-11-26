@@ -19,11 +19,11 @@ package demetra.cli.chart;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.net.MediaType;
 import demetra.cli.helpers.BasicArgsParser;
+import demetra.cli.helpers.BasicCliLauncher;
 import demetra.cli.helpers.InputOptions;
 import demetra.cli.helpers.OptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newInputOptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newStandardOptionsSpec;
-import demetra.cli.helpers.StandardApp;
 import demetra.cli.helpers.StandardOptions;
 import demetra.cli.helpers.Utils;
 import ec.tss.TsCollectionInformation;
@@ -46,16 +46,17 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import org.jfree.data.xy.IntervalXYDataset;
+import demetra.cli.helpers.BasicCommand;
 
 /**
  * Generates a chart from time series.
  *
  * @author Philippe Charles
  */
-public final class Ts2Chart extends StandardApp<Ts2Chart.Parameters> {
+public final class Ts2Chart implements BasicCommand<Ts2Chart.Parameters> {
 
     public static void main(String[] args) {
-        new Ts2Chart().run(args, new Parser());
+        BasicCliLauncher.run(args, Parser::new, Ts2Chart::new, o -> o.so);
     }
 
     @XmlRootElement
@@ -80,11 +81,6 @@ public final class Ts2Chart extends StandardApp<Ts2Chart.Parameters> {
         try (OutputStream stream = Files.newOutputStream(params.outputFile.toPath())) {
             chart.writeImage(params.mediaType.withoutParameters().toString(), stream);
         }
-    }
-
-    @Override
-    protected StandardOptions getStandardOptions(Parameters params) {
-        return params.so;
     }
 
     private void applyContent(JTimeSeriesChart chart, TsCollectionInformation info) {

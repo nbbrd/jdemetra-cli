@@ -17,8 +17,8 @@
 package demetra.cli.anomalydetection;
 
 import com.google.common.annotations.VisibleForTesting;
-import demetra.cli.helpers.StandardApp;
 import demetra.cli.helpers.BasicArgsParser;
+import demetra.cli.helpers.BasicCliLauncher;
 import demetra.cli.helpers.InputOptions;
 import demetra.cli.helpers.OptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newInputOptionsSpec;
@@ -40,16 +40,17 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import lombok.Value;
+import demetra.cli.helpers.BasicCommand;
 
 /**
  * Computes outliers from time series.
  *
  * @author Philippe Charles
  */
-public final class Ts2Outliers extends StandardApp<Ts2Outliers.Parameters> {
+public final class Ts2Outliers implements BasicCommand<Ts2Outliers.Parameters> {
 
     public static void main(String[] args) {
-        new Ts2Outliers().run(args, new Parser());
+        BasicCliLauncher.run(args, Parser::new, Ts2Outliers::new, o -> o.so);
     }
 
     @Value
@@ -72,11 +73,6 @@ public final class Ts2Outliers extends StandardApp<Ts2Outliers.Parameters> {
         OutliersTsCollection output = OutliersTsCollection.create(input, params.spec);
 
         params.output.writeValue(XmlOutliersTsCollection.class, output);
-    }
-
-    @Override
-    protected StandardOptions getStandardOptions(Parameters params) {
-        return params.so;
     }
 
     @VisibleForTesting

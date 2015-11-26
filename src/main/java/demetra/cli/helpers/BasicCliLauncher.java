@@ -21,6 +21,8 @@ import static com.google.common.net.MediaType.JSON_UTF_8;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 
 /**
@@ -28,33 +30,32 @@ import javax.annotation.Nonnull;
  * @author Philippe Charles
  * @param <T>
  */
-public abstract class StandardApp<T> {
+public final class BasicCliLauncher<T> {
 
-    abstract public void exec(@Nonnull T params) throws Exception;
+    private Supplier<ArgsParser<T>> parserSupplier = () -> null;
+    private Supplier<BasicCommand<T>> commandSupplier = () -> null;
+    private Function<T, StandardOptions> toSo = o -> new StandardOptions(false, false, false);
 
     @Nonnull
-    abstract protected StandardOptions getStandardOptions(@Nonnull T params);
-
-    protected void printHelp(@Nonnull PrintStream stream, @Nonnull ArgsParser<T> parser) {
-        printVersion(stream);
-        parser.printHelp(System.out);
+    public BasicCliLauncher<T> parser(@Nonnull Supplier<ArgsParser<T>> parser) {
+        this.parserSupplier = parser;
+        return this;
     }
 
-    protected void printVersion(@Nonnull PrintStream stream) {
-        Utils.printVersion(getClass(), stream);
+    @Nonnull
+    public BasicCliLauncher<T> command(@Nonnull Supplier<BasicCommand<T>> command) {
+        this.commandSupplier = command;
+        return this;
     }
 
-    protected void printParams(@Nonnull T params, @Nonnull PrintStream stream) {
-        BasicSerializer serializer = BasicSerializer.of(JSON_UTF_8, params.getClass(), true);
-        try {
-            serializer.serialize(params, stream);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-        stream.println();
+    @Nonnull
+    public BasicCliLauncher<T> standardOptions(@Nonnull Function<T, StandardOptions> toSo) {
+        this.toSo = toSo;
+        return this;
     }
 
-    public final void run(@Nonnull String[] args, @Nonnull ArgsParser<T> parser) {
+    public void launch(@Nonnull String[] args) {
+        ArgsParser<T> parser = parserSupplier.get();
         T params = null;
         try {
             params = parser.parse(args);
@@ -63,7 +64,7 @@ public abstract class StandardApp<T> {
             System.exit(-1);
         }
 
-        StandardOptions so = getStandardOptions(params);
+        StandardOptions so = toSo.apply(params);
 
         if (so.isShowHelp()) {
             printHelp(System.out, parser);
@@ -81,7 +82,7 @@ public abstract class StandardApp<T> {
                 printParams(params, System.err);
                 stopwatch.start();
             }
-            exec(params);
+            commandSupplier.get().exec(params);
             if (so.isVerbose()) {
                 System.err.println("Executed in " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms");
             }
@@ -93,5 +94,28 @@ public abstract class StandardApp<T> {
             }
             System.exit(-1);
         }
+    }
+
+    private static <T> void printHelp(@Nonnull PrintStream stream, @Nonnull ArgsParser<T> parser) {
+        printVersion(stream);
+        parser.printHelp(System.out);
+    }
+
+    private static void printVersion(@Nonnull PrintStream stream) {
+        Utils.printVersion(BasicCliLauncher.class, stream);
+    }
+
+    private static <T> void printParams(@Nonnull T params, @Nonnull PrintStream stream) {
+        BasicSerializer serializer = BasicSerializer.of(JSON_UTF_8, params.getClass(), true);
+        try {
+            serializer.serialize(params, stream);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        stream.println();
+    }
+
+    public static <T> void run(@Nonnull String[] args, @Nonnull Supplier<ArgsParser<T>> parser, @Nonnull Supplier<BasicCommand<T>> command, @Nonnull Function<T, StandardOptions> toSo) {
+        new BasicCliLauncher<T>().parser(parser).command(command).standardOptions(toSo).launch(args);
     }
 }

@@ -19,10 +19,10 @@ package demetra.cli.tsproviders;
 import com.google.common.annotations.VisibleForTesting;
 import demetra.cli.helpers.BasicArgsParser;
 import com.google.common.primitives.Doubles;
+import demetra.cli.helpers.BasicCliLauncher;
 import demetra.cli.helpers.OptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newOutputOptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newStandardOptionsSpec;
-import demetra.cli.helpers.StandardApp;
 import demetra.cli.helpers.OutputOptions;
 import demetra.cli.helpers.StandardOptions;
 import ec.tss.TsCollectionInformation;
@@ -34,16 +34,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import demetra.cli.helpers.BasicCommand;
 
 /**
  * Creates random time series.
  *
  * @author Philippe Charles
  */
-public final class Random2Ts extends StandardApp<Random2Ts.Parameters> {
+public final class Random2Ts implements BasicCommand<Random2Ts.Parameters> {
 
     public static void main(String[] args) {
-        new Random2Ts().run(args, new Parser());
+        BasicCliLauncher.run(args, Parser::new, Random2Ts::new, o -> o.so);
     }
 
     @XmlRootElement
@@ -60,11 +61,6 @@ public final class Random2Ts extends StandardApp<Random2Ts.Parameters> {
         TsCollectionInformation result = XProviders.getTsCollection(provider, params.input, TsInformationType.All);
         params.output.writeValue(XmlTsCollection.class, result);
         provider.dispose();
-    }
-
-    @Override
-    protected StandardOptions getStandardOptions(Parameters params) {
-        return params.so;
     }
 
     @VisibleForTesting

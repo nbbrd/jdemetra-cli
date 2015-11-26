@@ -17,8 +17,8 @@
 package demetra.cli.sa;
 
 import com.google.common.annotations.VisibleForTesting;
-import demetra.cli.helpers.StandardApp;
 import demetra.cli.helpers.BasicArgsParser;
+import demetra.cli.helpers.BasicCliLauncher;
 import demetra.cli.helpers.InputOptions;
 import demetra.cli.helpers.OptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newInputOptionsSpec;
@@ -30,16 +30,17 @@ import ec.tss.TsCollectionInformation;
 import ec.tss.xml.XmlTsCollection;
 import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionSet;
+import demetra.cli.helpers.BasicCommand;
 
 /**
  * Converts seasonal adjustment report to time series.
  *
  * @author Philippe Charles
  */
-public final class Sa2Ts extends StandardApp<Sa2Ts.Parameters> {
+public final class Sa2Ts implements BasicCommand<Sa2Ts.Parameters> {
 
     public static void main(String[] args) {
-        new Sa2Ts().run(args, new Parser());
+        BasicCliLauncher.run(args, Parser::new, Sa2Ts::new, o -> o.so);
     }
 
     @XmlRootElement
@@ -61,11 +62,6 @@ public final class Sa2Ts extends StandardApp<Sa2Ts.Parameters> {
         TsCollectionInformation output = input.toTsCollection();
 
         params.output.writeValue(XmlTsCollection.class, output);
-    }
-
-    @Override
-    protected StandardOptions getStandardOptions(Parameters params) {
-        return params.so;
     }
 
     @VisibleForTesting

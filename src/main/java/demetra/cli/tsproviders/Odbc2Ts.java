@@ -19,10 +19,10 @@ package demetra.cli.tsproviders;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import demetra.cli.helpers.BasicArgsParser;
+import demetra.cli.helpers.BasicCliLauncher;
 import demetra.cli.helpers.OptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newOutputOptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newStandardOptionsSpec;
-import demetra.cli.helpers.StandardApp;
 import demetra.cli.helpers.OutputOptions;
 import demetra.cli.helpers.StandardOptions;
 import ec.tss.TsCollectionInformation;
@@ -37,16 +37,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import demetra.cli.helpers.BasicCommand;
 
 /**
  * Retrieves time series from an ODBC DSN.
  *
  * @author Philippe Charles
  */
-public final class Odbc2Ts extends StandardApp<Odbc2Ts.Parameters> {
+public final class Odbc2Ts implements BasicCommand<Odbc2Ts.Parameters> {
 
     public static void main(String[] args) {
-        new Odbc2Ts().run(args, new Parser());
+        BasicCliLauncher.run(args, Parser::new, Odbc2Ts::new, o -> o.so);
     }
 
     @XmlRootElement
@@ -63,11 +64,6 @@ public final class Odbc2Ts extends StandardApp<Odbc2Ts.Parameters> {
         TsCollectionInformation result = XProviders.getTsCollection(provider, params.input, TsInformationType.All);
         params.output.writeValue(XmlTsCollection.class, result);
         provider.dispose();
-    }
-
-    @Override
-    protected StandardOptions getStandardOptions(Parameters params) {
-        return params.so;
     }
 
     @VisibleForTesting

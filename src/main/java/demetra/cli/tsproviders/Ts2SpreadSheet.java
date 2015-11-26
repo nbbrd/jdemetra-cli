@@ -19,7 +19,7 @@ package demetra.cli.tsproviders;
 import com.google.common.annotations.VisibleForTesting;
 import demetra.cli.helpers.BasicArgsParser;
 import com.google.common.base.Optional;
-import demetra.cli.helpers.StandardApp;
+import demetra.cli.helpers.BasicCliLauncher;
 import demetra.cli.helpers.InputOptions;
 import demetra.cli.helpers.OptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newInputOptionsSpec;
@@ -37,16 +37,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import demetra.cli.helpers.BasicCommand;
 
 /**
  * Converts time series to a spreadsheet file.
  *
  * @author Philippe Charles
  */
-public final class Ts2SpreadSheet extends StandardApp<Ts2SpreadSheet.Parameters> {
+public final class Ts2SpreadSheet implements BasicCommand<Ts2SpreadSheet.Parameters> {
 
     public static void main(String[] args) {
-        new Ts2SpreadSheet().run(args, new Parser());
+        BasicCliLauncher.run(args, Parser::new, Ts2SpreadSheet::new, o -> o.so);
     }
 
     @XmlRootElement
@@ -68,11 +69,6 @@ public final class Ts2SpreadSheet extends StandardApp<Ts2SpreadSheet.Parameters>
         } else {
             throw new IllegalArgumentException("Cannot handle file '" + params.outputFile.toString() + "'");
         }
-    }
-
-    @Override
-    protected StandardOptions getStandardOptions(Parameters params) {
-        return params.so;
     }
 
     private Optional<Book.Factory> getFactory(File file) {

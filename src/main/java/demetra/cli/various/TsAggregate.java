@@ -18,13 +18,13 @@ package demetra.cli.various;
 
 import com.google.common.annotations.VisibleForTesting;
 import demetra.cli.helpers.BasicArgsParser;
+import demetra.cli.helpers.BasicCliLauncher;
 import demetra.cli.helpers.InputOptions;
 import demetra.cli.helpers.OptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newInputOptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newOutputOptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newStandardOptionsSpec;
 import demetra.cli.helpers.OutputOptions;
-import demetra.cli.helpers.StandardApp;
 import demetra.cli.helpers.StandardOptions;
 import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformation;
@@ -41,15 +41,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import demetra.cli.helpers.BasicCommand;
 
 /**
  *
  * @author Philippe Charles
  */
-public final class TsAggregate extends StandardApp<TsAggregate.Parameters> {
+public final class TsAggregate implements BasicCommand<TsAggregate.Parameters> {
 
     public static void main(String[] args) {
-        new TsAggregate().run(args, new TsAggregate.Parser());
+        BasicCliLauncher.run(args, Parser::new, TsAggregate::new, o -> o.so);
     }
 
     @XmlRootElement
@@ -76,11 +77,6 @@ public final class TsAggregate extends StandardApp<TsAggregate.Parameters> {
         }
 
         params.output.writeValue(XmlTsCollection.class, result);
-    }
-
-    @Override
-    protected StandardOptions getStandardOptions(Parameters params) {
-        return params.so;
     }
 
     @VisibleForTesting

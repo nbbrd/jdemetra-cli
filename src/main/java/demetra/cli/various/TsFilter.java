@@ -17,8 +17,8 @@
 package demetra.cli.various;
 
 import com.google.common.annotations.VisibleForTesting;
-import demetra.cli.helpers.StandardApp;
 import demetra.cli.helpers.BasicArgsParser;
+import demetra.cli.helpers.BasicCliLauncher;
 import demetra.cli.helpers.InputOptions;
 import demetra.cli.helpers.OptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newInputOptionsSpec;
@@ -43,15 +43,16 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import demetra.cli.helpers.BasicCommand;
 
 /**
  *
  * @author Philippe Charles
  */
-public final class TsFilter extends StandardApp<TsFilter.Parameters> {
+public final class TsFilter implements BasicCommand<TsFilter.Parameters> {
 
     public static void main(String[] args) {
-        new TsFilter().run(args, new Parser());
+        BasicCliLauncher.run(args, Parser::new, TsFilter::new, o -> o.so);
     }
 
     @XmlRootElement
@@ -75,11 +76,6 @@ public final class TsFilter extends StandardApp<TsFilter.Parameters> {
             removeItems(result, params.itemsToRemove);
         }
         params.output.writeValue(XmlTsCollection.class, result);
-    }
-
-    @Override
-    protected StandardOptions getStandardOptions(Parameters params) {
-        return params.so;
     }
 
     @VisibleForTesting

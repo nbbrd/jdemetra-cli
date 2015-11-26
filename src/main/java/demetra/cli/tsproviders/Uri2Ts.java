@@ -19,10 +19,10 @@ package demetra.cli.tsproviders;
 import com.google.common.annotations.VisibleForTesting;
 import demetra.cli.helpers.BasicArgsParser;
 import com.google.common.collect.Iterables;
+import demetra.cli.helpers.BasicCliLauncher;
 import demetra.cli.helpers.OptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newOutputOptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newStandardOptionsSpec;
-import demetra.cli.helpers.StandardApp;
 import demetra.cli.helpers.OutputOptions;
 import demetra.cli.helpers.StandardOptions;
 import ec.tss.ITsProvider;
@@ -35,16 +35,17 @@ import java.util.ServiceLoader;
 import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import demetra.cli.helpers.BasicCommand;
 
 /**
  * Retrieves time series from an URI.
  *
  * @author Philippe Charles
  */
-public final class Uri2Ts extends StandardApp<Uri2Ts.Parameters> {
+public final class Uri2Ts implements BasicCommand<Uri2Ts.Parameters> {
 
     public static void main(String[] args) {
-        new Uri2Ts().run(args, new Parser());
+        BasicCliLauncher.run(args, Parser::new, Uri2Ts::new, o -> o.so);
     }
 
     @XmlRootElement
@@ -66,11 +67,6 @@ public final class Uri2Ts extends StandardApp<Uri2Ts.Parameters> {
         for (ITsProvider o : providers) {
             o.dispose();
         }
-    }
-
-    @Override
-    protected StandardOptions getStandardOptions(Parameters params) {
-        return params.so;
     }
 
     @VisibleForTesting

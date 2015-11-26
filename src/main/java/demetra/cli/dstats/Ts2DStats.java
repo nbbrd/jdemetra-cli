@@ -17,8 +17,8 @@
 package demetra.cli.dstats;
 
 import com.google.common.annotations.VisibleForTesting;
-import demetra.cli.helpers.StandardApp;
 import demetra.cli.helpers.BasicArgsParser;
+import demetra.cli.helpers.BasicCliLauncher;
 import demetra.cli.helpers.InputOptions;
 import demetra.cli.helpers.OptionsSpec;
 import static demetra.cli.helpers.OptionsSpec.newInputOptionsSpec;
@@ -36,16 +36,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import demetra.cli.helpers.BasicCommand;
 
 /**
  * Computes descriptive statistics from time series.
  *
  * @author Philippe Charles
  */
-public final class Ts2DStats extends StandardApp<Ts2DStats.Parameters> {
+public final class Ts2DStats implements BasicCommand<Ts2DStats.Parameters> {
 
     public static void main(String[] args) {
-        new Ts2DStats().run(args, new Parser());
+        BasicCliLauncher.run(args, Parser::new, Ts2DStats::new, o -> o.so);
     }
 
     @XmlRootElement
@@ -63,11 +64,6 @@ public final class Ts2DStats extends StandardApp<Ts2DStats.Parameters> {
         XmlDStatsTsCollection result = process(col);
         filter(result, params.items);
         params.output.write(XmlDStatsTsCollection.class, result);
-    }
-
-    @Override
-    protected StandardOptions getStandardOptions(Parameters params) {
-        return params.so;
     }
 
     @VisibleForTesting
