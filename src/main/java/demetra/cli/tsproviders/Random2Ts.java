@@ -29,7 +29,6 @@ import ec.tss.TsInformationType;
 import ec.tss.tsproviders.common.random.RandomBean;
 import ec.tss.tsproviders.common.random.RandomProvider;
 import ec.tss.xml.XmlTsCollection;
-import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -47,7 +46,6 @@ public final class Random2Ts implements BasicCommand<Random2Ts.Parameters> {
         BasicCliLauncher.run(args, Parser::new, Random2Ts::new, o -> o.so);
     }
 
-    @XmlRootElement
     public static final class Parameters {
 
         StandardOptions so;

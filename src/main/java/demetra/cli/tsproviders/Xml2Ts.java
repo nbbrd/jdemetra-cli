@@ -31,7 +31,6 @@ import ec.tss.tsproviders.common.xml.XmlProvider;
 import ec.tss.xml.XmlTsCollection;
 import java.io.File;
 import java.nio.charset.Charset;
-import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -47,7 +46,6 @@ public final class Xml2Ts implements BasicCommand<Xml2Ts.Parameters> {
         BasicCliLauncher.run(args, Parser::new, Xml2Ts::new, o -> o.so);
     }
 
-    @XmlRootElement
     public static final class Parameters {
 
         StandardOptions so;

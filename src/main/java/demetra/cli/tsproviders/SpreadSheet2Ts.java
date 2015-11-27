@@ -30,7 +30,6 @@ import ec.tss.tsproviders.spreadsheet.SpreadSheetProvider;
 import ec.tss.tsproviders.utils.DataFormat;
 import ec.tss.xml.XmlTsCollection;
 import java.io.File;
-import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -49,7 +48,6 @@ public final class SpreadSheet2Ts implements BasicCommand<SpreadSheet2Ts.Paramet
         BasicCliLauncher.run(args, Parser::new, SpreadSheet2Ts::new, o -> o.so);
     }
 
-    @XmlRootElement
     public static final class Parameters {
 
         StandardOptions so;

@@ -32,7 +32,6 @@ import ec.util.spreadsheet.Book;
 import ec.util.spreadsheet.helpers.ArraySheet;
 import java.io.File;
 import java.util.ServiceLoader;
-import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -50,7 +49,6 @@ public final class Ts2SpreadSheet implements BasicCommand<Ts2SpreadSheet.Paramet
         BasicCliLauncher.run(args, Parser::new, Ts2SpreadSheet::new, o -> o.so);
     }
 
-    @XmlRootElement
     public static final class Parameters {
 
         StandardOptions so;

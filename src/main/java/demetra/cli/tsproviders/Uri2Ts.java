@@ -31,7 +31,6 @@ import ec.tss.tsproviders.IFileLoader;
 import ec.tss.xml.XmlTsCollection;
 import java.net.URI;
 import java.util.ServiceLoader;
-import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import demetra.cli.helpers.BasicCommand;
@@ -48,7 +47,6 @@ public final class Uri2Ts implements BasicCommand<Uri2Ts.Parameters> {
         BasicCliLauncher.run(args, Parser::new, Uri2Ts::new, o -> o.so);
     }
 
-    @XmlRootElement
     public static final class Parameters {
 
         StandardOptions so;

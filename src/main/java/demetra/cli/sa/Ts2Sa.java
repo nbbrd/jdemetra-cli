@@ -27,7 +27,6 @@ import demetra.cli.helpers.OutputOptions;
 import demetra.cli.helpers.StandardOptions;
 import ec.tss.TsCollectionInformation;
 import ec.tss.xml.XmlTsCollection;
-import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -46,7 +45,6 @@ public final class Ts2Sa implements BasicCommand<Ts2Sa.Parameters> {
         BasicCliLauncher.run(args, Parser::new, Ts2Sa::new, o -> o.so);
     }
 
-    @XmlRootElement
     public static final class Parameters {
 
         StandardOptions so;

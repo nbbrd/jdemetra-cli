@@ -39,9 +39,9 @@ import java.util.EnumSet;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import lombok.Value;
 import demetra.cli.helpers.BasicCommand;
 import demetra.cli.helpers.ComposedOptionSpec;
+import lombok.AllArgsConstructor;
 import org.openide.util.NbBundle;
 
 /**
@@ -55,13 +55,13 @@ public final class Ts2Outliers implements BasicCommand<Ts2Outliers.Parameters> {
         BasicCliLauncher.run(args, Parser::new, Ts2Outliers::new, o -> o.so);
     }
 
-    @Value
+    @AllArgsConstructor
     public static class Parameters {
 
         StandardOptions so;
-        InputOptions input;
-        OutliersOptions spec;
-        OutputOptions output;
+        public InputOptions input;
+        public OutliersOptions spec;
+        public OutputOptions output;
     }
 
     @Override

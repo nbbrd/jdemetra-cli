@@ -30,7 +30,6 @@ import ec.tss.tsproviders.odbc.OdbcBean;
 import ec.tss.tsproviders.odbc.OdbcProvider;
 import ec.tss.tsproviders.utils.DataFormat;
 import ec.tss.xml.XmlTsCollection;
-import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -49,7 +48,6 @@ public final class Odbc2Ts implements BasicCommand<Odbc2Ts.Parameters> {
         BasicCliLauncher.run(args, Parser::new, Odbc2Ts::new, o -> o.so);
     }
 
-    @XmlRootElement
     public static final class Parameters {
 
         StandardOptions so;

@@ -37,7 +37,6 @@ import ec.tstoolkit.timeseries.TsPeriodSelector;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.Set;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -56,7 +55,6 @@ public final class TsFilter implements BasicCommand<TsFilter.Parameters> {
         BasicCliLauncher.run(args, Parser::new, TsFilter::new, o -> o.so);
     }
 
-    @XmlRootElement
     public static final class Parameters {
 
         StandardOptions so;

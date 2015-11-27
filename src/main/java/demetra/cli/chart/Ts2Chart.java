@@ -40,7 +40,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import static java.util.Arrays.asList;
 import java.util.ServiceLoader;
-import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -60,7 +59,6 @@ public final class Ts2Chart implements BasicCommand<Ts2Chart.Parameters> {
         BasicCliLauncher.run(args, Parser::new, Ts2Chart::new, o -> o.so);
     }
 
-    @XmlRootElement
     public static final class Parameters {
 
         StandardOptions so;

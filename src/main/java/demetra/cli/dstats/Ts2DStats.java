@@ -31,7 +31,6 @@ import ec.tss.xml.XmlTsCollection;
 import ec.tstoolkit.data.DescriptiveStatistics;
 import java.util.EnumSet;
 import java.util.Set;
-import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -50,7 +49,6 @@ public final class Ts2DStats implements BasicCommand<Ts2DStats.Parameters> {
         BasicCliLauncher.run(args, Parser::new, Ts2DStats::new, o -> o.so);
     }
 
-    @XmlRootElement
     public static final class Parameters {
 
         StandardOptions so;

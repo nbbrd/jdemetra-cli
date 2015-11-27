@@ -29,7 +29,6 @@ import ec.tss.tsproviders.sdmx.SdmxBean;
 import ec.tss.tsproviders.sdmx.SdmxProvider;
 import ec.tss.xml.XmlTsCollection;
 import java.io.File;
-import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -48,7 +47,6 @@ public final class Sdmx2Ts implements BasicCommand<Sdmx2Ts.Parameters> {
         BasicCliLauncher.run(args, Parser::new, Sdmx2Ts::new, o -> o.so);
     }
 
-    @XmlRootElement
     public static final class Parameters {
 
         StandardOptions so;
