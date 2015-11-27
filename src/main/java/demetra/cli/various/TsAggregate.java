@@ -20,10 +20,9 @@ import com.google.common.annotations.VisibleForTesting;
 import demetra.cli.helpers.BasicArgsParser;
 import demetra.cli.helpers.BasicCliLauncher;
 import demetra.cli.helpers.InputOptions;
-import demetra.cli.helpers.OptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newInputOptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newOutputOptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newStandardOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newInputOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newOutputOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newStandardOptionsSpec;
 import demetra.cli.helpers.OutputOptions;
 import demetra.cli.helpers.StandardOptions;
 import ec.tss.TsCollectionInformation;
@@ -42,6 +41,8 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import demetra.cli.helpers.BasicCommand;
+import demetra.cli.helpers.ComposedOptionSpec;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -140,10 +141,10 @@ public final class TsAggregate implements BasicCommand<TsAggregate.Parameters> {
     @VisibleForTesting
     static final class Parser extends BasicArgsParser<TsAggregate.Parameters> {
 
-        private final OptionsSpec<StandardOptions> so = newStandardOptionsSpec(parser);
-        private final OptionsSpec<InputOptions> input = newInputOptionsSpec(parser);
-        private final OptionsSpec<List<Integer>> weights = new WeightsSpec(parser);
-        private final OptionsSpec<OutputOptions> output = newOutputOptionsSpec(parser);
+        private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
+        private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
+        private final ComposedOptionSpec<List<Integer>> weights = new WeightsSpec(parser);
+        private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
         protected TsAggregate.Parameters parse(OptionSet o) {
@@ -156,13 +157,16 @@ public final class TsAggregate implements BasicCommand<TsAggregate.Parameters> {
         }
     }
 
-    private static final class WeightsSpec implements OptionsSpec<List<Integer>> {
+    @NbBundle.Messages({
+        "tsaggregate.weights=Comma-separated list of weights"
+    })
+    private static final class WeightsSpec implements ComposedOptionSpec<List<Integer>> {
 
-        private final OptionSpec<Integer> itemsToRemove;
+        private final OptionSpec<Integer> weights;
 
         public WeightsSpec(OptionParser p) {
-            this.itemsToRemove = p
-                    .acceptsAll(asList("w", "weights"), "Comma-separated list of weights")
+            this.weights = p
+                    .acceptsAll(asList("w", "weights"), Bundle.tsaggregate_weights())
                     .withRequiredArg()
                     .ofType(Integer.class)
                     .withValuesSeparatedBy(',');
@@ -170,7 +174,7 @@ public final class TsAggregate implements BasicCommand<TsAggregate.Parameters> {
 
         @Override
         public List<Integer> value(OptionSet o) {
-            return itemsToRemove.values(o);
+            return weights.values(o);
         }
     }
 }

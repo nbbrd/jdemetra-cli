@@ -20,9 +20,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import demetra.cli.helpers.BasicArgsParser;
 import demetra.cli.helpers.BasicCliLauncher;
-import demetra.cli.helpers.OptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newOutputOptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newStandardOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newOutputOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newStandardOptionsSpec;
 import demetra.cli.helpers.OutputOptions;
 import demetra.cli.helpers.StandardOptions;
 import ec.tss.TsCollectionInformation;
@@ -31,13 +30,13 @@ import ec.tss.tsproviders.odbc.OdbcBean;
 import ec.tss.tsproviders.odbc.OdbcProvider;
 import ec.tss.tsproviders.utils.DataFormat;
 import ec.tss.xml.XmlTsCollection;
-import ec.tstoolkit.timeseries.TsAggregationType;
-import ec.tstoolkit.timeseries.simplets.TsFrequency;
 import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import demetra.cli.helpers.BasicCommand;
+import org.openide.util.NbBundle;
+import demetra.cli.helpers.ComposedOptionSpec;
 
 /**
  * Retrieves time series from an ODBC DSN.
@@ -69,9 +68,9 @@ public final class Odbc2Ts implements BasicCommand<Odbc2Ts.Parameters> {
     @VisibleForTesting
     static final class Parser extends BasicArgsParser<Parameters> {
 
-        private final OptionsSpec<StandardOptions> so = newStandardOptionsSpec(parser);
-        private final OptionsSpec<OdbcBean> input = new OdbcOptionsSpec(parser);
-        private final OptionsSpec<OutputOptions> output = newOutputOptionsSpec(parser);
+        private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
+        private final ComposedOptionSpec<OdbcBean> input = new OdbcOptionsSpec(parser);
+        private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
         protected Parameters parse(OptionSet o) {
@@ -83,32 +82,63 @@ public final class Odbc2Ts implements BasicCommand<Odbc2Ts.Parameters> {
         }
     }
 
-    private static final class OdbcOptionsSpec implements OptionsSpec<OdbcBean> {
+    @NbBundle.Messages({
+        "odbc2ts.dbName=Data source name",
+        "odbc2ts.tableName=Table name",
+        "odbc2ts.dimColumns=Comma-separated list of dimension columns",
+        "odbc2ts.periodColumn=Period column",
+        "odbc2ts.valueColumn=Value column",
+        "odbc2ts.versionColumn=Version column",
+        "odbc2ts.frequency=Frequency of observations",
+        "odbc2ts.aggregationType=Aggregation method to use when the frequency is defined"
+    })
+    private static final class OdbcOptionsSpec implements ComposedOptionSpec<OdbcBean> {
 
+        // source
         private final OptionSpec<String> dbName;
         private final OptionSpec<String> tableName;
         private final OptionSpec<String> dimColumns;
         private final OptionSpec<String> periodColumn;
         private final OptionSpec<String> valueColumn;
         private final OptionSpec<String> versionColumn;
-        private final OptionSpec<String> locale;
-        private final OptionSpec<String> datePattern;
-        private final OptionSpec<String> numberPattern;
-        private final OptionSpec<TsFrequency> frequency;
-        private final OptionSpec<TsAggregationType> aggregationType;
+        // options
+        private final ComposedOptionSpec<DataFormat> dataFormat;
+        private final ComposedOptionSpec<TsDataBuild> tsDataBuild;
 
         public OdbcOptionsSpec(OptionParser p) {
-            this.dbName = p.accepts("dsn").withRequiredArg().ofType(String.class).defaultsTo("");
-            this.tableName = p.accepts("table").withRequiredArg().ofType(String.class).defaultsTo("");
-            this.dimColumns = p.accepts("dims").withRequiredArg().ofType(String.class).withValuesSeparatedBy(',').defaultsTo("");
-            this.periodColumn = p.accepts("period").withRequiredArg().ofType(String.class).defaultsTo("");
-            this.valueColumn = p.accepts("value").withRequiredArg().ofType(String.class).defaultsTo("");
-            this.versionColumn = p.accepts("rev").withRequiredArg().ofType(String.class).defaultsTo("");
-            this.locale = p.accepts("locale").withRequiredArg().ofType(String.class).defaultsTo("");
-            this.datePattern = p.accepts("datePattern").withRequiredArg().ofType(String.class).defaultsTo("");
-            this.numberPattern = p.accepts("numberPattern").withRequiredArg().ofType(String.class).defaultsTo("");
-            this.frequency = p.accepts("freq").withRequiredArg().ofType(TsFrequency.class).defaultsTo(TsFrequency.Undefined);
-            this.aggregationType = p.accepts("aggregation").withRequiredArg().ofType(TsAggregationType.class).defaultsTo(TsAggregationType.None);
+            this.dbName = p
+                    .accepts("dsn", Bundle.odbc2ts_dbName())
+                    .withRequiredArg()
+                    .ofType(String.class)
+                    .defaultsTo("");
+            this.tableName = p
+                    .accepts("table", Bundle.odbc2ts_tableName())
+                    .withRequiredArg()
+                    .ofType(String.class)
+                    .defaultsTo("");
+            this.dimColumns = p
+                    .accepts("dims", Bundle.odbc2ts_dimColumns())
+                    .withRequiredArg()
+                    .ofType(String.class)
+                    .withValuesSeparatedBy(',')
+                    .defaultsTo("");
+            this.periodColumn = p
+                    .accepts("period", Bundle.odbc2ts_periodColumn())
+                    .withRequiredArg()
+                    .ofType(String.class)
+                    .defaultsTo("");
+            this.valueColumn = p
+                    .accepts("value", Bundle.odbc2ts_valueColumn())
+                    .withRequiredArg()
+                    .ofType(String.class)
+                    .defaultsTo("");
+            this.versionColumn = p
+                    .accepts("rev", Bundle.odbc2ts_versionColumn())
+                    .withRequiredArg()
+                    .ofType(String.class)
+                    .defaultsTo("");
+            this.dataFormat = TsProviderOptionSpecs.newDataFormatSpec(p);
+            this.tsDataBuild = TsProviderOptionSpecs.newTsDataBuildSpec(p);
         }
 
         @Override
@@ -120,9 +150,10 @@ public final class Odbc2Ts implements BasicCommand<Odbc2Ts.Parameters> {
             result.setPeriodColumn(periodColumn.value(o));
             result.setValueColumn(valueColumn.value(o));
             result.setVersionColumn(versionColumn.value(o));
-            result.setDataFormat(DataFormat.create(locale.value(o), datePattern.value(o), numberPattern.value(o)));
-            result.setFrequency(frequency.value(o));
-            result.setAggregationType(aggregationType.value(o));
+            result.setDataFormat(dataFormat.value(o));
+            TsDataBuild tmp = tsDataBuild.value(o);
+            result.setFrequency(tmp.getFrequency());
+            result.setAggregationType(tmp.getAggregationType());
             return result;
         }
     }

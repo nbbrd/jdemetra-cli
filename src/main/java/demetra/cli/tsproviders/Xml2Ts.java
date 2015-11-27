@@ -20,9 +20,8 @@ import com.google.common.annotations.VisibleForTesting;
 import demetra.cli.helpers.BasicArgsParser;
 import demetra.cli.helpers.BasicCliLauncher;
 import demetra.cli.helpers.BasicCommand;
-import demetra.cli.helpers.OptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newOutputOptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newStandardOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newOutputOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newStandardOptionsSpec;
 import demetra.cli.helpers.OutputOptions;
 import demetra.cli.helpers.StandardOptions;
 import ec.tss.TsCollectionInformation;
@@ -36,6 +35,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import demetra.cli.helpers.ComposedOptionSpec;
 
 /**
  *
@@ -67,9 +67,9 @@ public final class Xml2Ts implements BasicCommand<Xml2Ts.Parameters> {
     @VisibleForTesting
     static final class Parser extends BasicArgsParser<Parameters> {
 
-        private final OptionsSpec<StandardOptions> so = newStandardOptionsSpec(parser);
-        private final OptionsSpec<XmlBean> xml = new XmlOptionsSpec(parser);
-        private final OptionsSpec<OutputOptions> output = newOutputOptionsSpec(parser);
+        private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
+        private final ComposedOptionSpec<XmlBean> xml = new XmlOptionsSpec(parser);
+        private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
         protected Parameters parse(OptionSet options) {
@@ -81,21 +81,24 @@ public final class Xml2Ts implements BasicCommand<Xml2Ts.Parameters> {
         }
     }
 
-    private static final class XmlOptionsSpec implements OptionsSpec<XmlBean> {
+    private static final class XmlOptionsSpec implements ComposedOptionSpec<XmlBean> {
 
-        private final OptionSpec<File> file;
+        private final ComposedOptionSpec<File> file;
         private final OptionSpec<String> charset;
 
-        public XmlOptionsSpec(OptionParser parser) {
-            this.file = parser.nonOptions("Input file").ofType(File.class);
-            this.charset = parser.accepts("charset").withRequiredArg().defaultsTo("");
+        public XmlOptionsSpec(OptionParser p) {
+            this.file = TsProviderOptionSpecs.newInputFileSpec(p);
+            this.charset = p
+                    .accepts("charset")
+                    .withRequiredArg()
+                    .defaultsTo("");
         }
 
         @Override
-        public XmlBean value(OptionSet options) {
+        public XmlBean value(OptionSet o) {
             XmlBean input = new XmlBean();
-            input.setFile(options.has(file) ? file.value(options) : null);
-            input.setCharset(options.has(charset) ? Charset.forName(charset.value(options)) : null);
+            input.setFile(file.value(o));
+            input.setCharset(o.has(charset) ? Charset.forName(charset.value(o)) : null);
             return input;
         }
     }

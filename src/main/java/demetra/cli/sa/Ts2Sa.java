@@ -20,10 +20,9 @@ import com.google.common.annotations.VisibleForTesting;
 import demetra.cli.helpers.BasicArgsParser;
 import demetra.cli.helpers.BasicCliLauncher;
 import demetra.cli.helpers.InputOptions;
-import demetra.cli.helpers.OptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newInputOptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newOutputOptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newStandardOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newInputOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newOutputOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newStandardOptionsSpec;
 import demetra.cli.helpers.OutputOptions;
 import demetra.cli.helpers.StandardOptions;
 import ec.tss.TsCollectionInformation;
@@ -33,6 +32,8 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import demetra.cli.helpers.BasicCommand;
+import demetra.cli.helpers.ComposedOptionSpec;
+import org.openide.util.NbBundle;
 
 /**
  * Computes seasonal adjustment report from time series.
@@ -70,10 +71,10 @@ public final class Ts2Sa implements BasicCommand<Ts2Sa.Parameters> {
     @VisibleForTesting
     static final class Parser extends BasicArgsParser<Parameters> {
 
-        private final OptionsSpec<StandardOptions> so = newStandardOptionsSpec(parser);
-        private final OptionsSpec<InputOptions> input = newInputOptionsSpec(parser);
-        private final OptionsSpec<SaOptions> saOptions = new SaOptionsSpec(parser);
-        private final OptionsSpec<OutputOptions> output = newOutputOptionsSpec(parser);
+        private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
+        private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
+        private final ComposedOptionSpec<SaOptions> saOptions = new SaOptionsSpec(parser);
+        private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
         protected Parameters parse(OptionSet o) {
@@ -86,7 +87,12 @@ public final class Ts2Sa implements BasicCommand<Ts2Sa.Parameters> {
         }
     }
 
-    private static final class SaOptionsSpec implements OptionsSpec<SaOptions> {
+    @NbBundle.Messages({
+        "ts2sa.algorithm=Algorithm",
+        "ts2sa.spec=Specification",
+        "ts2sa.items=Comma-separated list of items to include"
+    })
+    private static final class SaOptionsSpec implements ComposedOptionSpec<SaOptions> {
 
         private final OptionSpec<String> algorithm;
         private final OptionSpec<String> spec;
@@ -94,17 +100,17 @@ public final class Ts2Sa implements BasicCommand<Ts2Sa.Parameters> {
 
         public SaOptionsSpec(OptionParser p) {
             this.algorithm = p
-                    .accepts("algorithm", "Algorithm")
+                    .accepts("algorithm", Bundle.ts2sa_algorithm())
                     .withRequiredArg()
                     .defaultsTo("tramoseats")
                     .ofType(String.class);
             this.spec = p
-                    .accepts("spec", "Specification")
+                    .accepts("spec", Bundle.ts2sa_spec())
                     .withRequiredArg()
                     .defaultsTo("RSA0")
                     .ofType(String.class);
             this.items = p
-                    .accepts("items", "Comma-separated list of items to include")
+                    .accepts("items", Bundle.ts2sa_items())
                     .withRequiredArg()
                     .withValuesSeparatedBy(",")
                     .defaultsTo("sa", "t", "s", "i")

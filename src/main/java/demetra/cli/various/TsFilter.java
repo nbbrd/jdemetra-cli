@@ -17,13 +17,13 @@
 package demetra.cli.various;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
 import demetra.cli.helpers.BasicArgsParser;
 import demetra.cli.helpers.BasicCliLauncher;
 import demetra.cli.helpers.InputOptions;
-import demetra.cli.helpers.OptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newInputOptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newOutputOptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newStandardOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newInputOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newOutputOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newStandardOptionsSpec;
 import demetra.cli.helpers.OutputOptions;
 import demetra.cli.helpers.StandardOptions;
 import demetra.xml.TsPeriodSelectorAdapter;
@@ -34,7 +34,6 @@ import ec.tss.xml.XmlTsCollection;
 import ec.tstoolkit.timeseries.Day;
 import ec.tstoolkit.timeseries.PeriodSelectorType;
 import ec.tstoolkit.timeseries.TsPeriodSelector;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.Set;
@@ -44,6 +43,8 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import demetra.cli.helpers.BasicCommand;
+import demetra.cli.helpers.ComposedOptionSpec;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -105,11 +106,11 @@ public final class TsFilter implements BasicCommand<TsFilter.Parameters> {
     @VisibleForTesting
     static final class Parser extends BasicArgsParser<Parameters> {
 
-        private final OptionsSpec<StandardOptions> so = newStandardOptionsSpec(parser);
-        private final OptionsSpec<InputOptions> input = newInputOptionsSpec(parser);
-        private final OptionsSpec<TsPeriodSelector> periodSelector = new PeriodSelectorOptionsSpec(parser);
-        private final OptionsSpec<EnumSet<TsItem>> itemsToRemove = new ItemsToRemoveSpec(parser);
-        private final OptionsSpec<OutputOptions> output = newOutputOptionsSpec(parser);
+        private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
+        private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
+        private final ComposedOptionSpec<TsPeriodSelector> periodSelector = new PeriodSelectorOptionsSpec(parser);
+        private final ComposedOptionSpec<EnumSet<TsItem>> itemsToRemove = new ItemsToRemoveSpec(parser);
+        private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
         protected Parameters parse(OptionSet o) {
@@ -123,7 +124,7 @@ public final class TsFilter implements BasicCommand<TsFilter.Parameters> {
         }
     }
 
-    private static final class PeriodSelectorOptionsSpec implements OptionsSpec<TsPeriodSelector> {
+    private static final class PeriodSelectorOptionsSpec implements ComposedOptionSpec<TsPeriodSelector> {
 
         private final OptionSpec<Date> from;
         private final OptionSpec<Date> to;
@@ -163,13 +164,18 @@ public final class TsFilter implements BasicCommand<TsFilter.Parameters> {
         }
     }
 
-    private static final class ItemsToRemoveSpec implements OptionsSpec<EnumSet<TsItem>> {
+    @NbBundle.Messages({
+        "# {0} - items to remove",
+        "tsfilter.items=Comma-separated list of items to remove [{0}]"
+    })
+    private static final class ItemsToRemoveSpec implements ComposedOptionSpec<EnumSet<TsItem>> {
 
         private final OptionSpec<TsItem> itemsToRemove;
 
         public ItemsToRemoveSpec(OptionParser p) {
+            Joiner joiner = Joiner.on(", ");
             this.itemsToRemove = p
-                    .accepts("remove", "Comma-separated list of items to remove " + Arrays.toString(TsItem.values()))
+                    .accepts("remove", Bundle.tsfilter_items(joiner.join(TsItem.values())))
                     .withRequiredArg()
                     .ofType(TsItem.class)
                     .withValuesSeparatedBy(',');

@@ -21,9 +21,8 @@ import demetra.cli.helpers.BasicArgsParser;
 import com.google.common.base.Optional;
 import demetra.cli.helpers.BasicCliLauncher;
 import demetra.cli.helpers.InputOptions;
-import demetra.cli.helpers.OptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newInputOptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newStandardOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newInputOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newStandardOptionsSpec;
 import demetra.cli.helpers.StandardOptions;
 import ec.tss.TsCollectionInformation;
 import ec.tss.tsproviders.spreadsheet.engine.SpreadSheetFactory;
@@ -38,6 +37,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import demetra.cli.helpers.BasicCommand;
+import demetra.cli.helpers.ComposedOptionSpec;
 
 /**
  * Converts time series to a spreadsheet file.
@@ -83,10 +83,10 @@ public final class Ts2SpreadSheet implements BasicCommand<Ts2SpreadSheet.Paramet
     @VisibleForTesting
     static final class Parser extends BasicArgsParser<Parameters> {
 
-        private final OptionsSpec<StandardOptions> so = newStandardOptionsSpec(parser);
-        private final OptionsSpec<InputOptions> input = newInputOptionsSpec(parser);
+        private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
+        private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
         private final OptionSpec<File> outputFile = parser.nonOptions("Output file").ofType(File.class);
-        private final OptionsSpec<TsExportOptions> exportOptions = new TsExportOptionsSpec(parser);
+        private final ComposedOptionSpec<TsExportOptions> exportOptions = new TsExportOptionsSpec(parser);
 
         @Override
         protected Parameters parse(OptionSet o) {
@@ -99,7 +99,7 @@ public final class Ts2SpreadSheet implements BasicCommand<Ts2SpreadSheet.Paramet
         }
     }
 
-    private static final class TsExportOptionsSpec implements OptionsSpec<TsExportOptions> {
+    private static final class TsExportOptionsSpec implements ComposedOptionSpec<TsExportOptions> {
 
         private final OptionSpec<Void> horizontal;
         private final OptionSpec<Void> hideDates;

@@ -17,13 +17,13 @@
 package demetra.cli.anomalydetection;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
 import demetra.cli.helpers.BasicArgsParser;
 import demetra.cli.helpers.BasicCliLauncher;
 import demetra.cli.helpers.InputOptions;
-import demetra.cli.helpers.OptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newInputOptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newOutputOptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newStandardOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newInputOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newOutputOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newStandardOptionsSpec;
 import demetra.cli.helpers.OutputOptions;
 import demetra.cli.helpers.StandardOptions;
 import ec.tss.TsCollectionInformation;
@@ -41,6 +41,8 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import lombok.Value;
 import demetra.cli.helpers.BasicCommand;
+import demetra.cli.helpers.ComposedOptionSpec;
+import org.openide.util.NbBundle;
 
 /**
  * Computes outliers from time series.
@@ -78,10 +80,10 @@ public final class Ts2Outliers implements BasicCommand<Ts2Outliers.Parameters> {
     @VisibleForTesting
     static final class Parser extends BasicArgsParser<Parameters> {
 
-        private final OptionsSpec<StandardOptions> so = newStandardOptionsSpec(parser);
-        private final OptionsSpec<InputOptions> input = newInputOptionsSpec(parser);
-        private final OptionsSpec<OutliersOptions> spec = new OutliersOptionsSpec(parser);
-        private final OptionsSpec<OutputOptions> output = newOutputOptionsSpec(parser);
+        private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
+        private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
+        private final ComposedOptionSpec<OutliersOptions> spec = new OutliersOptionsSpec(parser);
+        private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
         protected Parameters parse(OptionSet o) {
@@ -89,7 +91,16 @@ public final class Ts2Outliers implements BasicCommand<Ts2Outliers.Parameters> {
         }
     }
 
-    private static final class OutliersOptionsSpec implements OptionsSpec<OutliersOptions> {
+    @NbBundle.Messages({
+        "# {0} - spec list",
+        "ts2outliers.defaultSpec=Default spec [{0}]",
+        "ts2outliers.critVal=Critical value",
+        "# {0} - transformation list",
+        "ts2outliers.transformation=Transformation [{0}]",
+        "# {0} - outlier types",
+        "ts2outliers.outlierTypes=Comma-separated list of outlier types [{0}]"
+    })
+    private static final class OutliersOptionsSpec implements ComposedOptionSpec<OutliersOptions> {
 
         private final OptionSpec<DefaultSpec> defaultSpec;
         private final OptionSpec<Double> critVal;
@@ -97,23 +108,24 @@ public final class Ts2Outliers implements BasicCommand<Ts2Outliers.Parameters> {
         private final OptionSpec<OutlierType> outlierTypes;
 
         public OutliersOptionsSpec(OptionParser p) {
+            Joiner joiner = Joiner.on(", ");
             this.defaultSpec = p
-                    .acceptsAll(asList("s", "default-spec"), "Default spec " + BasicArgsParser.toString(DefaultSpec.values()))
+                    .acceptsAll(asList("s", "default-spec"), Bundle.ts2outliers_defaultSpec(joiner.join(DefaultSpec.values())))
                     .withRequiredArg()
                     .ofType(DefaultSpec.class)
                     .defaultsTo(DefaultSpec.TR4);
             this.critVal = p
-                    .acceptsAll(asList("c", "critical-value"), "Critical value")
+                    .acceptsAll(asList("c", "critical-value"), Bundle.ts2outliers_critVal())
                     .withRequiredArg()
                     .ofType(Double.class)
                     .defaultsTo(0d);
             this.transformation = p
-                    .acceptsAll(asList("t", "transformation"), "Transformation " + BasicArgsParser.toString(DefaultTransformationType.values()))
+                    .acceptsAll(asList("t", "transformation"), Bundle.ts2outliers_transformation(joiner.join(DefaultTransformationType.values())))
                     .withRequiredArg()
                     .ofType(DefaultTransformationType.class)
                     .defaultsTo(DefaultTransformationType.None);
             this.outlierTypes = p
-                    .acceptsAll(asList("x", "outlier-types"), "Comma-separated list of outlier types " + BasicArgsParser.toString(AO, LS, TC, SO))
+                    .acceptsAll(asList("x", "outlier-types"), Bundle.ts2outliers_outlierTypes(joiner.join(AO, LS, TC, SO)))
                     .withRequiredArg()
                     .ofType(OutlierType.class)
                     .withValuesSeparatedBy(',')

@@ -17,19 +17,18 @@
 package demetra.cli.dstats;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
 import demetra.cli.helpers.BasicArgsParser;
 import demetra.cli.helpers.BasicCliLauncher;
 import demetra.cli.helpers.InputOptions;
-import demetra.cli.helpers.OptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newInputOptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newOutputOptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newStandardOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newInputOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newOutputOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newStandardOptionsSpec;
 import demetra.cli.helpers.OutputOptions;
 import demetra.cli.helpers.StandardOptions;
 import ec.tss.xml.XmlTs;
 import ec.tss.xml.XmlTsCollection;
 import ec.tstoolkit.data.DescriptiveStatistics;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -37,6 +36,8 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import demetra.cli.helpers.BasicCommand;
+import demetra.cli.helpers.ComposedOptionSpec;
+import org.openide.util.NbBundle;
 
 /**
  * Computes descriptive statistics from time series.
@@ -128,10 +129,10 @@ public final class Ts2DStats implements BasicCommand<Ts2DStats.Parameters> {
     @VisibleForTesting
     static final class Parser extends BasicArgsParser<Parameters> {
 
-        private final OptionsSpec<StandardOptions> so = newStandardOptionsSpec(parser);
-        private final OptionsSpec<InputOptions> input = newInputOptionsSpec(parser);
-        private final OptionsSpec<EnumSet<DStatsItem>> items = new ItemsToIncludeOptionsSpec(parser);
-        private final OptionsSpec<OutputOptions> output = newOutputOptionsSpec(parser);
+        private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
+        private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
+        private final ComposedOptionSpec<EnumSet<DStatsItem>> items = new ItemsToIncludeOptionsSpec(parser);
+        private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
         protected Parameters parse(OptionSet o) {
@@ -144,13 +145,18 @@ public final class Ts2DStats implements BasicCommand<Ts2DStats.Parameters> {
         }
     }
 
-    private static final class ItemsToIncludeOptionsSpec implements OptionsSpec<EnumSet<DStatsItem>> {
+    @NbBundle.Messages({
+        "# {0} - spec list",
+        "ts2dstats.items=Comma-separated list of items to include [{0}]"
+    })
+    private static final class ItemsToIncludeOptionsSpec implements ComposedOptionSpec<EnumSet<DStatsItem>> {
 
         private final OptionSpec<DStatsItem> items;
 
         public ItemsToIncludeOptionsSpec(OptionParser p) {
+            Joiner joiner = Joiner.on(", ");
             this.items = p
-                    .accepts("include", "Comma-separated list of items to include " + Arrays.toString(DStatsItem.values()))
+                    .accepts("include", Bundle.ts2dstats_items(joiner.join(DStatsItem.values())))
                     .withRequiredArg()
                     .ofType(DStatsItem.class)
                     .withValuesSeparatedBy(',');

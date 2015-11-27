@@ -21,9 +21,8 @@ import com.google.common.net.MediaType;
 import demetra.cli.helpers.BasicArgsParser;
 import demetra.cli.helpers.BasicCliLauncher;
 import demetra.cli.helpers.InputOptions;
-import demetra.cli.helpers.OptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newInputOptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newStandardOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newInputOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newStandardOptionsSpec;
 import demetra.cli.helpers.StandardOptions;
 import demetra.cli.helpers.Utils;
 import ec.tss.TsCollectionInformation;
@@ -47,6 +46,8 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import org.jfree.data.xy.IntervalXYDataset;
 import demetra.cli.helpers.BasicCommand;
+import demetra.cli.helpers.ComposedOptionSpec;
+import org.openide.util.NbBundle;
 
 /**
  * Generates a chart from time series.
@@ -137,15 +138,15 @@ public final class Ts2Chart implements BasicCommand<Ts2Chart.Parameters> {
     @VisibleForTesting
     static final class Parser extends BasicArgsParser<Parameters> {
 
-        private final OptionsSpec<StandardOptions> so = newStandardOptionsSpec(parser);
-        private final OptionsSpec<InputOptions> input = newInputOptionsSpec(parser);
+        private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
+        private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
         private final OptionSpec<File> outputFile = parser.nonOptions("Output file").ofType(File.class);
         private final OptionSpec<String> mediaType = parser
                 .acceptsAll(asList("ot", "output-type"), "Output media type")
                 .withRequiredArg()
                 .ofType(String.class)
                 .describedAs("Media type");
-        private final ChartOptionsSpec chart = new ChartOptionsSpec(parser);
+        private final ComposedOptionSpec<ChartOptions> chart = new ChartOptionsSpec(parser);
 
         @Override
         protected Parameters parse(OptionSet o) {
@@ -159,7 +160,13 @@ public final class Ts2Chart implements BasicCommand<Ts2Chart.Parameters> {
         }
     }
 
-    private static final class ChartOptionsSpec implements OptionsSpec<ChartOptions> {
+    @NbBundle.Messages({
+        "ts2chart.width=Width in px",
+        "ts2chart.height=Height in px",
+        "ts2chart.colorScheme=Color scheme name",
+        "ts2chart.title=Title"
+    })
+    private static final class ChartOptionsSpec implements ComposedOptionSpec<ChartOptions> {
 
         private final OptionSpec<Integer> width;
         private final OptionSpec<Integer> height;
@@ -168,30 +175,29 @@ public final class Ts2Chart implements BasicCommand<Ts2Chart.Parameters> {
 
         public ChartOptionsSpec(OptionParser p) {
             this.width = p
-                    .acceptsAll(asList("w", "width"), "Width")
+                    .acceptsAll(asList("w", "width"), Bundle.ts2chart_width())
                     .withRequiredArg()
                     .ofType(Integer.class)
                     .defaultsTo(400);
             this.height = p
-                    .acceptsAll(asList("h", "height"), "Height")
+                    .acceptsAll(asList("h", "height"), Bundle.ts2chart_height())
                     .withRequiredArg()
                     .ofType(Integer.class)
                     .defaultsTo(300);
             this.colorScheme = p
-                    .acceptsAll(asList("c", "color-scheme"), "Color scheme")
+                    .acceptsAll(asList("c", "color-scheme"), Bundle.ts2chart_colorScheme())
                     .withRequiredArg()
                     .ofType(String.class)
                     .defaultsTo(SmartColorScheme.NAME);
             this.title = p
-                    .acceptsAll(asList("t", "title"), "Title")
+                    .acceptsAll(asList("t", "title"), Bundle.ts2chart_title())
                     .withRequiredArg()
-                    .ofType(String.class)
-                    .defaultsTo("");
+                    .ofType(String.class);
         }
 
         @Override
         public ChartOptions value(OptionSet o) {
-            return new ChartOptions(width.value(o), height.value(o), colorScheme.value(o), title.value(o));
+            return new ChartOptions(width.value(o), height.value(o), colorScheme.value(o), o.has(title) ? title.value(o) : "");
         }
     }
 }

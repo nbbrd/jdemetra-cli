@@ -19,9 +19,8 @@ package demetra.cli.tsproviders;
 import com.google.common.annotations.VisibleForTesting;
 import demetra.cli.helpers.BasicArgsParser;
 import demetra.cli.helpers.BasicCliLauncher;
-import demetra.cli.helpers.OptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newOutputOptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newStandardOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newOutputOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newStandardOptionsSpec;
 import demetra.cli.helpers.OutputOptions;
 import demetra.cli.helpers.StandardOptions;
 import ec.tss.TsCollectionInformation;
@@ -35,6 +34,8 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import demetra.cli.helpers.BasicCommand;
+import demetra.cli.helpers.ComposedOptionSpec;
+import org.openide.util.NbBundle;
 
 /**
  * Retrieves time series from an SDMX file.
@@ -68,9 +69,9 @@ public final class Sdmx2Ts implements BasicCommand<Sdmx2Ts.Parameters> {
     @VisibleForTesting
     static final class Parser extends BasicArgsParser<Parameters> {
 
-        private final OptionsSpec<StandardOptions> so = newStandardOptionsSpec(parser);
-        private final OptionsSpec<SdmxBean> sdmx = new SdmxOptionsSpec(parser);
-        private final OptionsSpec<OutputOptions> output = newOutputOptionsSpec(parser);
+        private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
+        private final ComposedOptionSpec<SdmxBean> sdmx = new SdmxOptionsSpec(parser);
+        private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
         protected Parameters parse(OptionSet o) {
@@ -82,22 +83,30 @@ public final class Sdmx2Ts implements BasicCommand<Sdmx2Ts.Parameters> {
         }
     }
 
-    private static final class SdmxOptionsSpec implements OptionsSpec<SdmxBean> {
+    @NbBundle.Messages({
+        "sdmx2ts.label=Attribute used as title"
+    })
+    private static final class SdmxOptionsSpec implements ComposedOptionSpec<SdmxBean> {
 
-        private final OptionSpec<File> file;
+        // source
+        private final ComposedOptionSpec<File> file;
+        // options
         private final OptionSpec<String> label;
 
         public SdmxOptionsSpec(OptionParser p) {
-            this.file = p.nonOptions("Input file").ofType(File.class);
-            this.label = p.accepts("label").withRequiredArg().defaultsTo("");
+            this.file = TsProviderOptionSpecs.newInputFileSpec(p);
+            this.label = p
+                    .accepts("label", Bundle.sdmx2ts_label())
+                    .withRequiredArg()
+                    .defaultsTo("");
         }
 
         @Override
         public SdmxBean value(OptionSet o) {
-            SdmxBean input = new SdmxBean();
-            input.setFile(o.has(file) ? file.value(o) : null);
-            input.setTitleAttribute(label.value(o));
-            return input;
+            SdmxBean result = new SdmxBean();
+            result.setFile(file.value(o));
+            result.setTitleAttribute(label.value(o));
+            return result;
         }
     }
 }

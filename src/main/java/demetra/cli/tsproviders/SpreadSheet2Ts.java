@@ -19,9 +19,8 @@ package demetra.cli.tsproviders;
 import com.google.common.annotations.VisibleForTesting;
 import demetra.cli.helpers.BasicArgsParser;
 import demetra.cli.helpers.BasicCliLauncher;
-import demetra.cli.helpers.OptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newOutputOptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newStandardOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newOutputOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newStandardOptionsSpec;
 import demetra.cli.helpers.OutputOptions;
 import demetra.cli.helpers.StandardOptions;
 import ec.tss.TsCollectionInformation;
@@ -30,14 +29,14 @@ import ec.tss.tsproviders.spreadsheet.SpreadSheetBean;
 import ec.tss.tsproviders.spreadsheet.SpreadSheetProvider;
 import ec.tss.tsproviders.utils.DataFormat;
 import ec.tss.xml.XmlTsCollection;
-import ec.tstoolkit.timeseries.TsAggregationType;
-import ec.tstoolkit.timeseries.simplets.TsFrequency;
 import java.io.File;
 import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import demetra.cli.helpers.BasicCommand;
+import demetra.cli.helpers.ComposedOptionSpec;
+import org.openide.util.NbBundle;
 
 /**
  * Retrieves time series from a spreadsheet file.
@@ -70,9 +69,9 @@ public final class SpreadSheet2Ts implements BasicCommand<SpreadSheet2Ts.Paramet
     @VisibleForTesting
     static final class Parser extends BasicArgsParser<Parameters> {
 
-        private final OptionsSpec<StandardOptions> so = newStandardOptionsSpec(parser);
-        private final OptionsSpec<SpreadSheetBean> input = new SpreadSheetOptionsSpec(parser);
-        private final OptionsSpec<OutputOptions> output = newOutputOptionsSpec(parser);
+        private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
+        private final ComposedOptionSpec<SpreadSheetBean> input = new SpreadSheetOptionsSpec(parser);
+        private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
         protected Parameters parse(OptionSet o) {
@@ -84,39 +83,37 @@ public final class SpreadSheet2Ts implements BasicCommand<SpreadSheet2Ts.Paramet
         }
     }
 
-    private static final class SpreadSheetOptionsSpec implements OptionsSpec<SpreadSheetBean> {
+    @NbBundle.Messages({
+        "spreadsheet2ts.clean=Cleans the missing values"
+    })
+    private static final class SpreadSheetOptionsSpec implements ComposedOptionSpec<SpreadSheetBean> {
 
-        private final OptionSpec<File> inputFile;
-        private final OptionSpec<String> locale;
-        private final OptionSpec<String> date;
-        private final OptionSpec<String> number;
-        private final OptionSpec<TsFrequency> freq;
-        private final OptionSpec<TsAggregationType> aggregation;
+        // source
+        private final ComposedOptionSpec<File> file;
+        // options
+        private final ComposedOptionSpec<DataFormat> dataFormat;
+        private final ComposedOptionSpec<TsDataBuild> tsDataBuild;
         private final OptionSpec<Boolean> clean;
 
         public SpreadSheetOptionsSpec(OptionParser p) {
-            this.inputFile = p.nonOptions("Input file").ofType(File.class);
-            this.locale = p.accepts("l", "Locale used to parse dates and numbers")
-                    .withRequiredArg().ofType(String.class).describedAs("Locale");
-            this.date = p.accepts("d", "Pattern used to parse dates")
-                    .withRequiredArg().ofType(String.class).describedAs("Date pattern");
-            this.number = p.accepts("n", "Pattern used to parse numbers")
-                    .withRequiredArg().ofType(String.class).describedAs("Number pattern");
-            this.freq = p.accepts("f", "Time series frequency")
-                    .withRequiredArg().ofType(TsFrequency.class).defaultsTo(TsFrequency.Undefined);
-            this.aggregation = p.accepts("a", "Aggregation type used in conjonction with the frequency")
-                    .withRequiredArg().ofType(TsAggregationType.class).defaultsTo(TsAggregationType.None);
-            this.clean = p.accepts("c", "Cleans the missing values")
-                    .withRequiredArg().ofType(Boolean.class).defaultsTo(Boolean.TRUE).describedAs("Clean missing");
+            this.file = TsProviderOptionSpecs.newInputFileSpec(p);
+            this.dataFormat = TsProviderOptionSpecs.newDataFormatSpec(p);
+            this.tsDataBuild = TsProviderOptionSpecs.newTsDataBuildSpec(p);
+            this.clean = p
+                    .accepts("clean", Bundle.spreadsheet2ts_clean())
+                    .withRequiredArg()
+                    .ofType(Boolean.class)
+                    .defaultsTo(Boolean.TRUE);
         }
 
         @Override
         public SpreadSheetBean value(OptionSet o) {
             SpreadSheetBean result = new SpreadSheetBean();
-            result.setFile(o.has(inputFile) ? inputFile.value(o) : null);
-            result.setDataFormat(DataFormat.create(locale.value(o), date.value(o), number.value(o)));
-            result.setFrequency(freq.value(o));
-            result.setAggregationType(aggregation.value(o));
+            result.setFile(file.value(o));
+            result.setDataFormat(dataFormat.value(o));
+            TsDataBuild tmp = tsDataBuild.value(o);
+            result.setFrequency(tmp.getFrequency());
+            result.setAggregationType(tmp.getAggregationType());
             result.setCleanMissing(clean.value(o));
             return result;
         }

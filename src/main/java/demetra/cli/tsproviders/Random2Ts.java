@@ -20,9 +20,8 @@ import com.google.common.annotations.VisibleForTesting;
 import demetra.cli.helpers.BasicArgsParser;
 import com.google.common.primitives.Doubles;
 import demetra.cli.helpers.BasicCliLauncher;
-import demetra.cli.helpers.OptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newOutputOptionsSpec;
-import static demetra.cli.helpers.OptionsSpec.newStandardOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newOutputOptionsSpec;
+import static demetra.cli.helpers.ComposedOptionSpec.newStandardOptionsSpec;
 import demetra.cli.helpers.OutputOptions;
 import demetra.cli.helpers.StandardOptions;
 import ec.tss.TsCollectionInformation;
@@ -35,6 +34,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import demetra.cli.helpers.BasicCommand;
+import demetra.cli.helpers.ComposedOptionSpec;
 
 /**
  * Creates random time series.
@@ -66,9 +66,9 @@ public final class Random2Ts implements BasicCommand<Random2Ts.Parameters> {
     @VisibleForTesting
     static final class Parser extends BasicArgsParser<Parameters> {
 
-        private final OptionsSpec<StandardOptions> so = newStandardOptionsSpec(parser);
-        private final OptionsSpec<RandomBean> random = new RandomOptionsSpec(parser);
-        private final OptionsSpec<OutputOptions> output = newOutputOptionsSpec(parser);
+        private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
+        private final ComposedOptionSpec<RandomBean> random = new RandomOptionsSpec(parser);
+        private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
         protected Parameters parse(OptionSet o) {
@@ -80,7 +80,7 @@ public final class Random2Ts implements BasicCommand<Random2Ts.Parameters> {
         }
     }
 
-    private static final class RandomOptionsSpec implements OptionsSpec<RandomBean> {
+    private static final class RandomOptionsSpec implements ComposedOptionSpec<RandomBean> {
 
         private final OptionSpec<Integer> seed;
         private final OptionSpec<Integer> length;

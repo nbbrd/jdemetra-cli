@@ -18,7 +18,6 @@ package demetra.cli.helpers;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import joptsimple.BuiltinHelpFormatter;
@@ -54,19 +53,6 @@ public abstract class BasicArgsParser<T> implements ArgsParser<T> {
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
         }
-    }
-
-    public static <X> String toString(X[] args) {
-        return Arrays.toString(args);
-    }
-
-    public static <X> String toString(X arg0, X... args) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[").append(arg0);
-        for (X o : args) {
-            sb.append(", ").append(o);
-        }
-        return sb.append("]").toString();
     }
 
     //<editor-fold defaultstate="collapsed" desc="Internal implementation">
