@@ -17,10 +17,10 @@
 package demetra.cli.various;
 
 import static com.google.common.net.MediaType.XML_UTF_8;
-import demetra.cli.tsproviders.XProviders;
 import demetra.cli.helpers.InputOptions;
 import demetra.cli.helpers.OutputOptions;
 import demetra.cli.helpers.StandardOptions;
+import demetra.cli.tsproviders.ProviderToolImpl;
 import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformationType;
 import ec.tss.tsproviders.common.random.RandomBean;
@@ -48,7 +48,7 @@ public class TsFilterTest {
         RandomBean bean = new RandomBean();
         bean.setCount(3);
         bean.setLength(24);
-        return XProviders.getTsCollection(new RandomProvider(), bean, TsInformationType.All);
+        return new ProviderToolImpl().getTsCollection(new RandomProvider(), bean, TsInformationType.All);
     }
 
     static void write(File file, TsCollectionInformation col) throws IOException {

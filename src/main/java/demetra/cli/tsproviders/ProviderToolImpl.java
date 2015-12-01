@@ -30,18 +30,17 @@ import ec.tss.tsproviders.IDataSourceProvider;
 import ec.tss.tsproviders.IFileLoader;
 import java.io.File;
 import java.net.URI;
-import javax.annotation.Nonnull;
-import lombok.experimental.UtilityClass;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author Philippe Charles
  */
-@UtilityClass
-public class XProviders {
+@ServiceProvider(service = ProviderTool.class)
+public final class ProviderToolImpl implements ProviderTool {
 
-    @Nonnull
-    public static TsCollectionInformation getTsCollection(@Nonnull Iterable<ITsProvider> providers, @Nonnull URI uri, @Nonnull TsInformationType scope) {
+    @Override
+    public TsCollectionInformation getTsCollection(Iterable<? extends ITsProvider> providers, URI uri, TsInformationType scope) {
         Optional<DataSource> dataSource = DataSource.uriParser().tryParse(uri.toString());
         if (dataSource.isPresent()) {
             Optional<IDataSourceProvider> provider = lookup(providers, IDataSourceProvider.class, dataSource.get().getProviderName());
@@ -70,12 +69,13 @@ public class XProviders {
         throw new IllegalArgumentException(uri.toString());
     }
 
-    @Nonnull
-    public static TsCollectionInformation getTsCollection(@Nonnull IDataSourceLoader loader, @Nonnull Object bean, @Nonnull TsInformationType scope) {
+    @Override
+    public TsCollectionInformation getTsCollection(IDataSourceLoader loader, Object bean, TsInformationType scope) {
         return getTsCollection((IDataSourceProvider) loader, loader.encodeBean(bean), scope);
     }
 
-    public static void applyWorkingDir(@Nonnull IFileLoader provider) {
+    @Override
+    public void applyWorkingDir(IFileLoader provider) {
         provider.setPaths(new File[]{new File(StandardSystemProperty.USER_DIR.value())});
     }
 
@@ -104,7 +104,7 @@ public class XProviders {
         return result;
     }
 
-    private static <X extends IDataSourceProvider> Optional<X> lookup(Iterable<ITsProvider> providers, Class<X> providerClass, final String providerName) {
+    private static <X extends IDataSourceProvider> Optional<X> lookup(Iterable<? extends ITsProvider> providers, Class<X> providerClass, final String providerName) {
         return FluentIterable.from(providers)
                 .filter(providerClass)
                 .firstMatch((X input) -> input.getSource().equals(providerName));

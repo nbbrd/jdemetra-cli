@@ -58,8 +58,8 @@ public final class SpreadSheet2Ts implements BasicCommand<SpreadSheet2Ts.Paramet
     @Override
     public void exec(Parameters params) throws Exception {
         SpreadSheetProvider provider = new SpreadSheetProvider();
-        XProviders.applyWorkingDir(provider);
-        TsCollectionInformation result = XProviders.getTsCollection(provider, params.input, TsInformationType.All);
+        ProviderTool.getDefault().applyWorkingDir(provider);
+        TsCollectionInformation result = ProviderTool.getDefault().getTsCollection(provider, params.input, TsInformationType.All);
         params.output.writeValue(XmlTsCollection.class, result);
         provider.dispose();
     }

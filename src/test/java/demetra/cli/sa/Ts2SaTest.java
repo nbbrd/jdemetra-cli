@@ -42,9 +42,9 @@ public class Ts2SaTest {
     @Test
     public void testProcess() {
         TsCollectionInformation input = getData();
-        SaOptions options = new SaOptions("tramoseats", "RSA1", Arrays.asList("sa"));
+        SaTool.Options options = new SaTool.Options("tramoseats", "RSA1", Arrays.asList("sa"));
 
-        SaTsCollection.create(input, options).getItems().stream()
+        new SaToolImpl().create(input, options).getItems().stream()
                 .flatMap(o -> o.getData().entrySet().stream())
                 .forEach(x -> {
                     System.out.println(x.getKey() + " > " + x.getValue().getObsCount());

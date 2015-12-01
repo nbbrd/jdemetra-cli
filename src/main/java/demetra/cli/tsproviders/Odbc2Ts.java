@@ -58,7 +58,7 @@ public final class Odbc2Ts implements BasicCommand<Odbc2Ts.Parameters> {
     @Override
     public void exec(Parameters params) throws Exception {
         OdbcProvider provider = new OdbcProvider();
-        TsCollectionInformation result = XProviders.getTsCollection(provider, params.input, TsInformationType.All);
+        TsCollectionInformation result = ProviderTool.getDefault().getTsCollection(provider, params.input, TsInformationType.All);
         params.output.writeValue(XmlTsCollection.class, result);
         provider.dispose();
     }

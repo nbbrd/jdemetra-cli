@@ -31,7 +31,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Philippe Charles
  */
 @XmlRootElement(name = "outliers_tscollection")
-public final class XmlOutliersTsCollection implements IXmlConverter<OutliersTsCollection> {
+public final class XmlOutliersTsCollection implements IXmlConverter<OutliersTool.OutliersTsCollection> {
 
     @XmlAttribute
     public String name;
@@ -44,8 +44,8 @@ public final class XmlOutliersTsCollection implements IXmlConverter<OutliersTsCo
     public XmlOutliersTs[] items;
 
     @Override
-    public OutliersTsCollection create() {
-        OutliersTsCollection result = new OutliersTsCollection();
+    public OutliersTool.OutliersTsCollection create() {
+        OutliersTool.OutliersTsCollection result = new OutliersTool.OutliersTsCollection();
         result.setName(name);
         result.setMoniker(new TsMoniker(source, identifier));
         if (items != null) {
@@ -57,14 +57,14 @@ public final class XmlOutliersTsCollection implements IXmlConverter<OutliersTsCo
     }
 
     @Override
-    public void copy(OutliersTsCollection t) {
+    public void copy(OutliersTool.OutliersTsCollection t) {
         name = t.getName();
         source = t.getMoniker().getSource();
         identifier = t.getMoniker().getId();
         items = t.getItems().stream().map(XmlOutliersTsCollection::convert).toArray(o -> new XmlOutliersTs[o]);
     }
 
-    private static XmlOutliersTs convert(OutliersTs o) {
+    private static XmlOutliersTs convert(OutliersTool.OutliersTs o) {
         XmlOutliersTs result = new XmlOutliersTs();
         result.copy(o);
         return result;

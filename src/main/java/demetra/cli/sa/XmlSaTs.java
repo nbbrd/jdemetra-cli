@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlElement;
  *
  * @author Philippe Charles
  */
-public final class XmlSaTs implements IXmlConverter<SaTs> {
+public final class XmlSaTs implements IXmlConverter<SaTool.SaTs> {
 
     @XmlAttribute
     public String name;
@@ -48,8 +48,8 @@ public final class XmlSaTs implements IXmlConverter<SaTs> {
     public String invalidDataCause;
 
     @Override
-    public SaTs create() {
-        SaTs result = new SaTs();
+    public SaTool.SaTs create() {
+        SaTool.SaTs result = new SaTool.SaTs();
         result.setName(name);
         result.setMoniker(new TsMoniker(source, identifier));
         result.setAlgorithm(algorithm);
@@ -65,7 +65,7 @@ public final class XmlSaTs implements IXmlConverter<SaTs> {
     }
 
     @Override
-    public void copy(SaTs t) {
+    public void copy(SaTool.SaTs t) {
         name = t.getName();
         source = t.getMoniker().getSource();
         identifier = t.getMoniker().getId();

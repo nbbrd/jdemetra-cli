@@ -51,13 +51,13 @@ public final class Sa2Ts implements BasicCommand<Sa2Ts.Parameters> {
 
     @Override
     public void exec(Parameters params) throws Exception {
-        SaTsCollection input = params.input.readValue(XmlSaTsCollection.class);
+        SaTool.SaTsCollection input = params.input.readValue(XmlSaTsCollection.class);
 
         if (params.so.isVerbose()) {
             System.err.println("Processing " + input.getItems().size() + " items");
         }
 
-        TsCollectionInformation output = input.toTsCollection();
+        TsCollectionInformation output = SaTool.getDefault().toTsCollection(input);
 
         params.output.writeValue(XmlTsCollection.class, output);
     }

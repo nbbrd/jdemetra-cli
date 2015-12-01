@@ -58,9 +58,9 @@ public final class Uri2Ts implements BasicCommand<Uri2Ts.Parameters> {
     public void exec(Parameters params) throws Exception {
         Iterable<ITsProvider> providers = ServiceLoader.load(ITsProvider.class);
         for (IFileLoader o : Iterables.filter(providers, IFileLoader.class)) {
-            XProviders.applyWorkingDir(o);
+            ProviderTool.getDefault().applyWorkingDir(o);
         }
-        TsCollectionInformation result = XProviders.getTsCollection(providers, params.uri, TsInformationType.All);
+        TsCollectionInformation result = ProviderTool.getDefault().getTsCollection(providers, params.uri, TsInformationType.All);
         params.output.writeValue(XmlTsCollection.class, result);
         for (ITsProvider o : providers) {
             o.dispose();

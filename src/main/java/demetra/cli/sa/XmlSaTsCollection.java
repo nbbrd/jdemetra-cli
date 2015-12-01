@@ -31,7 +31,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Philippe Charles
  */
 @XmlRootElement(name = "sa_tscollection")
-public final class XmlSaTsCollection implements IXmlConverter<SaTsCollection> {
+public final class XmlSaTsCollection implements IXmlConverter<SaTool.SaTsCollection> {
 
     @XmlAttribute
     public String name;
@@ -48,8 +48,8 @@ public final class XmlSaTsCollection implements IXmlConverter<SaTsCollection> {
     public XmlSaTs[] items;
 
     @Override
-    public SaTsCollection create() {
-        SaTsCollection result = new SaTsCollection();
+    public SaTool.SaTsCollection create() {
+        SaTool.SaTsCollection result = new SaTool.SaTsCollection();
         result.setName(name);
         result.setMoniker(new TsMoniker(source, identifier));
         if (items != null) {
@@ -61,7 +61,7 @@ public final class XmlSaTsCollection implements IXmlConverter<SaTsCollection> {
     }
 
     @Override
-    public void copy(SaTsCollection t) {
+    public void copy(SaTool.SaTsCollection t) {
         name = t.getName();
         source = t.getMoniker().getSource();
         identifier = t.getMoniker().getId();
@@ -70,7 +70,7 @@ public final class XmlSaTsCollection implements IXmlConverter<SaTsCollection> {
         items = t.getItems().stream().map(o -> convert(o)).toArray(o -> new XmlSaTs[o]);
     }
 
-    private static XmlSaTs convert(SaTs o) {
+    private static XmlSaTs convert(SaTool.SaTs o) {
         XmlSaTs result = new XmlSaTs();
         result.copy(o);
         return result;

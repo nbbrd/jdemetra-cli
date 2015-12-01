@@ -26,24 +26,15 @@ import static demetra.cli.helpers.ComposedOptionSpec.newStandardOptionsSpec;
 import demetra.cli.helpers.StandardOptions;
 import demetra.cli.helpers.Utils;
 import ec.tss.TsCollectionInformation;
-import ec.tss.TsInformation;
 import ec.tss.xml.XmlTsCollection;
-import ec.tstoolkit.timeseries.simplets.TsData;
-import ec.util.chart.ColorScheme;
-import ec.util.chart.ObsFunction;
-import ec.util.chart.SeriesFunction;
 import ec.util.chart.impl.SmartColorScheme;
-import ec.util.chart.swing.JTimeSeriesChart;
-import ec.util.chart.swing.SwingColorSchemeSupport;
 import java.io.File;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import static java.util.Arrays.asList;
-import java.util.ServiceLoader;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import org.jfree.data.xy.IntervalXYDataset;
 import demetra.cli.helpers.BasicCommand;
 import demetra.cli.helpers.ComposedOptionSpec;
 import org.openide.util.NbBundle;
@@ -65,72 +56,16 @@ public final class Ts2Chart implements BasicCommand<Ts2Chart.Parameters> {
         public InputOptions input;
         public File outputFile;
         public MediaType mediaType;
-        public ChartOptions chart;
+        public ChartTool.Options chart;
     }
 
     @Override
     public void exec(Parameters params) throws Exception {
-        TsCollectionInformation info = params.input.readValue(XmlTsCollection.class);
-
-        JTimeSeriesChart chart = new JTimeSeriesChart();
-        applyContent(chart, info);
-        applyOptions(chart, params.chart);
-        chart.doLayout();
+        TsCollectionInformation input = params.input.readValue(XmlTsCollection.class);
 
         try (OutputStream stream = Files.newOutputStream(params.outputFile.toPath())) {
-            chart.writeImage(params.mediaType.withoutParameters().toString(), stream);
+            ChartTool.getDefault().writeChart(input, params.chart, stream, params.mediaType);
         }
-    }
-
-    private void applyContent(JTimeSeriesChart chart, TsCollectionInformation info) {
-        chart.setTitle(info.name);
-        chart.setDataset(getDataset(info));
-        chart.setSeriesFormatter(getSeriesFormatter(info));
-        chart.setObsFormatter(getObsFormatter(info));
-    }
-
-    private void applyOptions(JTimeSeriesChart chart, ChartOptions options) {
-        chart.setSize(options.getWidth(), options.getHeight());
-        chart.setColorSchemeSupport(SwingColorSchemeSupport.from(getColorScheme(options.getColorScheme())));
-        if (!options.getTitle().isEmpty()) {
-            chart.setTitle(options.getTitle());
-        }
-    }
-
-    private ObsFunction<String> getObsFormatter(final TsCollectionInformation info) {
-        return new ObsFunction<String>() {
-            @Override
-            public String apply(int series, int obs) {
-                TsData data = info.items.get(series).data;
-                return data.getDomain().get(obs) + " : " + data.get(obs);
-            }
-        };
-    }
-
-    private SeriesFunction<String> getSeriesFormatter(final TsCollectionInformation info) {
-        return new SeriesFunction<String>() {
-            @Override
-            public String apply(int series) {
-                return info.items.get(series).name;
-            }
-        };
-    }
-
-    private ColorScheme getColorScheme(String name) {
-        for (ColorScheme o : ServiceLoader.load(ColorScheme.class)) {
-            if (o.getName().equals(name)) {
-                return o;
-            }
-        }
-        return new SmartColorScheme();
-    }
-
-    private IntervalXYDataset getDataset(TsCollectionInformation info) {
-        TsXYDatasets.Builder result = TsXYDatasets.builder();
-        info.items.stream().filter(TsInformation::hasData).forEach((o) -> {
-            result.add(o.name, o.data);
-        });
-        return result.build();
     }
 
     @VisibleForTesting
@@ -144,7 +79,7 @@ public final class Ts2Chart implements BasicCommand<Ts2Chart.Parameters> {
                 .withRequiredArg()
                 .ofType(String.class)
                 .describedAs("Media type");
-        private final ComposedOptionSpec<ChartOptions> chart = new ChartOptionsSpec(parser);
+        private final ComposedOptionSpec<ChartTool.Options> chart = new ChartOptionsSpec(parser);
 
         @Override
         protected Parameters parse(OptionSet o) {
@@ -164,7 +99,7 @@ public final class Ts2Chart implements BasicCommand<Ts2Chart.Parameters> {
         "ts2chart.colorScheme=Color scheme name",
         "ts2chart.title=Title"
     })
-    private static final class ChartOptionsSpec implements ComposedOptionSpec<ChartOptions> {
+    private static final class ChartOptionsSpec implements ComposedOptionSpec<ChartTool.Options> {
 
         private final OptionSpec<Integer> width;
         private final OptionSpec<Integer> height;
@@ -194,8 +129,8 @@ public final class Ts2Chart implements BasicCommand<Ts2Chart.Parameters> {
         }
 
         @Override
-        public ChartOptions value(OptionSet o) {
-            return new ChartOptions(width.value(o), height.value(o), colorScheme.value(o), o.has(title) ? title.value(o) : "");
+        public ChartTool.Options value(OptionSet o) {
+            return new ChartTool.Options(width.value(o), height.value(o), colorScheme.value(o), o.has(title) ? title.value(o) : "");
         }
     }
 }

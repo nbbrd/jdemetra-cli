@@ -61,8 +61,8 @@ public final class Txt2Ts implements BasicCommand<Txt2Ts.Parameters> {
     @Override
     public void exec(Parameters params) throws Exception {
         TxtProvider provider = new TxtProvider();
-        XProviders.applyWorkingDir(provider);
-        TsCollectionInformation result = XProviders.getTsCollection(provider, params.input, TsInformationType.All);
+        ProviderTool.getDefault().applyWorkingDir(provider);
+        TsCollectionInformation result = ProviderTool.getDefault().getTsCollection(provider, params.input, TsInformationType.All);
         params.output.writeValue(XmlTsCollection.class, result);
         provider.dispose();
     }

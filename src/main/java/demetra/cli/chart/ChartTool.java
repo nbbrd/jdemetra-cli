@@ -14,32 +14,37 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package demetra.cli.anomalydetection;
+package demetra.cli.chart;
 
+import com.google.common.net.MediaType;
 import ec.tss.TsCollectionInformation;
-import ec.tss.TsMoniker;
-import java.util.List;
-import java.util.stream.Collectors;
+import ec.tstoolkit.design.ServiceDefinition;
+import java.io.IOException;
+import java.io.OutputStream;
 import javax.annotation.Nonnull;
-import lombok.Data;
+import lombok.Value;
+import org.openide.util.Lookup;
 
 /**
  *
  * @author Philippe Charles
  */
-@Data
-public class OutliersTsCollection {
+@ServiceDefinition(isSingleton = true)
+public interface ChartTool {
 
-    private String name;
-    private TsMoniker moniker;
-    private List<OutliersTs> items;
+    @Value
+    public static class Options {
+
+        int width;
+        int height;
+        String colorScheme;
+        String title;
+    }
+
+    void writeChart(@Nonnull TsCollectionInformation col, @Nonnull Options options, @Nonnull OutputStream stream, @Nonnull MediaType mediaType) throws IOException;
 
     @Nonnull
-    public static OutliersTsCollection create(@Nonnull TsCollectionInformation info, @Nonnull OutliersOptions options) {
-        OutliersTsCollection result = new OutliersTsCollection();
-        result.setName(info.name);
-        result.setMoniker(info.moniker);
-        result.setItems(info.items.parallelStream().map(o -> OutliersTs.create(o, options)).collect(Collectors.toList()));
-        return result;
+    public static ChartTool getDefault() {
+        return Lookup.getDefault().lookup(ChartTool.class);
     }
 }

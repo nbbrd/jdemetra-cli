@@ -56,8 +56,8 @@ public final class Xml2Ts implements BasicCommand<Xml2Ts.Parameters> {
     @Override
     public void exec(Parameters params) throws Exception {
         XmlProvider provider = new XmlProvider();
-        XProviders.applyWorkingDir(provider);
-        TsCollectionInformation result = XProviders.getTsCollection(provider, params.xml, TsInformationType.All);
+        ProviderTool.getDefault().applyWorkingDir(provider);
+        TsCollectionInformation result = ProviderTool.getDefault().getTsCollection(provider, params.xml, TsInformationType.All);
         params.output.writeValue(XmlTsCollection.class, result);
         provider.dispose();
     }

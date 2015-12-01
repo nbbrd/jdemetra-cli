@@ -49,7 +49,7 @@ public final class Ts2Sa implements BasicCommand<Ts2Sa.Parameters> {
 
         StandardOptions so;
         public InputOptions input;
-        public SaOptions saOptions;
+        public SaTool.Options saOptions;
         public OutputOptions output;
     }
 
@@ -61,7 +61,7 @@ public final class Ts2Sa implements BasicCommand<Ts2Sa.Parameters> {
             System.err.println("Processing " + input.items.size() + " time series");
         }
 
-        SaTsCollection output = SaTsCollection.create(input, params.saOptions);
+        SaTool.SaTsCollection output = SaTool.getDefault().create(input, params.saOptions);
 
         params.output.writeValue(XmlSaTsCollection.class, output);
     }
@@ -71,7 +71,7 @@ public final class Ts2Sa implements BasicCommand<Ts2Sa.Parameters> {
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
-        private final ComposedOptionSpec<SaOptions> saOptions = new SaOptionsSpec(parser);
+        private final ComposedOptionSpec<SaTool.Options> saOptions = new SaOptionsSpec(parser);
         private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
@@ -90,7 +90,7 @@ public final class Ts2Sa implements BasicCommand<Ts2Sa.Parameters> {
         "ts2sa.spec=Specification",
         "ts2sa.items=Comma-separated list of items to include"
     })
-    private static final class SaOptionsSpec implements ComposedOptionSpec<SaOptions> {
+    private static final class SaOptionsSpec implements ComposedOptionSpec<SaTool.Options> {
 
         private final OptionSpec<String> algorithm;
         private final OptionSpec<String> spec;
@@ -116,8 +116,8 @@ public final class Ts2Sa implements BasicCommand<Ts2Sa.Parameters> {
         }
 
         @Override
-        public SaOptions value(OptionSet o) {
-            return new SaOptions(algorithm.value(o), spec.value(o), items.values(o));
+        public SaTool.Options value(OptionSet o) {
+            return new SaTool.Options(algorithm.value(o), spec.value(o), items.values(o));
         }
     }
 }
