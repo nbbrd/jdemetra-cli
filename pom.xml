@@ -218,6 +218,10 @@
                             <id>terror</id>
                         </program>
                         <program>
+                            <mainClass>demetra.cli.tests.Ts2SeasonalityTests</mainClass>
+                            <id>ts2seasonalitytests</id>
+                        </program>
+                        <program>
                             <mainClass>demetra.cli.chart.Ts2Chart</mainClass>
                             <id>ts2chart</id>
                         </program>
