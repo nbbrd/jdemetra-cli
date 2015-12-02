@@ -22,20 +22,11 @@ import demetra.cli.helpers.BasicArgsParser;
 import demetra.cli.helpers.BasicCliLauncher;
 import demetra.cli.helpers.InputOptions;
 import static demetra.cli.helpers.ComposedOptionSpec.newInputOptionsSpec;
-import static demetra.cli.helpers.ComposedOptionSpec.newOutputOptionsSpec;
 import static demetra.cli.helpers.ComposedOptionSpec.newStandardOptionsSpec;
-import demetra.cli.helpers.OutputOptions;
 import demetra.cli.helpers.StandardOptions;
 import ec.tss.TsCollectionInformation;
 import ec.tss.xml.XmlTsCollection;
-import ec.tstoolkit.modelling.DefaultTransformationType;
-import ec.tstoolkit.timeseries.regression.OutlierType;
-import static ec.tstoolkit.timeseries.regression.OutlierType.AO;
-import static ec.tstoolkit.timeseries.regression.OutlierType.LS;
-import static ec.tstoolkit.timeseries.regression.OutlierType.SO;
-import static ec.tstoolkit.timeseries.regression.OutlierType.TC;
 import static java.util.Arrays.asList;
-import java.util.EnumSet;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -44,6 +35,7 @@ import demetra.cli.helpers.ComposedOptionSpec;
 import demetra.cli.helpers.CsvOutputOptions;
 import static demetra.cli.helpers.CsvOutputOptions.newCsvOutputOptionsSpec;
 import ec.tstoolkit.information.InformationSet;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.openide.util.NbBundle;
@@ -59,8 +51,16 @@ public final class Terror implements BasicCommand<Terror.Parameters> {
         BasicCliLauncher.run(args, Parser::new, Terror::new, o -> o.so);
     }
 
-    private List<String> items() {
-        return null;
+    private List<String> items(int n) {
+        List<String> items=new ArrayList<>();
+        items.add("series");
+        for (int i=0; i<n; ++i){
+            int j=i+1;
+            items.add("value"+j);
+            items.add("forecast"+j);
+            items.add("score"+j);
+        }
+        return items;
     }
 
     @AllArgsConstructor
@@ -82,7 +82,7 @@ public final class Terror implements BasicCommand<Terror.Parameters> {
 
         List<InformationSet> output = CheckLastTool.getDefault().create(input, params.spec);
 
-        params.output.write(output, items(), false);
+        params.output.write(output, items(params.spec.getNBacks()), false);
     }
 
     @VisibleForTesting
@@ -103,7 +103,7 @@ public final class Terror implements BasicCommand<Terror.Parameters> {
         "# {0} - spec list",
         "terror.defaultSpec=Default spec [{0}]",
         "terror.critVal=Critical value",
-        "terror.nBacks=N obs. back",
+        "terror.nBacks=N. obs. back",
     })
     private static final class CheckLastOptionsSpec implements ComposedOptionSpec<CheckLastTool.Options> {
 

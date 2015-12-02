@@ -16,22 +16,13 @@
  */
 package demetra.cli.anomalydetection;
 
-import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformation;
-import ec.tstoolkit.information.InformationSet;
 import ec.tstoolkit.modelling.arima.CheckLast;
 import static ec.tstoolkit.modelling.arima.CheckLast.MAX_MISSING_COUNT;
 import static ec.tstoolkit.modelling.arima.CheckLast.MAX_REPEAT_COUNT;
 import ec.tstoolkit.modelling.arima.IPreprocessor;
-import ec.tstoolkit.modelling.arima.PreprocessingModel;
 import ec.tstoolkit.modelling.arima.tramo.TramoSpecification;
-import ec.tstoolkit.timeseries.regression.OutlierEstimation;
 import ec.tstoolkit.timeseries.simplets.TsData;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -44,17 +35,16 @@ public final class CheckLastToolImpl implements CheckLastTool {
 
     @Override
     public CheckLastTs create(TsInformation info, Options options) {
-       CheckLastTs result = new CheckLastTs();
+        CheckLastTs result = new CheckLastTs();
         result.setName(info.name);
         String error = checkData(info.data);
         if (error == null) {
-            CheckLast cl=new CheckLast(newPreprocessor(options));
+            CheckLast cl = new CheckLast(newPreprocessor(options));
             cl.setBackCount(options.getNBacks());
             if (cl.check(info.data)) {
-                double[][] r=new double[3][];
-                r[0]=cl.getScores();
-                r[1]=cl.getActualValues();
-                r[2]=cl.getForecastsValues();
+                result.setScores(cl.getScores());
+                result.setValues(cl.getActualValues());
+                result.setForecasts(cl.getForecastsValues());
             } else {
                 result.setScores(null);
                 result.setInvalidDataCause("Check last failed");

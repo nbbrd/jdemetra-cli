@@ -37,7 +37,7 @@ public class CsvOutputOptions {
 
         private CsvOutputOptionsSpec(OptionParser p) {
             this.file = p
-                    .acceptsAll(asList("o", "output"), Bundle.csvOutputOptions_file())
+                    .acceptsAll(asList("o", "output"), Bundle.outputOptions_file())
                     .withRequiredArg()
                     .ofType(File.class);
         }

@@ -20,14 +20,9 @@ import demetra.cli.anomalydetection.OutliersTool.DefaultSpec;
 import demetra.cli.helpers.Record;
 import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformation;
-import ec.tss.TsMoniker;
 import ec.tstoolkit.design.ServiceDefinition;
 import ec.tstoolkit.information.InformationSet;
-import ec.tstoolkit.modelling.DefaultTransformationType;
-import ec.tstoolkit.timeseries.regression.OutlierEstimation;
-import ec.tstoolkit.timeseries.regression.OutlierType;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import lombok.Data;
@@ -61,16 +56,16 @@ public interface CheckLastTool {
         @Override
         public InformationSet generate() {
             InformationSet info = new InformationSet();
-            info.set("name", name);
+            info.set("series", name);
             if (scores != null) {
                 for (int i = 0; i < scores.length; ++i) {
                     int j = i + 1;
-                    info.set("score+j", scores[i]);
+                    info.set("score"+j, scores[i]);
                     if (forecasts != null) {
-                        info.set("forecast+j", forecasts[i]);
+                        info.set("forecast"+j, forecasts[i]);
                     }
                     if (values != null) {
-                        info.set("values+j", values[i]);
+                        info.set("value"+j, values[i]);
                     }
                 }
             }
