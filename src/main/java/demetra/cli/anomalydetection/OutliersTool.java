@@ -39,7 +39,7 @@ public interface OutliersTool {
 
     public enum DefaultSpec {
 
-        TR0, TR1, TR2, TR3, TR4, TR5;
+        TR0, TR1, TR2, TR3, TR4, TR5, TRfull;
     }
 
     @Value

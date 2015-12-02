@@ -41,6 +41,10 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import demetra.cli.helpers.BasicCommand;
 import demetra.cli.helpers.ComposedOptionSpec;
+import demetra.cli.helpers.CsvOutputOptions;
+import static demetra.cli.helpers.CsvOutputOptions.newCsvOutputOptionsSpec;
+import ec.tstoolkit.information.InformationSet;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.openide.util.NbBundle;
 
@@ -49,10 +53,14 @@ import org.openide.util.NbBundle;
  *
  * @author Philippe Charles
  */
-public final class Ts2Outliers implements BasicCommand<Ts2Outliers.Parameters> {
+public final class Terror implements BasicCommand<Terror.Parameters> {
 
     public static void main(String[] args) {
-        BasicCliLauncher.run(args, Parser::new, Ts2Outliers::new, o -> o.so);
+        BasicCliLauncher.run(args, Parser::new, Terror::new, o -> o.so);
+    }
+
+    private List<String> items() {
+        return null;
     }
 
     @AllArgsConstructor
@@ -60,8 +68,8 @@ public final class Ts2Outliers implements BasicCommand<Ts2Outliers.Parameters> {
 
         StandardOptions so;
         public InputOptions input;
-        public OutliersTool.Options spec;
-        public OutputOptions output;
+        public CheckLastTool.Options spec;
+        public CsvOutputOptions output;
     }
 
     @Override
@@ -72,9 +80,9 @@ public final class Ts2Outliers implements BasicCommand<Ts2Outliers.Parameters> {
             System.err.println("Processing " + input.items.size() + " time series");
         }
 
-        OutliersTool.OutliersTsCollection output = OutliersTool.getDefault().create(input, params.spec);
+        List<InformationSet> output = CheckLastTool.getDefault().create(input, params.spec);
 
-        params.output.writeValue(XmlOutliersTsCollection.class, output);
+        params.output.write(output, items(), false);
     }
 
     @VisibleForTesting
@@ -82,8 +90,8 @@ public final class Ts2Outliers implements BasicCommand<Ts2Outliers.Parameters> {
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
-        private final ComposedOptionSpec<OutliersTool.Options> spec = new OutliersOptionsSpec(parser);
-        private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
+        private final ComposedOptionSpec<CheckLastTool.Options> spec = new CheckLastOptionsSpec(parser);
+        private final ComposedOptionSpec<CsvOutputOptions> output = newCsvOutputOptionsSpec(parser);
 
         @Override
         protected Parameters parse(OptionSet o) {
@@ -93,48 +101,38 @@ public final class Ts2Outliers implements BasicCommand<Ts2Outliers.Parameters> {
 
     @NbBundle.Messages({
         "# {0} - spec list",
-        "ts2outliers.defaultSpec=Default spec [{0}]",
-        "ts2outliers.critVal=Critical value",
-        "# {0} - transformation list",
-        "ts2outliers.transformation=Transformation [{0}]",
-        "# {0} - outlier types",
-        "ts2outliers.outlierTypes=Comma-separated list of outlier types [{0}]"
+        "terror.defaultSpec=Default spec [{0}]",
+        "terror.critVal=Critical value",
+        "terror.nBacks=N obs. back",
     })
-    private static final class OutliersOptionsSpec implements ComposedOptionSpec<OutliersTool.Options> {
+    private static final class CheckLastOptionsSpec implements ComposedOptionSpec<CheckLastTool.Options> {
 
         private final OptionSpec<OutliersTool.DefaultSpec> defaultSpec;
         private final OptionSpec<Double> critVal;
-        private final OptionSpec<DefaultTransformationType> transformation;
-        private final OptionSpec<OutlierType> outlierTypes;
+        private final OptionSpec<Integer> nBacks;
 
-        public OutliersOptionsSpec(OptionParser p) {
+        public CheckLastOptionsSpec(OptionParser p) {
             Joiner joiner = Joiner.on(", ");
             this.defaultSpec = p
-                    .acceptsAll(asList("s", "default-spec"), Bundle.ts2outliers_defaultSpec(joiner.join(OutliersTool.DefaultSpec.values())))
+                    .acceptsAll(asList("s", "default-spec"), Bundle.terror_defaultSpec(joiner.join(OutliersTool.DefaultSpec.values())))
                     .withRequiredArg()
                     .ofType(OutliersTool.DefaultSpec.class)
                     .defaultsTo(OutliersTool.DefaultSpec.TRfull);
             this.critVal = p
-                    .acceptsAll(asList("c", "critical-value"), Bundle.ts2outliers_critVal())
+                    .acceptsAll(asList("c", "critical-value"), Bundle.terror_critVal())
                     .withRequiredArg()
                     .ofType(Double.class)
                     .defaultsTo(0d);
-            this.transformation = p
-                    .acceptsAll(asList("t", "transformation"), Bundle.ts2outliers_transformation(joiner.join(DefaultTransformationType.values())))
+            this.nBacks = p
+                    .acceptsAll(asList("n", "nbacks"), Bundle.terror_nBacks())
                     .withRequiredArg()
-                    .ofType(DefaultTransformationType.class)
-                    .defaultsTo(DefaultTransformationType.None);
-            this.outlierTypes = p
-                    .acceptsAll(asList("x", "outlier-types"), Bundle.ts2outliers_outlierTypes(joiner.join(AO, LS, TC, SO)))
-                    .withRequiredArg()
-                    .ofType(OutlierType.class)
-                    .withValuesSeparatedBy(',')
-                    .defaultsTo(AO, LS, TC);
+                    .ofType(Integer.class)
+                    .defaultsTo(1);
         }
 
         @Override
-        public OutliersTool.Options value(OptionSet o) {
-            return new OutliersTool.Options(defaultSpec.value(o), critVal.value(o), transformation.value(o), EnumSet.copyOf(outlierTypes.values(o)));
+        public CheckLastTool.Options value(OptionSet o) {
+            return new CheckLastTool.Options(defaultSpec.value(o), critVal.value(o), nBacks.value(o));
         }
     }
 }

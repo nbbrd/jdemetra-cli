@@ -18,6 +18,8 @@ package demetra.cli.anomalydetection;
 
 import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformation;
+import ec.tstoolkit.information.InformationSet;
+import ec.tstoolkit.modelling.arima.CheckLast;
 import static ec.tstoolkit.modelling.arima.CheckLast.MAX_MISSING_COUNT;
 import static ec.tstoolkit.modelling.arima.CheckLast.MAX_REPEAT_COUNT;
 import ec.tstoolkit.modelling.arima.IPreprocessor;
@@ -25,7 +27,9 @@ import ec.tstoolkit.modelling.arima.PreprocessingModel;
 import ec.tstoolkit.modelling.arima.tramo.TramoSpecification;
 import ec.tstoolkit.timeseries.regression.OutlierEstimation;
 import ec.tstoolkit.timeseries.simplets.TsData;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,76 +39,35 @@ import org.openide.util.lookup.ServiceProvider;
  *
  * @author Philippe Charles
  */
-@ServiceProvider(service = OutliersTool.class)
-public final class OutliersToolImpl implements OutliersTool {
+@ServiceProvider(service = CheckLastTool.class)
+public final class CheckLastToolImpl implements CheckLastTool {
 
     @Override
-    public OutliersTs create(TsInformation info, Options options) {
-        OutliersTs result = new OutliersTs();
+    public CheckLastTs create(TsInformation info, Options options) {
+       CheckLastTs result = new CheckLastTs();
         result.setName(info.name);
-        result.setMoniker(info.moniker);
         String error = checkData(info.data);
         if (error == null) {
-            PreprocessingModel model = newPreprocessor(options).process(info.data, null);
-            if (model != null) {
-                OutlierEstimation[] outliers = model.outliersEstimation(true, false);
-                if (outliers != null) {
-                    result.setOutliers(Arrays.asList(outliers));
-                    result.setInvalidDataCause(null);
-                } else {
-                    result.setOutliers(null);
-                    result.setInvalidDataCause("Bug: missing likelihood");
-                }
+            CheckLast cl=new CheckLast(newPreprocessor(options));
+            cl.setBackCount(options.getNBacks());
+            if (cl.check(info.data)) {
+                double[][] r=new double[3][];
+                r[0]=cl.getScores();
+                r[1]=cl.getActualValues();
+                r[2]=cl.getForecastsValues();
             } else {
-                result.setOutliers(null);
-                result.setInvalidDataCause("Bug: no preprocessing model");
+                result.setScores(null);
+                result.setInvalidDataCause("Check last failed");
             }
         } else {
-            result.setOutliers(null);
+            result.setScores(null);
             result.setInvalidDataCause(error);
         }
         return result;
     }
 
-    @Override
-    public OutliersTsCollection create(TsCollectionInformation info, Options options) {
-        OutliersTsCollection result = new OutliersTsCollection();
-        result.setName(info.name);
-        result.setMoniker(info.moniker);
-        result.setItems(info.items.parallelStream().map(o -> create(o, options)).collect(Collectors.toList()));
-        return result;
-    }
-
-    //<editor-fold defaultstate="collapsed" desc="Implementation details">
-    @Nonnull
-    static TramoSpecification newInstance(DefaultSpec o) {
-        switch (o) {
-            case TR0:
-                return TramoSpecification.TR0.clone();
-            case TR1:
-                return TramoSpecification.TR1.clone();
-            case TR2:
-                return TramoSpecification.TR2.clone();
-            case TR3:
-                return TramoSpecification.TR3.clone();
-            case TR4:
-                return TramoSpecification.TR4.clone();
-            case TR5:
-                return TramoSpecification.TR5.clone();
-            case TRfull:
-                return TramoSpecification.TRfull.clone();
-            default:
-                throw new RuntimeException();
-        }
-    }
-
     private static TramoSpecification newTramoSpecification(Options o) {
-        TramoSpecification result = newInstance(o.getDefaultSpec());
-        result.getOutliers().setCriticalValue(o.getCriticalValue());
-        result.getTransform().setFunction(o.getTransformation());
-        result.getOutliers().clearTypes();
-        result.getOutliers().addRange(o.getOutlierTypes());
-        return result;
+        return OutliersToolImpl.newInstance(o.getDefaultSpec());
     }
 
     private static IPreprocessor newPreprocessor(Options o) {

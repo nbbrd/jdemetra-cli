@@ -214,6 +214,10 @@
                             <id>ts2outliers</id>
                         </program>
                         <program>
+                            <mainClass>demetra.cli.anomalydetection.Terror</mainClass>
+                            <id>terror</id>
+                        </program>
+                        <program>
                             <mainClass>demetra.cli.chart.Ts2Chart</mainClass>
                             <id>ts2chart</id>
                         </program>
