@@ -226,6 +226,10 @@
                             <id>stm_airline</id>
                         </program>
                         <program>
+                            <mainClass>demetra.cli.hackathon.MyCommand</mainClass>
+                            <id>mycommand</id>
+                        </program>
+                        <program>
                             <mainClass>demetra.cli.chart.Ts2Chart</mainClass>
                             <id>ts2chart</id>
                         </program>

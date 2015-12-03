@@ -52,7 +52,7 @@ public final class SeasonalityTestslImpl implements SeasonalityTestsTool {
         }
         catch (Exception err){}
         try{
-            FriedmanTest  f=new FriedmanTest(info.data);
+            FriedmanTest  f=new FriedmanTest(info.data.delta(1));
             result.setFriedman(StatisticalTest.create(f));
         }
         catch (Exception err){}

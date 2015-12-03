@@ -17,16 +17,11 @@
 package demetra.cli.research;
 
 import ec.satoolkit.algorithm.implementation.StmProcessingFactory;
-import ec.satoolkit.diagnostics.FTest;
-import ec.satoolkit.diagnostics.FriedmanTest;
-import ec.satoolkit.diagnostics.KruskalWallisTest;
-import ec.satoolkit.special.StmDecomposition;
 import ec.satoolkit.special.StmEstimation;
 import ec.satoolkit.special.StmSpecification;
 import ec.tss.TsInformation;
 import ec.tstoolkit.algorithm.CompositeResults;
 import ec.tstoolkit.arima.AutoRegressiveDistance;
-import ec.tstoolkit.information.StatisticalTest;
 import ec.tstoolkit.modelling.arima.PreprocessingModel;
 import ec.tstoolkit.sarima.SarimaModel;
 import ec.tstoolkit.structural.BasicStructuralModel;
@@ -62,7 +57,9 @@ public final class StmAirlineToolImpl implements StmAirlineTool {
             double dist = AutoRegressiveDistance.compute(arima, redmodel.getModel(), 36);
             result.setDistance(dist);
             result.setAirser(pp.estimation.getLikelihood().getSer());
-            result.setStmser(estimation.getLikelihood().getSer());
+            UcarimaModel ucm = model.computeReducedModel(false);
+            double scale = ucm.normalize();
+            result.setStmser(estimation.getLikelihood().getSer()*Math.sqrt(scale));
         } catch (Exception err) {
             result.setInvalidDataCause(err.getMessage());
         }
