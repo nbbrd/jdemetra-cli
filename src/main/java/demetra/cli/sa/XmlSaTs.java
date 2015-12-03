@@ -54,8 +54,8 @@ public final class XmlSaTs implements IXmlConverter<SaTool.SaTs> {
         result.setMoniker(new TsMoniker(source, identifier));
         result.setAlgorithm(algorithm);
         result.setSpec(spec);
-        if (invalidDataCause == null) {
-            result.setData(Arrays.asList(values).stream().collect(Collectors.toMap(o -> o.name, o -> o.create())));
+        if (invalidDataCause == null && values != null) {
+            result.setData(Arrays.asList(values).stream().filter(o-> o.data != null ).collect(Collectors.toMap(o -> o.name, o -> o.create())));
             result.setInvalidDataCause(null);
         } else {
             result.setData(null);
