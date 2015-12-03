@@ -34,6 +34,7 @@ import demetra.cli.helpers.CsvOutputOptions;
 import static demetra.cli.helpers.CsvOutputOptions.newCsvOutputOptionsSpec;
 import ec.tstoolkit.information.InformationSet;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.openide.util.NbBundle;
@@ -50,13 +51,7 @@ public final class StmAirline implements BasicCommand<StmAirline.Parameters> {
     }
 
     private List<String> items() {
-        List<String> items = new ArrayList<>();
-        items.add("series");
-        items.add("ftest:3");
-        items.add("ftestami:3");
-        items.add("kruskalwallis:3");
-        items.add("friedman:3");
-        return items;
+        return Arrays.asList(StmAirlineTool.StmResults.items);
     }
 
     @AllArgsConstructor

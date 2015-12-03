@@ -43,17 +43,30 @@ public interface StmAirlineTool {
 
     @Data
     public static class StmResults implements Record {
+        
+        public static String[] items=new String[]{"series", "th", "bth", "nvar", "lvar", "svar", "seasvar", "distance", "airse", "stmse"};
 
         private String name;
-        private double th, bth, nvar, lvar, svar, seasvar, distance, rmsefcasts;
+        private double th, bth, nvar, lvar, svar, seasvar, distance, rmsefcasts, airser, stmser;
         private String invalidDataCause;
 
         @Override
         public InformationSet generate() {
             InformationSet info = new InformationSet();
             info.set("series", name);
+            
             if (invalidDataCause != null) {
                 info.set("error", invalidDataCause);
+            }else{
+                info.set("th", th);
+                info.set("bth", bth);
+                info.set("nvar", nvar);
+                info.set("lvar", lvar);
+                info.set("svar", svar);
+                info.set("seasvar", seasvar);
+                info.set("distance", distance);
+                info.set("airse", airser);
+                info.set("stmse", stmser);
             }
             return info;
         }

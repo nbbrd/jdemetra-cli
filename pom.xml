@@ -222,6 +222,10 @@
                             <id>ts2seasonalitytests</id>
                         </program>
                         <program>
+                            <mainClass>demetra.cli.research.StmAirline</mainClass>
+                            <id>stm_airline</id>
+                        </program>
+                        <program>
                             <mainClass>demetra.cli.chart.Ts2Chart</mainClass>
                             <id>ts2chart</id>
                         </program>

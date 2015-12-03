@@ -21,12 +21,17 @@ import ec.satoolkit.diagnostics.FTest;
 import ec.satoolkit.diagnostics.FriedmanTest;
 import ec.satoolkit.diagnostics.KruskalWallisTest;
 import ec.satoolkit.special.StmDecomposition;
+import ec.satoolkit.special.StmEstimation;
 import ec.satoolkit.special.StmSpecification;
 import ec.tss.TsInformation;
 import ec.tstoolkit.algorithm.CompositeResults;
+import ec.tstoolkit.arima.AutoRegressiveDistance;
 import ec.tstoolkit.information.StatisticalTest;
 import ec.tstoolkit.modelling.arima.PreprocessingModel;
 import ec.tstoolkit.sarima.SarimaModel;
+import ec.tstoolkit.structural.BasicStructuralModel;
+import ec.tstoolkit.structural.Component;
+import ec.tstoolkit.ucarima.UcarimaModel;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
@@ -47,8 +52,19 @@ public final class StmAirlineToolImpl implements StmAirlineTool {
             SarimaModel arima = pp.estimation.getArima();
             result.setTh(arima.theta(1));
             result.setBth(arima.btheta(1));
-            StmDecomposition decomposition=process.get(StmProcessingFactory.DECOMPOSITION, StmDecomposition.class);
+            StmEstimation estimation=process.get(StmProcessingFactory.ESTIMATION, StmEstimation.class);
+            BasicStructuralModel model = estimation.getModel();
+            result.setNvar(model.getVariance(Component.Noise));
+            result.setLvar(model.getVariance(Component.Level));
+            result.setSvar(model.getVariance(Component.Slope));
+            result.setSeasvar(model.getVariance(Component.Seasonal));
+            UcarimaModel redmodel = model.computeReducedModel(true);
+            double dist = AutoRegressiveDistance.compute(arima, redmodel.getModel(), 36);
+            result.setDistance(dist);
+            result.setAirser(pp.estimation.getLikelihood().getSer());
+            result.setStmser(estimation.getLikelihood().getSer());
         } catch (Exception err) {
+            result.setInvalidDataCause(err.getMessage());
         }
         return result;
     }
