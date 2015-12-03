@@ -77,7 +77,7 @@ public final class OutliersToolImpl implements OutliersTool {
 
     //<editor-fold defaultstate="collapsed" desc="Implementation details">
     @Nonnull
-    private static TramoSpecification newInstance(DefaultSpec o) {
+    static TramoSpecification newInstance(DefaultSpec o) {
         switch (o) {
             case TR0:
                 return TramoSpecification.TR0.clone();
@@ -91,6 +91,8 @@ public final class OutliersToolImpl implements OutliersTool {
                 return TramoSpecification.TR4.clone();
             case TR5:
                 return TramoSpecification.TR5.clone();
+            case TRfull:
+                return TramoSpecification.TRfull.clone();
             default:
                 throw new RuntimeException();
         }

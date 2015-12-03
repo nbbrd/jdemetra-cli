@@ -214,6 +214,22 @@
                             <id>ts2outliers</id>
                         </program>
                         <program>
+                            <mainClass>demetra.cli.anomalydetection.Terror</mainClass>
+                            <id>terror</id>
+                        </program>
+                        <program>
+                            <mainClass>demetra.cli.tests.Ts2SeasonalityTests</mainClass>
+                            <id>ts2seasonalitytests</id>
+                        </program>
+                        <program>
+                            <mainClass>demetra.cli.research.StmAirline</mainClass>
+                            <id>stm_airline</id>
+                        </program>
+                        <program>
+                            <mainClass>demetra.cli.hackathon.MyCommand</mainClass>
+                            <id>mycommand</id>
+                        </program>
+                        <program>
                             <mainClass>demetra.cli.chart.Ts2Chart</mainClass>
                             <id>ts2chart</id>
                         </program>

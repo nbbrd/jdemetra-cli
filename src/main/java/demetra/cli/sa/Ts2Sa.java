@@ -105,7 +105,7 @@ public final class Ts2Sa implements BasicCommand<Ts2Sa.Parameters> {
             this.spec = p
                     .accepts("spec", Bundle.ts2sa_spec())
                     .withRequiredArg()
-                    .defaultsTo("RSA0")
+                    .defaultsTo("RSAfull")
                     .ofType(String.class);
             this.items = p
                     .accepts("items", Bundle.ts2sa_items())
