@@ -5,7 +5,7 @@
     <groupId>be.nbb.demetra</groupId>
     <artifactId>demetra-cli</artifactId>
     <packaging>jar</packaging>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
 
     <name>Demetra CLI</name>
     <description>Command line interface for JDemetra+</description>
@@ -33,6 +33,15 @@
         <lombok.version>1.16.4</lombok.version>
     </properties>
     
+    <repositories>
+        <!-- Repository hosting NetBeans modules -->
+        <repository>
+            <id>netbeans</id>
+            <name>NetBeans</name>
+            <url>http://bits.netbeans.org/maven2/</url>
+        </repository>
+    </repositories>
+        
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -114,7 +123,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
         </dependency>
-        
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>net.sf.jopt-simple</groupId>
             <artifactId>jopt-simple</artifactId>
@@ -129,6 +142,7 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
@@ -153,6 +167,7 @@
                 <version>${appassembler-maven-plugin.version}</version>
                 <configuration>
                     <repositoryLayout>flat</repositoryLayout>
+                    <assembleDirectory>${project.build.directory}/${project.build.finalName}</assembleDirectory>
                     <programs>
                         <program>
                             <mainClass>demetra.cli.tsproviders.Odbc2Ts</mainClass>
