@@ -55,7 +55,7 @@ public final class SaToolImpl implements SaTool {
             CompositeResults results = newProcessing(options).process(info.data);
             if (results != null) {
                 result.setData(options.getItems().stream()
-                        .filter(o -> (results.contains(o)))
+                        .filter(o -> (results.contains(o)) && results.getData(o, TsData.class) != null)
                         .collect(Collectors.toMap(o -> o, o -> results.getData(o, TsData.class))));
                 result.setInvalidDataCause(null);
             } else {
@@ -109,7 +109,9 @@ public final class SaToolImpl implements SaTool {
                 .put("identifier", col.getMoniker().getId())
                 .put("source", col.getMoniker().getSource())
                 .build();
-        col.getItems().stream().flatMap(o -> toTs(o).stream()).forEach(o -> result.items.add(o));
+        if (col.getItems() != null) {
+            col.getItems().stream().filter(o->o != null && o.data != null).flatMap(o -> toTs(o).stream()).forEach(o -> result.items.add(o));
+        }
         return result;
     }
 
