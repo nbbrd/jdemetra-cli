@@ -30,6 +30,7 @@ import ec.tstoolkit.timeseries.simplets.TsPeriod;
 import ec.util.chart.ColorScheme;
 import ec.util.chart.ObsFunction;
 import ec.util.chart.SeriesFunction;
+import ec.util.chart.TimeSeriesChart;
 import ec.util.chart.impl.SmartColorScheme;
 import ec.util.chart.swing.Charts;
 import ec.util.chart.swing.JTimeSeriesChart;
@@ -74,6 +75,7 @@ public final class ChartToolImpl implements ChartTool {
         if (!options.getTitle().isEmpty()) {
             chart.setTitle(options.getTitle());
         }
+        chart.setElementVisible(TimeSeriesChart.Element.LEGEND, options.isLegendVisible());
     }
 
     private ObsFunction<String> getObsFormatter(final TsCollectionInformation info) {

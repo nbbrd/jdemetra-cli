@@ -39,6 +39,7 @@ public interface ChartTool {
         int height;
         String colorScheme;
         String title;
+        boolean legendVisible;
     }
 
     void writeChart(@Nonnull TsCollectionInformation col, @Nonnull Options options, @Nonnull OutputStream stream, @Nonnull MediaType mediaType) throws IOException;

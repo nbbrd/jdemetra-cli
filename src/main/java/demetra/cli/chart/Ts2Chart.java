@@ -97,7 +97,8 @@ public final class Ts2Chart implements BasicCommand<Ts2Chart.Parameters> {
         "ts2chart.width=Width in px",
         "ts2chart.height=Height in px",
         "ts2chart.colorScheme=Color scheme name",
-        "ts2chart.title=Title"
+        "ts2chart.title=Title",
+        "ts2chart.legend=Show legend"
     })
     private static final class ChartOptionsSpec implements ComposedOptionSpec<ChartTool.Options> {
 
@@ -105,6 +106,7 @@ public final class Ts2Chart implements BasicCommand<Ts2Chart.Parameters> {
         private final OptionSpec<Integer> height;
         private final OptionSpec<String> colorScheme;
         private final OptionSpec<String> title;
+        private final OptionSpec<Boolean> legend;
 
         public ChartOptionsSpec(OptionParser p) {
             this.width = p
@@ -126,11 +128,16 @@ public final class Ts2Chart implements BasicCommand<Ts2Chart.Parameters> {
                     .acceptsAll(asList("t", "title"), Bundle.ts2chart_title())
                     .withRequiredArg()
                     .ofType(String.class);
+            this.legend = p
+                    .acceptsAll(asList("l", "legend"), Bundle.ts2chart_legend())
+                    .withRequiredArg()
+                    .ofType(Boolean.class)
+                    .defaultsTo(Boolean.TRUE);
         }
 
         @Override
         public ChartTool.Options value(OptionSet o) {
-            return new ChartTool.Options(width.value(o), height.value(o), colorScheme.value(o), o.has(title) ? title.value(o) : "");
+            return new ChartTool.Options(width.value(o), height.value(o), colorScheme.value(o), o.has(title) ? title.value(o) : "", legend.value(o));
         }
     }
 }
