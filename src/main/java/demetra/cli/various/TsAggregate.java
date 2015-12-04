@@ -41,6 +41,7 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import demetra.cli.helpers.BasicCommand;
 import demetra.cli.helpers.ComposedOptionSpec;
+import ec.tstoolkit.timeseries.simplets.TsAggregator;
 import org.openide.util.NbBundle;
 
 /**
@@ -48,44 +49,47 @@ import org.openide.util.NbBundle;
  * @author Philippe Charles
  */
 public final class TsAggregate implements BasicCommand<TsAggregate.Parameters> {
-
+    
     public static void main(String[] args) {
         BasicCliLauncher.run(args, Parser::new, TsAggregate::new, o -> o.so);
     }
-
+    
     public static final class Parameters {
-
+        
         StandardOptions so;
         public InputOptions input;
-        public List<Integer> weights;
+        public List<Double> weights;
         public OutputOptions output;
     }
-
+    
     @Override
     public void exec(Parameters params) throws Exception {
         TsCollectionInformation input = params.input.readValue(XmlTsCollection.class);
-
-        if (input.items.size() != params.weights.size()) {
+        
+        if (!params.weights.isEmpty() && input.items.size() != params.weights.size()) {
             throw new IllegalArgumentException("Invalid weights list size");
         }
-
+        
         TsCollectionInformation result = new TsCollectionInformation();
-
-        if (!input.items.isEmpty()) {
+        
+        if (!params.weights.isEmpty()) {
             result.items.add(process(input.items, params.weights));
+        } else {
+            result.items.add(process(input.items, null));
         }
-
+        
         params.output.writeValue(XmlTsCollection.class, result);
     }
-
+    
     @VisibleForTesting
-    static TsInformation process(List<TsInformation> input, List<Integer> weights) {
+    static TsInformation process(List<TsInformation> input, List<Double> weights) {
         TsInformation result = new TsInformation();
         result.metaData = processMeta(input);
         result.data = processData(input, weights);
+        result.name = "aggregate";
         return result;
     }
-
+    
     @VisibleForTesting
     static MetaData processMeta(List<TsInformation> input) {
         Map<String, String> tmp = new HashMap<>();
@@ -103,47 +107,29 @@ public final class TsAggregate implements BasicCommand<TsAggregate.Parameters> {
         }
         return new MetaData(tmp);
     }
-
+    
     @VisibleForTesting
-    static TsData processData(List<TsInformation> input, List<Integer> weights) {
-        int totalWeights = weights.get(0);
-        TsPeriod minPeriod = input.get(0).data.getStart();
-        TsPeriod maxPeriod = input.get(0).data.getLastPeriod();
+    static TsData processData(List<TsInformation> input, List<Double> weights) {
+        TsAggregator agg = new TsAggregator();
         for (int i = 1; i < input.size(); i++) {
-            TsData item = input.get(i).data;
-            totalWeights += weights.get(i);
-            minPeriod = min(minPeriod, item.getStart());
-            maxPeriod = max(maxPeriod, item.getLastPeriod());
-        }
-
-        TsData data = new TsData(minPeriod, maxPeriod.minus(minPeriod) + 1);
-        data.getValues().setMissingValues(0);
-        for (int i = 0; i < input.size(); i++) {
-            TsData item = input.get(i).data;
-            int baseIdx = item.getStart().minus(minPeriod);
-            for (int j = 0; j < item.getLength(); j++) {
-                data.set(baseIdx + j, data.get(j) + item.get(j) * weights.get(i) / totalWeights);
+            if (weights != null) {
+                agg.add(input.get(i).data, weights.get(i));
+            } else {
+                agg.add(input.get(i).data);
             }
         }
-        return data;
+        
+        return agg.sum();
     }
-
-    private static TsPeriod min(TsPeriod l, TsPeriod r) {
-        return l.isBefore(r) ? l : r;
-    }
-
-    private static TsPeriod max(TsPeriod l, TsPeriod r) {
-        return l.isAfter(r) ? l : r;
-    }
-
+    
     @VisibleForTesting
     static final class Parser extends BasicArgsParser<TsAggregate.Parameters> {
-
+        
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
-        private final ComposedOptionSpec<List<Integer>> weights = new WeightsSpec(parser);
+        private final ComposedOptionSpec<List<Double>> weights = new WeightsSpec(parser);
         private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
-
+        
         @Override
         protected TsAggregate.Parameters parse(OptionSet o) {
             Parameters result = new Parameters();
@@ -154,24 +140,24 @@ public final class TsAggregate implements BasicCommand<TsAggregate.Parameters> {
             return result;
         }
     }
-
+    
     @NbBundle.Messages({
         "tsaggregate.weights=Comma-separated list of weights"
     })
-    private static final class WeightsSpec implements ComposedOptionSpec<List<Integer>> {
-
-        private final OptionSpec<Integer> weights;
-
+    private static final class WeightsSpec implements ComposedOptionSpec<List<Double>> {
+        
+        private final OptionSpec<Double> weights;
+        
         public WeightsSpec(OptionParser p) {
             this.weights = p
                     .acceptsAll(asList("w", "weights"), Bundle.tsaggregate_weights())
                     .withRequiredArg()
-                    .ofType(Integer.class)
+                    .ofType(Double.class)
                     .withValuesSeparatedBy(',');
         }
-
+        
         @Override
-        public List<Integer> value(OptionSet o) {
+        public List<Double> value(OptionSet o) {
             return weights.values(o);
         }
     }

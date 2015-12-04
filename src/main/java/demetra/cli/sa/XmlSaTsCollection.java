@@ -51,7 +51,7 @@ public final class XmlSaTsCollection implements IXmlConverter<SaTool.SaTsCollect
     public SaTool.SaTsCollection create() {
         SaTool.SaTsCollection result = new SaTool.SaTsCollection();
         result.setName(name);
-        result.setMoniker(new TsMoniker(source, identifier));
+        result.setMoniker(TsMoniker.createDynamicMoniker());
         if (items != null) {
             result.setItems(Arrays.asList(items).stream().map(XmlSaTs::create).collect(Collectors.toList()));
         } else {
