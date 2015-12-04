@@ -51,7 +51,7 @@ public final class XmlSaTs implements IXmlConverter<SaTool.SaTs> {
     public SaTool.SaTs create() {
         SaTool.SaTs result = new SaTool.SaTs();
         result.setName(name);
-        result.setMoniker(new TsMoniker(source, identifier));
+        result.setMoniker(TsMoniker.createDynamicMoniker());
         result.setAlgorithm(algorithm);
         result.setSpec(spec);
         if (invalidDataCause == null && values != null) {
