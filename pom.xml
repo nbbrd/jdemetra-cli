@@ -36,6 +36,10 @@
     <repositories>
         <!-- Repository hosting NetBeans modules -->
         <repository>
+            <id>joinup-releases</id>
+            <url>https://joinup.ec.europa.eu/nexus/content/repositories/releases/</url>
+        </repository>
+        <repository>
             <id>netbeans</id>
             <name>NetBeans</name>
             <url>http://bits.netbeans.org/maven2/</url>
@@ -224,6 +228,10 @@
                         <program>
                             <mainClass>demetra.cli.research.StmAirline</mainClass>
                             <id>stm_airline</id>
+                        </program>
+                        <program>
+                            <mainClass>demetra.cli.research.HsCommand</mainClass>
+                            <id>ts2hs</id>
                         </program>
                         <program>
                             <mainClass>demetra.cli.hackathon.MyCommand</mainClass>

@@ -34,7 +34,7 @@ import org.openide.util.Lookup;
  * @author Philippe Charles
  */
 @ServiceDefinition(isSingleton = true)
-public interface StmAirlineTool {
+public interface HsTool {
 
     @Value
     public static class Options {
@@ -42,47 +42,58 @@ public interface StmAirlineTool {
     }
 
     @Data
-    public static class StmResults implements Record {
-        
-        public static String[] items=new String[]{"series", "th", "bth", "cochran", "nvar", "lvar", "svar", "seasvar", "distance", "airse", "stmse"};
+    public static class HsResults implements Record {
+
+        public static String[] items = new String[]{"series", "nvar", "lvar", "svar", "seasvar1", "seasvar2", "llstm", "llhs", "stmbias", "hsbias", "n1", "n2", "n3", "n4", "n5", "n6", "n7", "n8", "n9", "n10", "n11", "n12"};
 
         private String name;
-        private double th, bth, nvar, lvar, svar, seasvar, distance, rmsefcasts, airser, stmser;
-        private double cochran;
+        private double nvar, lvar, svar, seasvar1, seasvar2, llstm, llhs, stmbias, hsbias;
+        private int[] noisy;
         private String invalidDataCause;
 
         @Override
         public InformationSet generate() {
             InformationSet info = new InformationSet();
             info.set("series", name);
-            
+
             if (invalidDataCause != null) {
                 info.set("error", invalidDataCause);
-            }else{
-                info.set("th", th);
-                info.set("bth", bth);
-                info.set("cochran", cochran);
+            } else {
                 info.set("nvar", nvar);
                 info.set("lvar", lvar);
                 info.set("svar", svar);
-                info.set("seasvar", seasvar);
-                info.set("distance", distance);
-                info.set("airse", airser);
-                info.set("stmse", stmser);
+                info.set("seasvar1", seasvar1);
+                info.set("seasvar2", seasvar2);
+                info.set("llstm", llstm);
+                info.set("llhs", llhs);
+                info.set("stmbias", stmbias);
+                info.set("hsbias", hsbias);
+                for (int i=0; i<12; ++i){
+                    info.set("n"+(i+1), isNoisy(i) ? 1 : 0);
+                }
             }
             return info;
+        }
+
+        private boolean isNoisy(int pos) {
+            for (int i = 0; i < noisy.length; ++i) {
+                if (noisy[i] == pos) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
     @Nonnull
-    StmResults create(@Nonnull TsInformation info, @Nonnull Options options);
+    HsResults create(@Nonnull TsInformation info, @Nonnull Options options);
 
     @Nonnull
     default List<InformationSet> create(TsCollectionInformation info, Options options) {
         return info.items.parallelStream().map(o -> create(o, options).generate()).collect(Collectors.toList());
     }
 
-    public static StmAirlineTool getDefault() {
-        return Lookup.getDefault().lookup(StmAirlineTool.class);
+    public static HsTool getDefault() {
+        return Lookup.getDefault().lookup(HsTool.class);
     }
 }

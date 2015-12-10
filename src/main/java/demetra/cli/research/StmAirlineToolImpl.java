@@ -17,6 +17,7 @@
 package demetra.cli.research;
 
 import ec.satoolkit.algorithm.implementation.StmProcessingFactory;
+import ec.satoolkit.diagnostics.CochranTest;
 import ec.satoolkit.special.StmEstimation;
 import ec.satoolkit.special.StmSpecification;
 import ec.tss.TsInformation;
@@ -26,6 +27,7 @@ import ec.tstoolkit.modelling.arima.PreprocessingModel;
 import ec.tstoolkit.sarima.SarimaModel;
 import ec.tstoolkit.structural.BasicStructuralModel;
 import ec.tstoolkit.structural.Component;
+import ec.tstoolkit.timeseries.simplets.TsData;
 import ec.tstoolkit.ucarima.UcarimaModel;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -41,13 +43,17 @@ public final class StmAirlineToolImpl implements StmAirlineTool {
         StmResults result = new StmResults();
         result.setName(info.name);
         try {
-            StmSpecification spec=new StmSpecification();
+            StmSpecification spec = new StmSpecification();
             CompositeResults process = StmProcessingFactory.process(info.data, spec);
             PreprocessingModel pp = process.get(StmProcessingFactory.PREPROCESSING, PreprocessingModel.class);
             SarimaModel arima = pp.estimation.getArima();
             result.setTh(arima.theta(1));
             result.setBth(arima.btheta(1));
-            StmEstimation estimation=process.get(StmProcessingFactory.ESTIMATION, StmEstimation.class);
+            TsData res = pp.getFullResiduals();
+            CochranTest ct = new CochranTest(res, false);
+            ct.calcCochranTest();
+            result.setCochran(ct.getTestValue());
+            StmEstimation estimation = process.get(StmProcessingFactory.ESTIMATION, StmEstimation.class);
             BasicStructuralModel model = estimation.getModel();
             result.setNvar(model.getVariance(Component.Noise));
             result.setLvar(model.getVariance(Component.Level));
@@ -59,7 +65,7 @@ public final class StmAirlineToolImpl implements StmAirlineTool {
             result.setAirser(pp.estimation.getLikelihood().getSer());
             UcarimaModel ucm = model.computeReducedModel(false);
             double scale = ucm.normalize();
-            result.setStmser(estimation.getLikelihood().getSer()*Math.sqrt(scale));
+            result.setStmser(estimation.getLikelihood().getSer() * Math.sqrt(scale));
         } catch (Exception err) {
             result.setInvalidDataCause(err.getMessage());
         }
