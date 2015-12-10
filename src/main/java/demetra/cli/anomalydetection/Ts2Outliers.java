@@ -18,6 +18,9 @@ package demetra.cli.anomalydetection;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
+import demetra.cli.anomalydetection.AnomalyDetectionTool.DefaultSpec;
+import demetra.cli.anomalydetection.AnomalyDetectionTool.OutliersOptions;
+import demetra.cli.anomalydetection.AnomalyDetectionTool.OutliersTsCollection;
 import demetra.cli.helpers.BasicArgsParser;
 import demetra.cli.helpers.BasicCliLauncher;
 import demetra.cli.helpers.InputOptions;
@@ -60,7 +63,7 @@ public final class Ts2Outliers implements BasicCommand<Ts2Outliers.Parameters> {
 
         StandardOptions so;
         public InputOptions input;
-        public OutliersTool.Options spec;
+        public OutliersOptions spec;
         public OutputOptions output;
     }
 
@@ -72,7 +75,7 @@ public final class Ts2Outliers implements BasicCommand<Ts2Outliers.Parameters> {
             System.err.println("Processing " + input.items.size() + " time series");
         }
 
-        OutliersTool.OutliersTsCollection output = OutliersTool.getDefault().create(input, params.spec);
+        OutliersTsCollection output = AnomalyDetectionTool.getDefault().getOutliers(input, params.spec);
 
         params.output.writeValue(XmlOutliersTsCollection.class, output);
     }
@@ -82,7 +85,7 @@ public final class Ts2Outliers implements BasicCommand<Ts2Outliers.Parameters> {
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
-        private final ComposedOptionSpec<OutliersTool.Options> spec = new OutliersOptionsSpec(parser);
+        private final ComposedOptionSpec<AnomalyDetectionTool.OutliersOptions> spec = new OutliersOptionsSpec(parser);
         private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
@@ -100,9 +103,9 @@ public final class Ts2Outliers implements BasicCommand<Ts2Outliers.Parameters> {
         "# {0} - outlier types",
         "ts2outliers.outlierTypes=Comma-separated list of outlier types [{0}]"
     })
-    private static final class OutliersOptionsSpec implements ComposedOptionSpec<OutliersTool.Options> {
+    private static final class OutliersOptionsSpec implements ComposedOptionSpec<OutliersOptions> {
 
-        private final OptionSpec<OutliersTool.DefaultSpec> defaultSpec;
+        private final OptionSpec<DefaultSpec> defaultSpec;
         private final OptionSpec<Double> critVal;
         private final OptionSpec<DefaultTransformationType> transformation;
         private final OptionSpec<OutlierType> outlierTypes;
@@ -110,10 +113,10 @@ public final class Ts2Outliers implements BasicCommand<Ts2Outliers.Parameters> {
         public OutliersOptionsSpec(OptionParser p) {
             Joiner joiner = Joiner.on(", ");
             this.defaultSpec = p
-                    .acceptsAll(asList("s", "default-spec"), Bundle.ts2outliers_defaultSpec(joiner.join(OutliersTool.DefaultSpec.values())))
+                    .acceptsAll(asList("s", "default-spec"), Bundle.ts2outliers_defaultSpec(joiner.join(DefaultSpec.values())))
                     .withRequiredArg()
-                    .ofType(OutliersTool.DefaultSpec.class)
-                    .defaultsTo(OutliersTool.DefaultSpec.TRfull);
+                    .ofType(DefaultSpec.class)
+                    .defaultsTo(DefaultSpec.TRfull);
             this.critVal = p
                     .acceptsAll(asList("c", "critical-value"), Bundle.ts2outliers_critVal())
                     .withRequiredArg()
@@ -133,8 +136,8 @@ public final class Ts2Outliers implements BasicCommand<Ts2Outliers.Parameters> {
         }
 
         @Override
-        public OutliersTool.Options value(OptionSet o) {
-            return new OutliersTool.Options(defaultSpec.value(o), critVal.value(o), transformation.value(o), EnumSet.copyOf(outlierTypes.values(o)));
+        public OutliersOptions value(OptionSet o) {
+            return new OutliersOptions(defaultSpec.value(o), critVal.value(o), transformation.value(o), EnumSet.copyOf(outlierTypes.values(o)));
         }
     }
 }

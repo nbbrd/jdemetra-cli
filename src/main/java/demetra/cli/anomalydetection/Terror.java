@@ -18,6 +18,7 @@ package demetra.cli.anomalydetection;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
+import demetra.cli.anomalydetection.AnomalyDetectionTool.CheckLastOptions;
 import demetra.cli.helpers.BasicArgsParser;
 import demetra.cli.helpers.BasicCliLauncher;
 import demetra.cli.helpers.InputOptions;
@@ -52,13 +53,13 @@ public final class Terror implements BasicCommand<Terror.Parameters> {
     }
 
     private List<String> items(int n) {
-        List<String> items=new ArrayList<>();
+        List<String> items = new ArrayList<>();
         items.add("series");
-        for (int i=0; i<n; ++i){
-            int j=i+1;
-            items.add("value"+j);
-            items.add("forecast"+j);
-            items.add("score"+j);
+        for (int i = 0; i < n; ++i) {
+            int j = i + 1;
+            items.add("value" + j);
+            items.add("forecast" + j);
+            items.add("score" + j);
         }
         return items;
     }
@@ -68,7 +69,7 @@ public final class Terror implements BasicCommand<Terror.Parameters> {
 
         StandardOptions so;
         public InputOptions input;
-        public CheckLastTool.Options spec;
+        public CheckLastOptions spec;
         public CsvOutputOptions output;
     }
 
@@ -80,7 +81,7 @@ public final class Terror implements BasicCommand<Terror.Parameters> {
             System.err.println("Processing " + input.items.size() + " time series");
         }
 
-        List<InformationSet> output = CheckLastTool.getDefault().create(input, params.spec);
+        List<InformationSet> output = AnomalyDetectionTool.getDefault().getCheckLast(input, params.spec);
 
         params.output.write(output, items(params.spec.getNBacks()), false);
     }
@@ -90,7 +91,7 @@ public final class Terror implements BasicCommand<Terror.Parameters> {
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
-        private final ComposedOptionSpec<CheckLastTool.Options> spec = new CheckLastOptionsSpec(parser);
+        private final ComposedOptionSpec<CheckLastOptions> spec = new CheckLastOptionsSpec(parser);
         private final ComposedOptionSpec<CsvOutputOptions> output = newCsvOutputOptionsSpec(parser);
 
         @Override
@@ -103,21 +104,20 @@ public final class Terror implements BasicCommand<Terror.Parameters> {
         "# {0} - spec list",
         "terror.defaultSpec=Default spec [{0}]",
         "terror.critVal=Critical value",
-        "terror.nBacks=N. obs. back",
-    })
-    private static final class CheckLastOptionsSpec implements ComposedOptionSpec<CheckLastTool.Options> {
+        "terror.nBacks=N. obs. back",})
+    private static final class CheckLastOptionsSpec implements ComposedOptionSpec<CheckLastOptions> {
 
-        private final OptionSpec<OutliersTool.DefaultSpec> defaultSpec;
+        private final OptionSpec<AnomalyDetectionTool.DefaultSpec> defaultSpec;
         private final OptionSpec<Double> critVal;
         private final OptionSpec<Integer> nBacks;
 
         public CheckLastOptionsSpec(OptionParser p) {
             Joiner joiner = Joiner.on(", ");
             this.defaultSpec = p
-                    .acceptsAll(asList("s", "default-spec"), Bundle.terror_defaultSpec(joiner.join(OutliersTool.DefaultSpec.values())))
+                    .acceptsAll(asList("s", "default-spec"), Bundle.terror_defaultSpec(joiner.join(AnomalyDetectionTool.DefaultSpec.values())))
                     .withRequiredArg()
-                    .ofType(OutliersTool.DefaultSpec.class)
-                    .defaultsTo(OutliersTool.DefaultSpec.TRfull);
+                    .ofType(AnomalyDetectionTool.DefaultSpec.class)
+                    .defaultsTo(AnomalyDetectionTool.DefaultSpec.TRfull);
             this.critVal = p
                     .acceptsAll(asList("c", "critical-value"), Bundle.terror_critVal())
                     .withRequiredArg()
@@ -131,8 +131,8 @@ public final class Terror implements BasicCommand<Terror.Parameters> {
         }
 
         @Override
-        public CheckLastTool.Options value(OptionSet o) {
-            return new CheckLastTool.Options(defaultSpec.value(o), critVal.value(o), nBacks.value(o));
+        public CheckLastOptions value(OptionSet o) {
+            return new CheckLastOptions(defaultSpec.value(o), critVal.value(o), nBacks.value(o));
         }
     }
 }

@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.XmlElement;
  *
  * @author Philippe Charles
  */
-public final class XmlOutliersTs implements IXmlConverter<OutliersTool.OutliersTs> {
+public final class XmlOutliersTs implements IXmlConverter<AnomalyDetectionTool.OutliersTs> {
 
     @XmlAttribute
     public String name;
@@ -43,8 +43,8 @@ public final class XmlOutliersTs implements IXmlConverter<OutliersTool.OutliersT
     public String invalidDataCause;
 
     @Override
-    public OutliersTool.OutliersTs create() {
-        OutliersTool.OutliersTs result = new OutliersTool.OutliersTs();
+    public AnomalyDetectionTool.OutliersTs create() {
+        AnomalyDetectionTool.OutliersTs result = new AnomalyDetectionTool.OutliersTs();
         result.setName(name);
         result.setMoniker(new TsMoniker(source, identifier));
         if (invalidDataCause == null) {
@@ -56,7 +56,7 @@ public final class XmlOutliersTs implements IXmlConverter<OutliersTool.OutliersT
     }
 
     @Override
-    public void copy(OutliersTool.OutliersTs t) {
+    public void copy(AnomalyDetectionTool.OutliersTs t) {
         name = t.getName();
         source = t.getMoniker().getSource();
         identifier = t.getMoniker().getId();
