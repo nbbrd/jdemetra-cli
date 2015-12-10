@@ -72,6 +72,29 @@ public class HsModel {
         }
         seasVar2 = p.get(3) * p.get(3);
     }
+    
+    public Component rescale(){
+        double vmax=nVar;
+        Component cmax=Component.Noise;
+        if (lVar>vmax){
+            vmax=lVar;
+            cmax=Component.Level;
+        }
+        if (sVar>vmax){
+            vmax=sVar;
+            cmax=Component.Slope;
+        }
+        if (seasVar1>vmax){
+            vmax=seasVar1;
+            cmax=Component.Seasonal;
+        }
+        nVar/=vmax;
+        lVar/=vmax;
+        sVar/=vmax;
+        seasVar1/=vmax;
+        seasVar2/=vmax;
+        return cmax;
+    }
 
     public void initialize(BasicStructuralModel bsm) {
         lVar = bsm.getVariance(Component.Level);
@@ -97,6 +120,7 @@ public class HsModel {
 
     }
 
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("Noisy periods");

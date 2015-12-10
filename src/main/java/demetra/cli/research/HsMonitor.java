@@ -83,7 +83,7 @@ public class HsMonitor {
     
     private boolean estimate(TsData s, Component fixed) {
         
-        HsMapping mapping = new HsMapping(results.getNoisySeas(), fixed);
+        HsMapping mapping = new HsMapping(s.getFrequency().intValue(), results.getNoisySeas(), fixed);
         IReadDataBlock p = results.parameters(fixed);
         SsfComposite ssf = mapping.map(p);
         SsfModel<SsfComposite> model = new SsfModel(ssf, new SsfData(s, null), null, null);

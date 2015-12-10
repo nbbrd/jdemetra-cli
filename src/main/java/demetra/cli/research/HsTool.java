@@ -47,6 +47,7 @@ public interface HsTool {
         public static String[] items = new String[]{"series", "nvar", "lvar", "svar", "seasvar1", "seasvar2", "llstm", "llhs", "stmbias", "hsbias", "n1", "n2", "n3", "n4", "n5", "n6", "n7", "n8", "n9", "n10", "n11", "n12"};
 
         private String name;
+        private int freq;
         private double nvar, lvar, svar, seasvar1, seasvar2, llstm, llhs, stmbias, hsbias;
         private int[] noisy;
         private String invalidDataCause;
@@ -68,7 +69,7 @@ public interface HsTool {
                 info.set("llhs", llhs);
                 info.set("stmbias", stmbias);
                 info.set("hsbias", hsbias);
-                for (int i=0; i<12; ++i){
+                for (int i=0; i<freq; ++i){
                     info.set("n"+(i+1), isNoisy(i) ? 1 : 0);
                 }
             }
@@ -90,7 +91,7 @@ public interface HsTool {
 
     @Nonnull
     default List<InformationSet> create(TsCollectionInformation info, Options options) {
-        return info.items.parallelStream().map(o -> create(o, options).generate()).collect(Collectors.toList());
+        return info.items.stream().map(o -> create(o, options).generate()).collect(Collectors.toList());
     }
 
     public static HsTool getDefault() {

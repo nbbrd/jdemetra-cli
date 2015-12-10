@@ -26,8 +26,10 @@ public class HsMapping implements IParametricMapping<SsfComposite> {
 
     private final int[] noisySeasons;
     private final Component fixed;
+    private final int freq;
 
-    public HsMapping(int[] noisy, Component fixed) {
+    public HsMapping(int freq, int[] noisy, Component fixed) {
+        this.freq=freq;
         this.noisySeasons = noisy;
         this.fixed = fixed;
     }
@@ -42,9 +44,9 @@ public class HsMapping implements IParametricMapping<SsfComposite> {
     public SsfComposite map(IReadDataBlock p) {
         SsfLocalLinearTrend lt = new SsfLocalLinearTrend(var(Component.Level, p), var(Component.Slope, p));
         SsfNoise n = new SsfNoise(var(Component.Noise, p));
-        double[] var = new double[12];
+        double[] var = new double[freq];
         double elow = p.get(3), vlow=elow*elow;
-        for (int i = 0; i < 12; ++i) {
+        for (int i = 0; i < freq; ++i) {
             var[i] = vlow;
         }
         double vhigh = var(Component.Seasonal, p);
@@ -90,7 +92,7 @@ public class HsMapping implements IParametricMapping<SsfComposite> {
     }
 
     private double getSvarLow(double[] var) {
-        for (int i = 0; i < 12; ++i) {
+        for (int i = 0; i < freq; ++i) {
             if (!isNoisy(i)) {
                 return var[i];
             }
@@ -99,7 +101,7 @@ public class HsMapping implements IParametricMapping<SsfComposite> {
     }
 
     private double getSvarNoisy(double[] var) {
-        for (int i = 0; i < 12; ++i) {
+        for (int i = 0; i < freq; ++i) {
             if (isNoisy(i)) {
                 return var[i];
             }

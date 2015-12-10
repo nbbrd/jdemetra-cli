@@ -44,6 +44,7 @@ public final class HsToolImpl implements HsTool {
                 result.setLlstm(monitor.getLlstm());
                 result.setHsbias(monitor.getHsbias());
                 result.setStmbias(monitor.getStmbias());
+                result.setFreq(info.data.getFrequency().intValue());
             }
         } catch (Exception err) {
             result.setInvalidDataCause(err.getMessage());
