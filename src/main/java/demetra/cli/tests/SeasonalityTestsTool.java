@@ -17,7 +17,7 @@
 package demetra.cli.tests;
 
 import demetra.cli.anomalydetection.*;
-import demetra.cli.anomalydetection.OutliersTool.DefaultSpec;
+import demetra.cli.anomalydetection.AnomalyDetectionTool.DefaultSpec;
 import demetra.cli.helpers.Record;
 import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformation;
