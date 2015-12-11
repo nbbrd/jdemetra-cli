@@ -44,7 +44,7 @@ public class Utils {
     }
 
     public static String getAPIVersion(Class<?> clazz) {
-        String path = "/version.prop";
+        String path = "/META-INF/maven/be.nbb.demetra/demetra-cli/pom.properties";
         try (InputStream stream = clazz.getResourceAsStream(path)) {
             if (stream == null) {
                 return "UNKNOWN";

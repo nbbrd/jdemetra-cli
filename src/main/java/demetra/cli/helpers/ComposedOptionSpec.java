@@ -94,12 +94,13 @@ public interface ComposedOptionSpec<T> {
             this.file = p
                     .acceptsAll(asList("i", "input"), Bundle.inputOptions_file())
                     .withRequiredArg()
-                    .ofType(File.class);
+                    .ofType(File.class)
+                    .describedAs("file");
             this.mediaType = p
                     .acceptsAll(asList("it", "input-type"), Bundle.inputOptions_mediaType())
                     .withRequiredArg()
                     .ofType(String.class)
-                    .describedAs("Media type");
+                    .describedAs("mediaType");
         }
 
         @Override
@@ -123,12 +124,13 @@ public interface ComposedOptionSpec<T> {
             this.file = p
                     .acceptsAll(asList("o", "output"), Bundle.outputOptions_file())
                     .withRequiredArg()
-                    .ofType(File.class);
+                    .ofType(File.class)
+                    .describedAs("file");
             this.mediaType = p
                     .acceptsAll(asList("ot", "output-type"), Bundle.outputOptions_mediaType())
                     .withRequiredArg()
                     .ofType(String.class)
-                    .describedAs("Media type");
+                    .describedAs("mediaType");
             this.formatting = p
                     .acceptsAll(asList("f", "format"), Bundle.outputOptions_formatting());
         }
