@@ -210,8 +210,12 @@
                             <id>ts2dstats</id>
                         </program>
                         <program>
-                            <mainClass>demetra.cli.various.TsFilter</mainClass>
-                            <id>tsfilter</id>
+                            <mainClass>demetra.cli.various.TsClean</mainClass>
+                            <id>tsclean</id>
+                        </program>
+                        <program>
+                            <mainClass>demetra.cli.various.TsCrop</mainClass>
+                            <id>tscrop</id>
                         </program>
                         <program>
                             <mainClass>demetra.cli.anomalydetection.Ts2Outliers</mainClass>

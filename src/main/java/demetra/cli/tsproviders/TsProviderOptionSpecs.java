@@ -66,15 +66,18 @@ class TsProviderOptionSpecs {
             this.locale = p
                     .accepts("locale", Bundle.dataFormat_locale())
                     .withRequiredArg()
-                    .ofType(String.class);
+                    .ofType(String.class)
+                    .describedAs("locale");
             this.datePattern = p
                     .accepts("date", Bundle.dataFormat_datePattern())
                     .withRequiredArg()
-                    .ofType(String.class);
+                    .ofType(String.class)
+                    .describedAs("datePattern");
             this.numberPattern = p
                     .accepts("number", Bundle.dataFormat_numberPattern())
                     .withRequiredArg()
-                    .ofType(String.class);
+                    .ofType(String.class)
+                    .describedAs("numberPattern");
         }
 
         @Override
@@ -97,11 +100,13 @@ class TsProviderOptionSpecs {
                     .accepts("frequency", Bundle.tsDataBuild_frequency())
                     .withRequiredArg()
                     .ofType(TsFrequency.class)
+                    .describedAs("freq")
                     .defaultsTo(TsFrequency.Undefined);
             this.aggregationType = p
                     .accepts("aggregation", Bundle.tsDataBuild_aggregationType())
                     .withRequiredArg()
                     .ofType(TsAggregationType.class)
+                    .describedAs("aggregationType")
                     .defaultsTo(TsAggregationType.None);
         }
 
@@ -121,7 +126,8 @@ class TsProviderOptionSpecs {
         private InputFileSpec(OptionParser p) {
             this.file = p
                     .nonOptions(Bundle.inputFile_file())
-                    .ofType(File.class);
+                    .ofType(File.class)
+                    .describedAs("file");
         }
 
         @Override

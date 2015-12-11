@@ -108,32 +108,38 @@ public final class Odbc2Ts implements BasicCommand<Odbc2Ts.Parameters> {
                     .accepts("dsn", Bundle.odbc2ts_dbName())
                     .withRequiredArg()
                     .ofType(String.class)
+                    .describedAs("dsn")
                     .defaultsTo("");
             this.tableName = p
                     .accepts("table", Bundle.odbc2ts_tableName())
                     .withRequiredArg()
                     .ofType(String.class)
+                    .describedAs("table")
                     .defaultsTo("");
             this.dimColumns = p
                     .accepts("dims", Bundle.odbc2ts_dimColumns())
                     .withRequiredArg()
                     .ofType(String.class)
+                    .describedAs("dimColumns")
                     .withValuesSeparatedBy(',')
                     .defaultsTo("");
             this.periodColumn = p
                     .accepts("period", Bundle.odbc2ts_periodColumn())
                     .withRequiredArg()
                     .ofType(String.class)
+                    .describedAs("periodColumn")
                     .defaultsTo("");
             this.valueColumn = p
                     .accepts("value", Bundle.odbc2ts_valueColumn())
                     .withRequiredArg()
                     .ofType(String.class)
+                    .describedAs("valueColumn")
                     .defaultsTo("");
             this.versionColumn = p
                     .accepts("rev", Bundle.odbc2ts_versionColumn())
                     .withRequiredArg()
                     .ofType(String.class)
+                    .describedAs("versionColumn")
                     .defaultsTo("");
             this.dataFormat = TsProviderOptionSpecs.newDataFormatSpec(p);
             this.tsDataBuild = TsProviderOptionSpecs.newTsDataBuildSpec(p);

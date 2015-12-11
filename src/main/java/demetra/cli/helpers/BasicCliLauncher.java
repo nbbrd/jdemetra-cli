@@ -72,7 +72,7 @@ public final class BasicCliLauncher<T> {
         }
 
         if (so.isShowVersion()) {
-            printVersion(System.out);
+            printVersion(System.out, commandSupplier.get());
             System.exit(0);
         }
 
@@ -97,12 +97,11 @@ public final class BasicCliLauncher<T> {
     }
 
     private static <T> void printHelp(@Nonnull PrintStream stream, @Nonnull ArgsParser<T> parser) {
-        printVersion(stream);
-        parser.printHelp(System.out);
+        parser.printHelp(stream);
     }
 
-    private static void printVersion(@Nonnull PrintStream stream) {
-        Utils.printVersion(BasicCliLauncher.class, stream);
+    private static void printVersion(@Nonnull PrintStream stream, @Nonnull BasicCommand<?> command) {
+        Utils.printVersion(command.getClass(), stream);
     }
 
     private static <T> void printParams(@Nonnull T params, @Nonnull PrintStream stream) {
