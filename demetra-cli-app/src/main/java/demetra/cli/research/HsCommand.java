@@ -28,6 +28,7 @@ import ec.tss.xml.XmlTsCollection;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import be.nbb.cli.util.BasicCommand;
+import be.nbb.cli.util.CommandRegistration;
 import be.nbb.cli.util.ComposedOptionSpec;
 import demetra.cli.helpers.CsvOutputOptions;
 import static demetra.cli.helpers.CsvOutputOptions.newCsvOutputOptionsSpec;
@@ -46,6 +47,7 @@ import org.openide.util.NbBundle;
  */
 public final class HsCommand implements BasicCommand<HsCommand.Parameters> {
 
+    @CommandRegistration(name = "ts2hs")
     public static void main(String[] args) {
         BasicCliLauncher.run(args, Parser::new, HsCommand::new, o -> o.so);
     }

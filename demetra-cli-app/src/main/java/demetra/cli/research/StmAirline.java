@@ -16,7 +16,6 @@
  */
 package demetra.cli.research;
 
-import demetra.cli.tests.*;
 import com.google.common.annotations.VisibleForTesting;
 import be.nbb.cli.util.BasicArgsParser;
 import be.nbb.cli.util.BasicCliLauncher;
@@ -29,12 +28,12 @@ import ec.tss.xml.XmlTsCollection;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import be.nbb.cli.util.BasicCommand;
+import be.nbb.cli.util.CommandRegistration;
 import be.nbb.cli.util.ComposedOptionSpec;
 import demetra.cli.helpers.CsvOutputOptions;
 import static demetra.cli.helpers.CsvOutputOptions.newCsvOutputOptionsSpec;
 import demetra.cli.helpers.XmlUtil;
 import ec.tstoolkit.information.InformationSet;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -47,6 +46,7 @@ import org.openide.util.NbBundle;
  */
 public final class StmAirline implements BasicCommand<StmAirline.Parameters> {
 
+    @CommandRegistration(name = "stm_airline")
     public static void main(String[] args) {
         BasicCliLauncher.run(args, Parser::new, StmAirline::new, o -> o.so);
     }

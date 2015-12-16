@@ -33,6 +33,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import be.nbb.cli.util.BasicCommand;
+import be.nbb.cli.util.CommandRegistration;
 import be.nbb.cli.util.ComposedOptionSpec;
 import demetra.cli.helpers.XmlUtil;
 
@@ -43,6 +44,7 @@ import demetra.cli.helpers.XmlUtil;
  */
 public final class Random2Ts implements BasicCommand<Random2Ts.Parameters> {
 
+    @CommandRegistration
     public static void main(String[] args) {
         BasicCliLauncher.run(args, Parser::new, Random2Ts::new, o -> o.so);
     }

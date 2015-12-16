@@ -31,6 +31,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import be.nbb.cli.util.BasicCommand;
+import be.nbb.cli.util.CommandRegistration;
 import ec.tss.tsproviders.common.txt.TxtBean;
 import ec.tss.tsproviders.common.txt.TxtBean.Delimiter;
 import ec.tss.tsproviders.common.txt.TxtBean.TextQualifier;
@@ -48,6 +49,7 @@ import demetra.cli.helpers.XmlUtil;
  */
 public final class Txt2Ts implements BasicCommand<Txt2Ts.Parameters> {
 
+    @CommandRegistration
     public static void main(String[] args) {
         BasicCliLauncher.run(args, Parser::new, Txt2Ts::new, o -> o.so);
     }

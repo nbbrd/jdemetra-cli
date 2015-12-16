@@ -74,6 +74,12 @@
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.squareup</groupId>
+            <artifactId>javapoet</artifactId>
+            <version>1.4.0</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
     
     <build>
@@ -86,6 +92,10 @@
                     <repositoryLayout>flat</repositoryLayout>
                     <assembleDirectory>${project.build.directory}/${project.build.finalName}</assembleDirectory>
                     <programs>
+                        <program>
+                            <mainClass>demetra.cli.JDemetraCli</mainClass>
+                            <id>dem</id>
+                        </program>
                         <program>
                             <mainClass>demetra.cli.tsproviders.Odbc2Ts</mainClass>
                             <id>odbc2ts</id>
