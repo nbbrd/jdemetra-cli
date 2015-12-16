@@ -43,6 +43,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import be.nbb.cli.util.BasicCommand;
+import be.nbb.cli.util.CommandRegistration;
 import be.nbb.cli.util.ComposedOptionSpec;
 import demetra.cli.helpers.XmlUtil;
 import lombok.AllArgsConstructor;
@@ -55,6 +56,7 @@ import org.openide.util.NbBundle;
  */
 public final class Ts2Outliers implements BasicCommand<Ts2Outliers.Parameters> {
 
+    @CommandRegistration
     public static void main(String[] args) {
         BasicCliLauncher.run(args, Parser::new, Ts2Outliers::new, o -> o.so);
     }

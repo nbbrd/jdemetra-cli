@@ -36,6 +36,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import be.nbb.cli.util.BasicCommand;
+import be.nbb.cli.util.CommandRegistration;
 import be.nbb.cli.util.ComposedOptionSpec;
 import demetra.cli.helpers.XmlUtil;
 import org.openide.util.NbBundle;
@@ -47,6 +48,7 @@ import org.openide.util.NbBundle;
  */
 public final class Ts2Chart implements BasicCommand<Ts2Chart.Parameters> {
 
+    @CommandRegistration
     public static void main(String[] args) {
         BasicCliLauncher.run(args, Parser::new, Ts2Chart::new, o -> o.so);
     }

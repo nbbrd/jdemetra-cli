@@ -29,6 +29,7 @@ import ec.tss.TsCollectionInformation;
 import ec.tss.xml.XmlTsCollection;
 import joptsimple.OptionSet;
 import be.nbb.cli.util.BasicCommand;
+import be.nbb.cli.util.CommandRegistration;
 import be.nbb.cli.util.ComposedOptionSpec;
 import demetra.cli.helpers.XmlUtil;
 
@@ -39,6 +40,7 @@ import demetra.cli.helpers.XmlUtil;
  */
 public final class Sa2Ts implements BasicCommand<Sa2Ts.Parameters> {
 
+    @CommandRegistration
     public static void main(String[] args) {
         BasicCliLauncher.run(args, Parser::new, Sa2Ts::new, o -> o.so);
     }

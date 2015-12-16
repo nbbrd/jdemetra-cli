@@ -20,6 +20,7 @@ import com.google.common.annotations.VisibleForTesting;
 import be.nbb.cli.util.BasicArgsParser;
 import be.nbb.cli.util.BasicCliLauncher;
 import be.nbb.cli.util.BasicCommand;
+import be.nbb.cli.util.CommandRegistration;
 import static be.nbb.cli.util.ComposedOptionSpec.newOutputOptionsSpec;
 import static be.nbb.cli.util.ComposedOptionSpec.newStandardOptionsSpec;
 import be.nbb.cli.util.OutputOptions;
@@ -43,6 +44,7 @@ import demetra.cli.helpers.XmlUtil;
  */
 public final class Xml2Ts implements BasicCommand<Xml2Ts.Parameters> {
 
+    @CommandRegistration
     public static void main(String[] args) {
         BasicCliLauncher.run(args, Parser::new, Xml2Ts::new, o -> o.so);
     }
