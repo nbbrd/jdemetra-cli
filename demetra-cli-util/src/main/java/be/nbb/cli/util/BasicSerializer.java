@@ -44,10 +44,10 @@ public interface BasicSerializer<T> {
     void serialize(@Nonnull T value, @Nonnull OutputStream output) throws IOException;
 
     @Nonnull
-    T deserialize(@Nonnull File output) throws IOException;
+    T deserialize(@Nonnull File input) throws IOException;
 
     @Nonnull
-    T deserialize(@Nonnull InputStream output) throws IOException;
+    T deserialize(@Nonnull InputStream input) throws IOException;
 
     @Nonnull
     public static <X> BasicSerializer<X> of(@Nonnull MediaType type, @Nonnull Class<X> x, boolean formattedOutput) {
@@ -87,13 +87,13 @@ public interface BasicSerializer<T> {
             }
 
             @Override
-            public X deserialize(File output) throws IOException {
-                return (X) getReader().readValue(output);
+            public X deserialize(File input) throws IOException {
+                return (X) getReader().readValue(input);
             }
 
             @Override
-            public X deserialize(InputStream output) throws IOException {
-                return (X) getReader().readValue(output);
+            public X deserialize(InputStream input) throws IOException {
+                return (X) getReader().readValue(input);
             }
         };
     }
@@ -131,18 +131,18 @@ public interface BasicSerializer<T> {
             }
 
             @Override
-            public X deserialize(File output) throws IOException {
+            public X deserialize(File input) throws IOException {
                 try {
-                    return (X) getUnmarshaller().unmarshal(output);
+                    return (X) getUnmarshaller().unmarshal(input);
                 } catch (JAXBException ex) {
                     throw new IOException(ex);
                 }
             }
 
             @Override
-            public X deserialize(InputStream output) throws IOException {
+            public X deserialize(InputStream input) throws IOException {
                 try {
-                    return (X) getUnmarshaller().unmarshal(output);
+                    return (X) getUnmarshaller().unmarshal(input);
                 } catch (JAXBException ex) {
                     throw new IOException(ex);
                 }

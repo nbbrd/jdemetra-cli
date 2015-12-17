@@ -16,7 +16,6 @@
  */
 package be.nbb.cli.util.proc;
 
-import be.nbb.cli.util.CommandProvider;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
@@ -40,6 +39,7 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import lombok.Value;
 import org.openide.util.lookup.ServiceProvider;
+import be.nbb.cli.util.Command;
 
 /**
  *
@@ -105,9 +105,9 @@ public final class CommandRegistrationProcessor extends AbstractProcessor {
 
         TypeSpec providerClass = TypeSpec.classBuilder(info.getCommand() + "Provider")
                 .addAnnotation(AnnotationSpec.builder(Generated.class).addMember("value", "$S", CommandRegistrationProcessor.class).build())
-                .addAnnotation(AnnotationSpec.builder(ServiceProvider.class).addMember("service", "$T.class", CommandProvider.class).build())
+                .addAnnotation(AnnotationSpec.builder(ServiceProvider.class).addMember("service", "$T.class", Command.class).build())
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addSuperinterface(CommandProvider.class)
+                .addSuperinterface(Command.class)
                 .addMethod(getNameMethod)
                 .addMethod(execMethod)
                 .build();

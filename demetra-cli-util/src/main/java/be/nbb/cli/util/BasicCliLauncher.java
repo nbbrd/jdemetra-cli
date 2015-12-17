@@ -96,6 +96,7 @@ public final class BasicCliLauncher<T> {
         }
     }
 
+    //<editor-fold defaultstate="collapsed" desc="Internal implementation">
     private static <T> void printHelp(@Nonnull PrintStream stream, @Nonnull ArgsParser<T> parser) {
         parser.printHelp(stream);
     }
@@ -113,6 +114,7 @@ public final class BasicCliLauncher<T> {
         }
         stream.println();
     }
+    //</editor-fold>
 
     public static <T> void run(@Nonnull String[] args, @Nonnull Supplier<ArgsParser<T>> parser, @Nonnull Supplier<BasicCommand<T>> command, @Nonnull Function<T, StandardOptions> toSo) {
         new BasicCliLauncher<T>().parser(parser).command(command).standardOptions(toSo).launch(args);

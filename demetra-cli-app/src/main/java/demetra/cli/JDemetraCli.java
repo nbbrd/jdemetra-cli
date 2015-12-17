@@ -16,11 +16,11 @@
  */
 package demetra.cli;
 
-import be.nbb.cli.util.CommandProvider;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import org.openide.util.Lookup;
+import be.nbb.cli.util.Command;
 
 /**
  *
@@ -29,11 +29,11 @@ import org.openide.util.Lookup;
 public final class JDemetraCli {
 
     public static void main(String[] args) {
-        Collection<? extends CommandProvider> commands = Lookup.getDefault().lookupAll(CommandProvider.class);
+        Collection<? extends Command> commands = Lookup.getDefault().lookupAll(Command.class);
         if (args.length == 0) {
             printHelp(commands);
         } else {
-            Optional<? extends CommandProvider> cp = commands.stream().filter(o -> o.getName().equals(args[0])).findFirst();
+            Optional<? extends Command> cp = commands.stream().filter(o -> o.getName().equals(args[0])).findFirst();
             if (cp.isPresent()) {
                 cp.get().exec(Arrays.copyOfRange(args, 1, args.length));
             } else {
@@ -42,7 +42,7 @@ public final class JDemetraCli {
         }
     }
 
-    private static void printHelp(Collection<? extends CommandProvider> commands) {
+    private static void printHelp(Collection<? extends Command> commands) {
         System.out.println("usage: dem <command> [<args>]\n");
         System.out.println("Available commands:");
         commands.stream().forEach((o) -> {
@@ -50,11 +50,11 @@ public final class JDemetraCli {
         });
     }
 
-    private static void printNotFound(Collection<? extends CommandProvider> commands, String item) {
-        System.out.println(String.format("dem: '%s' is not a valid command.\n", item));
-        System.out.println("Did you mean one of these?");
+    private static void printNotFound(Collection<? extends Command> commands, String item) {
+        System.err.println(String.format("dem: '%s' is not a valid command.\n", item));
+        System.err.println("Did you mean one of these?");
         commands.stream().filter(o -> o.getName().contains(item)).forEach((o) -> {
-            System.out.println("\t" + o.getName());
+            System.err.println("\t" + o.getName());
         });
     }
 }

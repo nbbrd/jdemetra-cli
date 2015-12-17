@@ -17,11 +17,11 @@
 package demetra.cli.research;
 
 import com.google.common.annotations.VisibleForTesting;
-import be.nbb.cli.util.BasicArgsParser;
+import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
 import be.nbb.cli.util.BasicCliLauncher;
 import be.nbb.cli.util.InputOptions;
-import static be.nbb.cli.util.ComposedOptionSpec.newInputOptionsSpec;
-import static be.nbb.cli.util.ComposedOptionSpec.newStandardOptionsSpec;
+import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newInputOptionsSpec;
+import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
 import be.nbb.cli.util.StandardOptions;
 import ec.tss.TsCollectionInformation;
 import ec.tss.xml.XmlTsCollection;
@@ -29,7 +29,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import be.nbb.cli.util.BasicCommand;
 import be.nbb.cli.util.proc.CommandRegistration;
-import be.nbb.cli.util.ComposedOptionSpec;
+import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
 import demetra.cli.helpers.CsvOutputOptions;
 import static demetra.cli.helpers.CsvOutputOptions.newCsvOutputOptionsSpec;
 import demetra.cli.helpers.XmlUtil;
@@ -78,7 +78,7 @@ public final class StmAirline implements BasicCommand<StmAirline.Parameters> {
     }
 
     @VisibleForTesting
-    static final class Parser extends BasicArgsParser<Parameters> {
+    static final class Parser extends JOptSimpleArgsParser<Parameters> {
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);

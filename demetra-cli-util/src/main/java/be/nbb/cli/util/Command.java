@@ -16,13 +16,16 @@
  */
 package be.nbb.cli.util;
 
+import javax.annotation.Nonnull;
+
 /**
  *
  * @author Philippe Charles
  */
-public interface CommandProvider {
+public interface Command {
 
+    @Nonnull
     String getName();
 
-    void exec(String[] args);
+    void exec(@Nonnull String[] args);
 }

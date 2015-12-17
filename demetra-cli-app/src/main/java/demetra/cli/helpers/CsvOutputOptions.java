@@ -5,8 +5,8 @@
  */
 package demetra.cli.helpers;
 
-import be.nbb.cli.util.ComposedOptionSpec;
-import static be.nbb.cli.util.ComposedOptionSpec.optional;
+import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
+import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.optional;
 import ec.tss.formatters.CsvInformationFormatter;
 import ec.tstoolkit.information.InformationSet;
 import java.io.File;

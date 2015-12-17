@@ -73,13 +73,13 @@ public final class OutputOptions {
 
         @Override
         public OutputOptions unmarshal(XmlBean v) throws Exception {
-            return new OutputOptions(Optional.ofNullable(v.file).map(Utils.TO_FILE), MediaType.parse(v.mediaType), v.formatted);
+            return new OutputOptions(Optional.ofNullable(v.file).map(o -> new File(o)), MediaType.parse(v.mediaType), v.formatted);
         }
 
         @Override
         public XmlBean marshal(OutputOptions v) throws Exception {
             XmlBean result = new XmlBean();
-            result.file = v.getFile().map(Utils.FROM_FILE).orElse(null);
+            result.file = v.getFile().map(File::toString).orElse(null);
             result.mediaType = v.getMediaType().toString();
             result.formatted = v.isFormatted();
             return result;
