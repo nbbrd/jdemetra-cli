@@ -5,8 +5,8 @@
  */
 package demetra.cli.helpers;
 
-import be.nbb.cli.util.ComposedOptionSpec;
-import static be.nbb.cli.util.ComposedOptionSpec.optional;
+import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
+import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.optional;
 import ec.tss.formatters.CsvInformationFormatter;
 import ec.tstoolkit.information.InformationSet;
 import java.io.File;
@@ -61,7 +61,7 @@ public class CsvOutputOptions {
         return new CsvOutputOptions(Optional.of(file));
     }
 
-    public <X> void write(@Nonnull List<InformationSet> info, @Nonnull List<String> items, boolean fullname) throws IOException {
+    public void write(@Nonnull List<InformationSet> info, @Nonnull List<String> items, boolean fullname) throws IOException {
         try (Writer wr = writer()) {
             CsvInformationFormatter fmt = new CsvInformationFormatter();
             fmt.format(wr, info, items, fullname);

@@ -14,8 +14,11 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package be.nbb.cli.util;
+package be.nbb.cli.util.joptsimple;
 
+import be.nbb.cli.util.InputOptions;
+import be.nbb.cli.util.OutputOptions;
+import be.nbb.cli.util.StandardOptions;
 import java.io.File;
 import static java.util.Arrays.asList;
 import java.util.Optional;

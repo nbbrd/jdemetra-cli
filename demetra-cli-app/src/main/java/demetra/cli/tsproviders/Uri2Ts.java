@@ -17,11 +17,11 @@
 package demetra.cli.tsproviders;
 
 import com.google.common.annotations.VisibleForTesting;
-import be.nbb.cli.util.BasicArgsParser;
+import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
 import com.google.common.collect.Iterables;
 import be.nbb.cli.util.BasicCliLauncher;
-import static be.nbb.cli.util.ComposedOptionSpec.newOutputOptionsSpec;
-import static be.nbb.cli.util.ComposedOptionSpec.newStandardOptionsSpec;
+import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
+import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
 import be.nbb.cli.util.OutputOptions;
 import be.nbb.cli.util.StandardOptions;
 import ec.tss.ITsProvider;
@@ -34,8 +34,8 @@ import java.util.ServiceLoader;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import be.nbb.cli.util.BasicCommand;
-import be.nbb.cli.util.CommandRegistration;
-import be.nbb.cli.util.ComposedOptionSpec;
+import be.nbb.cli.util.proc.CommandRegistration;
+import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
 import demetra.cli.helpers.XmlUtil;
 
 /**
@@ -71,7 +71,7 @@ public final class Uri2Ts implements BasicCommand<Uri2Ts.Parameters> {
     }
 
     @VisibleForTesting
-    static final class Parser extends BasicArgsParser<Parameters> {
+    static final class Parser extends JOptSimpleArgsParser<Parameters> {
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final OptionSpec<URI> uri = parser.nonOptions("uri").ofType(URI.class);

@@ -49,7 +49,7 @@ public final class InputOptions {
 
     @Nonnull
     public <X> X read(@Nonnull Class<X> clazz) throws IOException {
-        BasicSerializer<X> serializer = BasicSerializer.of(mediaType, clazz, false);
+        Serializer<X> serializer = SerializerFactory.of(mediaType, clazz, false);
         if (getFile().isPresent()) {
             return serializer.deserialize(getFile().get());
         } else {
@@ -70,13 +70,13 @@ public final class InputOptions {
 
         @Override
         public InputOptions unmarshal(XmlBean v) throws Exception {
-            return new InputOptions(Optional.ofNullable(v.file).map(Utils.TO_FILE), MediaType.parse(v.mediaType));
+            return new InputOptions(Optional.ofNullable(v.file).map(o -> new File(o)), MediaType.parse(v.mediaType));
         }
 
         @Override
         public XmlBean marshal(InputOptions v) throws Exception {
             XmlBean result = new XmlBean();
-            result.file = v.getFile().map(Utils.FROM_FILE).orElse(null);
+            result.file = v.getFile().map(File::toString).orElse(null);
             result.mediaType = v.getMediaType().toString();
             return result;
         }
