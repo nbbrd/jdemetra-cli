@@ -106,7 +106,7 @@ public final class BasicCliLauncher<T> {
     }
 
     private static <T> void printParams(@Nonnull T params, @Nonnull PrintStream stream) {
-        BasicSerializer serializer = BasicSerializer.of(JSON_UTF_8, params.getClass(), true);
+        Serializer serializer = SerializerFactory.of(JSON_UTF_8, params.getClass(), true);
         try {
             serializer.serialize(params, stream);
         } catch (IOException ex) {

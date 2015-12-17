@@ -61,7 +61,7 @@ public class CsvOutputOptions {
         return new CsvOutputOptions(Optional.of(file));
     }
 
-    public <X> void write(@Nonnull List<InformationSet> info, @Nonnull List<String> items, boolean fullname) throws IOException {
+    public void write(@Nonnull List<InformationSet> info, @Nonnull List<String> items, boolean fullname) throws IOException {
         try (Writer wr = writer()) {
             CsvInformationFormatter fmt = new CsvInformationFormatter();
             fmt.format(wr, info, items, fullname);

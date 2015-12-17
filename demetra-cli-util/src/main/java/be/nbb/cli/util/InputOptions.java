@@ -49,7 +49,7 @@ public final class InputOptions {
 
     @Nonnull
     public <X> X read(@Nonnull Class<X> clazz) throws IOException {
-        BasicSerializer<X> serializer = BasicSerializer.of(mediaType, clazz, false);
+        Serializer<X> serializer = SerializerFactory.of(mediaType, clazz, false);
         if (getFile().isPresent()) {
             return serializer.deserialize(getFile().get());
         } else {

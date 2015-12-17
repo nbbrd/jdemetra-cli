@@ -50,7 +50,7 @@ public final class OutputOptions {
 
     @Nonnull
     public <X> void write(@Nonnull Class<X> clazz, @Nonnull X value) throws IOException {
-        BasicSerializer<X> serializer = BasicSerializer.of(getMediaType(), clazz, isFormatted());
+        Serializer<X> serializer = SerializerFactory.of(getMediaType(), clazz, isFormatted());
         if (getFile().isPresent()) {
             serializer.serialize(value, getFile().get());
         } else {
