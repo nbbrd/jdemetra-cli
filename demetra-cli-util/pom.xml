@@ -38,11 +38,7 @@
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.squareup</groupId>
-            <artifactId>javapoet</artifactId>
-            <version>1.4.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>        
 </project>

@@ -28,7 +28,7 @@ import ec.tss.xml.XmlTsCollection;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import be.nbb.cli.util.BasicCommand;
-import be.nbb.cli.util.CommandRegistration;
+import be.nbb.cli.util.proc.CommandRegistration;
 import be.nbb.cli.util.ComposedOptionSpec;
 import demetra.cli.helpers.CsvOutputOptions;
 import static demetra.cli.helpers.CsvOutputOptions.newCsvOutputOptionsSpec;

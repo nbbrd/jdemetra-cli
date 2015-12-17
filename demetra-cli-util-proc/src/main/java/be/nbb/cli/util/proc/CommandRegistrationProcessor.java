@@ -14,10 +14,9 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package be.nbb.cli.util.processor;
+package be.nbb.cli.util.proc;
 
 import be.nbb.cli.util.CommandProvider;
-import be.nbb.cli.util.CommandRegistration;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
@@ -48,7 +47,7 @@ import org.openide.util.lookup.ServiceProvider;
  */
 @ServiceProvider(service = Processor.class)
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedAnnotationTypes("be.nbb.cli.util.CommandRegistration")
+@SupportedAnnotationTypes("be.nbb.cli.util.proc.CommandRegistration")
 public final class CommandRegistrationProcessor extends AbstractProcessor {
 
     @Override

@@ -29,7 +29,7 @@ import ec.tss.TsCollectionInformation;
 import ec.tss.xml.XmlTsCollection;
 import joptsimple.OptionSet;
 import be.nbb.cli.util.BasicCommand;
-import be.nbb.cli.util.CommandRegistration;
+import be.nbb.cli.util.proc.CommandRegistration;
 import be.nbb.cli.util.ComposedOptionSpec;
 import demetra.cli.helpers.XmlUtil;
 

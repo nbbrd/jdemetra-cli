@@ -20,7 +20,7 @@ import com.google.common.annotations.VisibleForTesting;
 import be.nbb.cli.util.BasicArgsParser;
 import be.nbb.cli.util.BasicCliLauncher;
 import be.nbb.cli.util.BasicCommand;
-import be.nbb.cli.util.CommandRegistration;
+import be.nbb.cli.util.proc.CommandRegistration;
 import static be.nbb.cli.util.ComposedOptionSpec.newOutputOptionsSpec;
 import static be.nbb.cli.util.ComposedOptionSpec.newStandardOptionsSpec;
 import be.nbb.cli.util.OutputOptions;

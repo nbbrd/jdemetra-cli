@@ -37,6 +37,7 @@
     <modules>
         <module>demetra-cli-app</module>
         <module>demetra-cli-util</module>
+        <module>demetra-cli-util-proc</module>
     </modules>
 
     <repositories>
