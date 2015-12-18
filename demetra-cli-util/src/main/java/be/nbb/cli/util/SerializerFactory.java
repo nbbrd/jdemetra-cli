@@ -37,7 +37,7 @@ public interface SerializerFactory {
         return Lookup.getDefault().lookupAll(SerializerFactory.class).stream()
                 .filter(o -> o.canHandle(mediaType, type))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Don't know how to handle " + mediaType + " " + type))
+                .orElseThrow(() -> new IllegalArgumentException("Don't know how to handle media type '" + mediaType + "' for class '" + type.getName() + "'"))
                 .create(type, formattedOutput);
     }
 }
