@@ -44,7 +44,7 @@ public final class InputOptions {
 
     @Nonnull
     public static InputOptions create(Optional<File> file, Optional<String> mediaType) {
-        return new InputOptions(file, Utils.getMediaType(mediaType, file));
+        return new InputOptions(file, Utils.getMediaType(mediaType, file).orElse(MediaType.XML_UTF_8));
     }
 
     @Nonnull

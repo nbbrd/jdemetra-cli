@@ -45,7 +45,7 @@ public final class OutputOptions {
 
     @Nonnull
     public static OutputOptions create(Optional<File> file, Optional<String> mediaType, boolean formatted) {
-        return new OutputOptions(file, Utils.getMediaType(mediaType, file), formatted);
+        return new OutputOptions(file, Utils.getMediaType(mediaType, file).orElse(MediaType.XML_UTF_8), formatted);
     }
 
     @Nonnull

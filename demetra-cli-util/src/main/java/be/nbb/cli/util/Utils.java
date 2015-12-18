@@ -56,19 +56,14 @@ public class Utils {
         }
     }
 
-    public static MediaType getMediaType(Optional<String> mediaType, Optional<File> file) {
+    public static Optional<MediaType> getMediaType(Optional<String> mediaType, Optional<File> file) {
         if (mediaType.isPresent()) {
-            MediaType result = MediaType.parse(mediaType.get());
-            if (MediaType.XML_UTF_8.is(result)) {
-                return MediaType.XML_UTF_8;
-            }
-            if (MediaType.JSON_UTF_8.is(result)) {
-                return MediaType.JSON_UTF_8;
-            }
+            return Optional.of(MediaType.parse(mediaType.get()));
         }
-        return file.isPresent() && file.get().getName().toLowerCase(Locale.ROOT).endsWith(".json")
-                ? MediaType.JSON_UTF_8
-                : MediaType.XML_UTF_8;
+        if (file.isPresent()) {
+            return getMediaType(file.get());
+        }
+        return Optional.empty();
     }
 
     @Nonnull
@@ -104,6 +99,11 @@ public class Utils {
         if (fileName.endsWith(".svg")) {
             return MediaType.SVG_UTF_8;
         }
+        if (fileName.endsWith(".yaml")) {
+            return YAML;
+        }
         return null;
     }
+
+    private static final MediaType YAML = MediaType.parse("application/yaml");
 }
