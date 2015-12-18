@@ -56,7 +56,8 @@ public class Utils {
         }
     }
 
-    public static Optional<MediaType> getMediaType(Optional<String> mediaType, Optional<File> file) {
+    @Nonnull
+    public static Optional<MediaType> getMediaType(@Nonnull Optional<String> mediaType, @Nonnull Optional<File> file) {
         if (mediaType.isPresent()) {
             return Optional.of(MediaType.parse(mediaType.get()));
         }
@@ -74,6 +75,7 @@ public class Utils {
                 .findFirst();
     }
 
+    //<editor-fold defaultstate="collapsed" desc="Implementation details">
     private static final List<Function<File, MediaType>> MEDIA_TYPE_FACTORIES = Arrays.asList(Utils::probeMediaType, Utils::getMediaTypeByExtension);
 
     private static MediaType probeMediaType(File file) {
@@ -106,4 +108,5 @@ public class Utils {
     }
 
     private static final MediaType YAML = MediaType.parse("application/yaml");
+    //</editor-fold>
 }

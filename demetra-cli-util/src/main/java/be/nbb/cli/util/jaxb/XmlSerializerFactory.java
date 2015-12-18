@@ -38,34 +38,37 @@ public final class XmlSerializerFactory implements SerializerFactory {
 
     @Override
     public boolean canHandle(MediaType mediaType, Class<?> type) {
-        return mediaType.is(MediaType.XML_UTF_8);
+        return MediaType.XML_UTF_8.is(mediaType);
     }
 
     @Override
     public <X> Serializer<X> create(Class<X> type, boolean formattedOutput) {
-        return new JaxbSerializer(type, formattedOutput);
+        try {
+            JAXBContext context = JAXBContext.newInstance(type);
+            return new JaxbSerializer(context, formattedOutput);
+        } catch (JAXBException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     //<editor-fold defaultstate="collapsed" desc="Implementation details">
     private static final class JaxbSerializer<X> implements Serializer<X> {
 
-        private final Class<X> type;
+        private final JAXBContext context;
         private final boolean formattedOutput;
 
-        public JaxbSerializer(Class<X> type, boolean formattedOutput) {
-            this.type = type;
+        public JaxbSerializer(JAXBContext context, boolean formattedOutput) {
+            this.context = context;
             this.formattedOutput = formattedOutput;
         }
 
         private Marshaller getMarshaller() throws JAXBException {
-            JAXBContext context = JAXBContext.newInstance(type);
             Marshaller result = context.createMarshaller();
             result.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, formattedOutput);
             return result;
         }
 
         private Unmarshaller getUnmarshaller() throws JAXBException {
-            JAXBContext context = JAXBContext.newInstance(type);
             return context.createUnmarshaller();
         }
 

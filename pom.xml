@@ -29,8 +29,6 @@
         <assertj.version>1.6.0</assertj.version>
         <!-- dependencies -->
         <demetra.version>2.0.0</demetra.version>
-        <jopt-simple.version>4.9</jopt-simple.version>
-        <jackson.version>2.6.3</jackson.version>
         <lombok.version>1.16.4</lombok.version>
     </properties>
   
@@ -75,6 +73,12 @@
                 <version>${demetra.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

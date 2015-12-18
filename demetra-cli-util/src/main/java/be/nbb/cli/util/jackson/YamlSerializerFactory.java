@@ -20,6 +20,7 @@ import be.nbb.cli.util.Serializer;
 import be.nbb.cli.util.SerializerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.google.common.net.MediaType;
@@ -30,16 +31,20 @@ import org.openide.util.lookup.ServiceProvider;
  * @author Philippe Charles
  */
 @ServiceProvider(service = SerializerFactory.class)
-public final class JsonSerializerFactory implements SerializerFactory {
+public final class YamlSerializerFactory implements SerializerFactory {
+
+    private static final MediaType YAML1 = MediaType.parse("application/yaml");
+    private static final MediaType YAML2 = MediaType.parse("text/yaml");
 
     private final boolean available = JacksonModule.jackson_core.isAvailable()
             && JacksonModule.jackson_databind.isAvailable()
+            && JacksonModule.jackson_dataformat_yaml.isAvailable()
             && JacksonModule.jackson_datatype_jdk8.isAvailable()
             && JacksonModule.jackson_module_jaxb_annotations.isAvailable();
 
     @Override
     public boolean canHandle(MediaType mediaType, Class<?> type) {
-        return available && MediaType.JSON_UTF_8.is(mediaType);
+        return available && (YAML1.is(mediaType) || YAML2.is(mediaType));
     }
 
     @Override
@@ -51,7 +56,7 @@ public final class JsonSerializerFactory implements SerializerFactory {
     private static final class Holder {
 
         private static ObjectMapper newMapper() {
-            ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
             mapper.registerModule(new Jdk8Module());
             mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(TypeFactory.defaultInstance()));
             return mapper;
