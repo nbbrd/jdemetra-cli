@@ -156,7 +156,7 @@
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
+            <artifactId>slf4j-jdk14</artifactId>
             <scope>runtime</scope>
         </dependency>
     </dependencies>
@@ -179,94 +179,13 @@
                 <configuration>
                     <repositoryLayout>flat</repositoryLayout>
                     <assembleDirectory>${project.build.directory}/${project.build.finalName}</assembleDirectory>
+                    <configurationDirectory>etc</configurationDirectory>
+                    <copyConfigurationDirectory>true</copyConfigurationDirectory>
+                    <extraJvmArguments>-Djava.util.logging.config.file=@BASEDIR@/etc/logging.properties</extraJvmArguments>
                     <programs>
                         <program>
                             <mainClass>demetra.cli.JDemetraCli</mainClass>
                             <id>dem</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.tsproviders.Odbc2Ts</mainClass>
-                            <id>odbc2ts</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.tsproviders.SpreadSheet2Ts</mainClass>
-                            <id>spreadsheet2ts</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.tsproviders.Random2Ts</mainClass>
-                            <id>random2ts</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.tsproviders.Uri2Ts</mainClass>
-                            <id>uri2ts</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.tsproviders.Sdmx2Ts</mainClass>
-                            <id>sdmx2ts</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.tsproviders.Xml2Ts</mainClass>
-                            <id>xml2ts</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.tsproviders.Txt2Ts</mainClass>
-                            <id>txt2ts</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.tsproviders.Ts2SpreadSheet</mainClass>
-                            <id>ts2spreadsheet</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.dstats.Ts2DStats</mainClass>
-                            <id>ts2dstats</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.various.TsClean</mainClass>
-                            <id>tsclean</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.various.TsCrop</mainClass>
-                            <id>tscrop</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.anomalydetection.Ts2Outliers</mainClass>
-                            <id>ts2outliers</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.anomalydetection.Terror</mainClass>
-                            <id>terror</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.tests.Ts2SeasonalityTests</mainClass>
-                            <id>ts2seasonalitytests</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.research.StmAirline</mainClass>
-                            <id>stm_airline</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.research.HsCommand</mainClass>
-                            <id>ts2hs</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.hackathon.MyCommand</mainClass>
-                            <id>mycommand</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.chart.Ts2Chart</mainClass>
-                            <id>ts2chart</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.sa.Ts2Sa</mainClass>
-                            <id>ts2sa</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.sa.Sa2Ts</mainClass>
-                            <id>sa2ts</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.various.TsAggregate</mainClass>
-                            <id>tsaggregate</id>
                         </program>
                     </programs>
                 </configuration>
