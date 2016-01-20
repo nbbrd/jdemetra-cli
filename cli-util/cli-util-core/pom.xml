@@ -33,5 +33,10 @@
             <groupId>com.google.guava</groupId>     
             <artifactId>guava</artifactId>     
         </dependency>
+        <!-- test only -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
     </dependencies>        
 </project>

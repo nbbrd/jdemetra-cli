@@ -40,7 +40,7 @@ public final class JDemetraCli {
             log.warn("While loading system properties", ex);
         }
         CommandRegistry.builder()
-                .name("dem")
+                .name(AppassemblerProperty.APP_NAME.value())
                 .commands(new ArrayList<>(Lookup.getDefault().lookupAll(Command.class)))
                 .build()
                 .exec(args);

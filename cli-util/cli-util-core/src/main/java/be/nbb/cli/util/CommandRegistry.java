@@ -16,9 +16,11 @@
  */
 package be.nbb.cli.util;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import lombok.Builder;
@@ -63,7 +65,8 @@ public final class CommandRegistry {
 
     private void printNotFound(String item) {
         System.err.println(String.format("%s: '%s' is not a valid command.\n", name, item));
-        List<Command> possibleCommands = commands.stream().filter(o -> o.getName().contains(item)).collect(Collectors.toList());
+        Predicate<String> bitapFilter = new BitapFilter(item, 1);
+        List<Command> possibleCommands = commands.stream().filter(o -> bitapFilter.test(o.getName())).collect(Collectors.toList());
         if (possibleCommands.isEmpty()) {
             printAvailableCommands();
         } else {
@@ -71,6 +74,56 @@ public final class CommandRegistry {
             possibleCommands.forEach((o) -> {
                 System.err.println("\t" + o.getName());
             });
+        }
+    }
+
+    // https://en.wikipedia.org/wiki/Bitap_algorithm
+    @VisibleForTesting
+    static final class BitapFilter implements Predicate<String> {
+
+        private final int alphabetRange = 128;
+        private final long[] r;
+        private final long[] patternMask;
+        private final int patternLength;
+        private final int k;
+
+        public BitapFilter(String pattern, int k) {
+            /* Initialize the bit array R */
+            this.r = new long[k + 1];
+            for (int i = 0; i <= k; i++) {
+                r[i] = 1;
+            }
+            /* Initialize the pattern bitmasks */
+            this.patternMask = new long[alphabetRange];
+            for (int i = 0; i < pattern.length(); ++i) {
+                patternMask[(int) pattern.charAt(i)] |= 1 << i;
+            }
+            this.patternLength = pattern.length();
+            this.k = k;
+        }
+
+        @Override
+        public boolean test(String text) {
+            for (int i = 0; i < text.length(); i++) {
+                long old = 0;
+                long nextOld = 0;
+
+                for (int d = 0; d <= k; ++d) {
+                    // Three operations of the Levenshtein distance
+                    long sub = (old | (r[d] & patternMask[text.charAt(i)])) << 1;
+                    long ins = old | ((r[d] & patternMask[text.charAt(i)]) << 1);
+                    long del = (nextOld | (r[d] & patternMask[text.charAt(i)])) << 1;
+                    old = r[d];
+                    r[d] = sub | ins | del | 1;
+                    nextOld = r[d];
+                }
+                // When r[k] is full of zeros, it means we matched the pattern
+                // (modulo k errors)
+                if (0 < (r[k] & (1 << patternLength))) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
     //</editor-fold>

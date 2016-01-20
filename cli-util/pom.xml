@@ -24,6 +24,8 @@
         <lombok.version>1.16.4</lombok.version>
         <netbeans.version>RELEASE802</netbeans.version>
         <guava.version>18.0</guava.version>
+        <jsr305.version>3.0.1</jsr305.version>
+        <junit.version>4.12</junit.version>
     </properties>
     
     <repositories>
@@ -59,8 +61,14 @@
             <dependency>
                 <groupId>com.google.code.findbugs</groupId>
                 <artifactId>jsr305</artifactId>
-                <version>3.0.1</version>
-            </dependency>        
+                <version>${jsr305.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     
