@@ -16,45 +16,33 @@
  */
 package demetra.cli;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Optional;
-import org.openide.util.Lookup;
+import be.nbb.cli.util.AppassemblerProperty;
 import be.nbb.cli.util.Command;
+import be.nbb.cli.util.CommandRegistry;
+import be.nbb.cli.util.Utils;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import lombok.extern.slf4j.Slf4j;
+import org.openide.util.Lookup;
 
 /**
  *
  * @author Philippe Charles
  */
+@Slf4j
 public final class JDemetraCli {
 
     public static void main(String[] args) {
-        Collection<? extends Command> commands = Lookup.getDefault().lookupAll(Command.class);
-        if (args.length == 0) {
-            printHelp(commands);
-        } else {
-            Optional<? extends Command> cp = commands.stream().filter(o -> o.getName().equals(args[0])).findFirst();
-            if (cp.isPresent()) {
-                cp.get().exec(Arrays.copyOfRange(args, 1, args.length));
-            } else {
-                printNotFound(commands, args[0]);
-            }
+        try {
+            Utils.loadSystemProperties(Paths.get(AppassemblerProperty.BASEDIR.value(), "etc", "system.properties"));
+        } catch (IOException ex) {
+            log.warn("While loading system properties", ex);
         }
-    }
-
-    private static void printHelp(Collection<? extends Command> commands) {
-        System.out.println("usage: dem <command> [<args>]\n");
-        System.out.println("Available commands:");
-        commands.stream().forEach((o) -> {
-            System.out.println("\t" + o.getName());
-        });
-    }
-
-    private static void printNotFound(Collection<? extends Command> commands, String item) {
-        System.err.println(String.format("dem: '%s' is not a valid command.\n", item));
-        System.err.println("Did you mean one of these?");
-        commands.stream().filter(o -> o.getName().contains(item)).forEach((o) -> {
-            System.err.println("\t" + o.getName());
-        });
+        CommandRegistry.builder()
+                .name("dem")
+                .commands(new ArrayList<>(Lookup.getDefault().lookupAll(Command.class)))
+                .build()
+                .exec(args);
     }
 }
