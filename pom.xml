@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     
     <groupId>be.nbb.demetra</groupId>
-    <artifactId>demetra-cli-parent</artifactId>
+    <artifactId>demetra-cli-aggregator</artifactId>
     <packaging>pom</packaging>
     <version>2.1.0-dev</version>
     
@@ -17,100 +17,28 @@
             <name>European Union Public Licence (EUPL)</name>
             <url>https://joinup.ec.europa.eu/software/page/eupl/licence-eupl</url>
         </license>
-    </licenses>        
+    </licenses>
   
     <properties>
         <!-- build -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jdk.version>1.8</jdk.version>
         <netbeans.hint.jdkPlatform>JDK_1.8</netbeans.hint.jdkPlatform>
-        <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
-        <appassembler-maven-plugin.version>1.10</appassembler-maven-plugin.version>
-        <assertj.version>1.6.0</assertj.version>
-        <!-- dependencies -->
-        <demetra.version>2.1.0</demetra.version>
-        <lombok.version>1.16.4</lombok.version>
     </properties>
   
     <modules>
         <module>demetra-cli-app</module>
-        <module>demetra-cli-util</module>
-        <module>demetra-cli-util-proc</module>
+        <module>cli-util</module>
     </modules>
 
-    <repositories>
-        <!-- Repository hosting NetBeans modules -->
-        <repository>
-            <id>joinup-releases</id>
-            <url>https://joinup.ec.europa.eu/nexus/content/repositories/releases/</url>
-        </repository>
-        <repository>
-            <id>netbeans</id>
-            <name>NetBeans</name>
-            <url>http://bits.netbeans.org/maven2/</url>
-        </repository>
-    </repositories>
-    
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>eu.europa.ec.joinup.sat</groupId>
-                <artifactId>demetra-parent</artifactId>
-                <version>${demetra.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>eu.europa.ec.joinup.sat</groupId>
-                <artifactId>demetra-utils</artifactId>
-                <version>${demetra.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>eu.europa.ec.joinup.sat</groupId>
-                <artifactId>nbdemetra-utils</artifactId>
-                <version>${demetra.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
-                <scope>provided</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-  
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-            <scope>provided</scope>
-        </dependency>        
-    </dependencies>
-  
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.2</version>
                 <configuration>
-                    <source>${jdk.version}</source>
-                    <target>${jdk.version}</target>
+                    <skip>true</skip>
                 </configuration>
-            </plugin>            
+            </plugin>
         </plugins>
     </build>
 </project>

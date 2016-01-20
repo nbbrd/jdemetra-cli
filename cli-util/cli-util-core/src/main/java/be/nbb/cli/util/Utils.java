@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -73,6 +74,14 @@ public class Utils {
                 .map(o -> o.apply(file))
                 .filter(o -> o != null)
                 .findFirst();
+    }
+
+    public static void loadSystemProperties(Path file) throws IOException {
+        try (InputStream stream = Files.newInputStream(file)) {
+            Properties properties = new Properties();
+            properties.load(stream);
+            System.getProperties().putAll(properties);
+        }
     }
 
     //<editor-fold defaultstate="collapsed" desc="Implementation details">

@@ -1,3 +1,5 @@
 /demetra-cli-app/target/
-/demetra-cli-util/target/
-/demetra-cli-util-proc/target/
+/cli-util/cli-util-core/target/
+/cli-util/cli-util-proc/target/
+/cli-util/cli-util-jackson/target/
+/cli-util/cli-util-joptsimple/target/

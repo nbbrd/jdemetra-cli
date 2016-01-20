@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>be.nbb.cli</groupId>
+        <artifactId>cli-util-parent</artifactId>
+        <version>2.1.0-dev</version>
+    </parent>
+
+    <artifactId>cli-util-joptsimple</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <jopt-simple.version>4.9</jopt-simple.version>
+    </properties>
+    
+    <dependencies>
+        <!-- compile only -->
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- compile and runtime -->
+        <dependency>
+            <groupId>be.nbb.cli</groupId>
+            <artifactId>cli-util-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.jopt-simple</groupId>
+            <artifactId>jopt-simple</artifactId>
+            <version>${jopt-simple.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util</artifactId>
+        </dependency>
+    </dependencies>
+</project>

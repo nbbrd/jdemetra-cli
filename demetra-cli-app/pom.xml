@@ -2,41 +2,105 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>be.nbb.demetra</groupId>
-        <artifactId>demetra-cli-parent</artifactId>
-        <version>2.1.0-dev</version>        
-    </parent>
-
+    <groupId>be.nbb.demetra</groupId>
     <artifactId>demetra-cli-app</artifactId>
+    <version>2.1.0-dev</version>        
     <packaging>jar</packaging>
 
     <name>Demetra CLI - App</name>
     <description>app</description>
     
+    <properties>
+        <!-- build -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jdk.version>1.8</jdk.version>
+        <netbeans.hint.jdkPlatform>JDK_1.8</netbeans.hint.jdkPlatform>
+        <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+        <appassembler-maven-plugin.version>1.10</appassembler-maven-plugin.version>
+        <assertj.version>1.6.0</assertj.version>
+        <!-- dependencies -->
+        <demetra.version>2.1.0</demetra.version>
+        <lombok.version>1.16.4</lombok.version>
+    </properties>
+
+    <repositories>
+        <!-- Repository hosting NetBeans modules -->
+        <repository>
+            <id>joinup-releases</id>
+            <url>https://joinup.ec.europa.eu/nexus/content/repositories/releases/</url>
+        </repository>
+        <repository>
+            <id>netbeans</id>
+            <name>NetBeans</name>
+            <url>http://bits.netbeans.org/maven2/</url>
+        </repository>
+    </repositories>
+    
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>be.nbb.demetra</groupId>
-                <artifactId>demetra-cli-util</artifactId>
-                <version>2.1.0</version>    
-                <type>pom</type>    
+                <groupId>eu.europa.ec.joinup.sat</groupId>
+                <artifactId>demetra-parent</artifactId>
+                <version>${demetra.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>eu.europa.ec.joinup.sat</groupId>
+                <artifactId>demetra-utils</artifactId>
+                <version>${demetra.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>eu.europa.ec.joinup.sat</groupId>
+                <artifactId>nbdemetra-utils</artifactId>
+                <version>${demetra.version}</version>
+                <type>pom</type>
                 <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
-    
+  
     <dependencies>
+        <!-- compile only -->
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>demetra-cli-util</artifactId>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <scope>provided</scope>
+        </dependency>        
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>be.nbb.cli</groupId>
+            <artifactId>cli-util-proc</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- test only -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- compile and runtime -->
+        <dependency>
+            <groupId>be.nbb.cli</groupId>
+            <artifactId>cli-util-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>demetra-cli-util-proc</artifactId>
+            <groupId>be.nbb.cli</groupId>
+            <artifactId>cli-util-joptsimple</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>eu.europa.ec.joinup.sat</groupId>
@@ -75,37 +139,39 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.jfree</groupId>
-            <artifactId>jfreesvg</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util</artifactId>
         </dependency>
+        <!-- runtime only -->
         <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.yaml</groupId>
-                    <artifactId>snakeyaml</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>be.nbb.cli</groupId>
+            <artifactId>cli-util-jackson</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jfree</groupId>
+            <artifactId>jfreesvg</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
     
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>${jdk.version}</source>
+                    <target>${jdk.version}</target>
+                </configuration>
+            </plugin>            
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>appassembler-maven-plugin</artifactId>
@@ -113,94 +179,13 @@
                 <configuration>
                     <repositoryLayout>flat</repositoryLayout>
                     <assembleDirectory>${project.build.directory}/${project.build.finalName}</assembleDirectory>
+                    <configurationDirectory>etc</configurationDirectory>
+                    <copyConfigurationDirectory>true</copyConfigurationDirectory>
+                    <extraJvmArguments>-Djava.util.logging.config.file=@BASEDIR@/etc/logging.properties</extraJvmArguments>
                     <programs>
                         <program>
                             <mainClass>demetra.cli.JDemetraCli</mainClass>
                             <id>dem</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.tsproviders.Odbc2Ts</mainClass>
-                            <id>odbc2ts</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.tsproviders.SpreadSheet2Ts</mainClass>
-                            <id>spreadsheet2ts</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.tsproviders.Random2Ts</mainClass>
-                            <id>random2ts</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.tsproviders.Uri2Ts</mainClass>
-                            <id>uri2ts</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.tsproviders.Sdmx2Ts</mainClass>
-                            <id>sdmx2ts</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.tsproviders.Xml2Ts</mainClass>
-                            <id>xml2ts</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.tsproviders.Txt2Ts</mainClass>
-                            <id>txt2ts</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.tsproviders.Ts2SpreadSheet</mainClass>
-                            <id>ts2spreadsheet</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.dstats.Ts2DStats</mainClass>
-                            <id>ts2dstats</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.various.TsClean</mainClass>
-                            <id>tsclean</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.various.TsCrop</mainClass>
-                            <id>tscrop</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.anomalydetection.Ts2Outliers</mainClass>
-                            <id>ts2outliers</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.anomalydetection.Terror</mainClass>
-                            <id>terror</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.tests.Ts2SeasonalityTests</mainClass>
-                            <id>ts2seasonalitytests</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.research.StmAirline</mainClass>
-                            <id>stm_airline</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.research.HsCommand</mainClass>
-                            <id>ts2hs</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.hackathon.MyCommand</mainClass>
-                            <id>mycommand</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.chart.Ts2Chart</mainClass>
-                            <id>ts2chart</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.sa.Ts2Sa</mainClass>
-                            <id>ts2sa</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.sa.Sa2Ts</mainClass>
-                            <id>sa2ts</id>
-                        </program>
-                        <program>
-                            <mainClass>demetra.cli.various.TsAggregate</mainClass>
-                            <id>tsaggregate</id>
                         </program>
                     </programs>
                 </configuration>
@@ -215,5 +200,4 @@
             </plugin>
         </plugins>
     </build>
-    
 </project>
