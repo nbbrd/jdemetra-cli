@@ -17,7 +17,9 @@
 package be.nbb.cli.util;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Value;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -32,47 +35,56 @@ import lombok.Value;
  */
 @Value
 @Builder
+@NbBundle.Messages({
+    "# {0} - app name",
+    "commandRegistry.usage=usage: {0} <command> [<args>]\n",
+    "commandRegistry.available=Available commands:",
+    "# {0} - app name",
+    "# {1} - command name",
+    "commandRegistry.invalid={0}: ''{1}'' is not a valid command.\n",
+    "commandRegistry.found=Did you mean one of these?"
+})
 public final class CommandRegistry {
 
     private final String name;
-    private final List<Command> commands;
+    private final Collection<? extends Command> commands;
 
     public void exec(@Nonnull String[] args) {
         if (args.length == 0) {
-            printUsage();
-            printAvailableCommands();
+            printUsage(System.out);
+            printAvailableCommands(System.out);
         } else {
             Optional<? extends Command> cp = commands.stream().filter(o -> o.getName().equals(args[0])).findFirst();
             if (cp.isPresent()) {
                 cp.get().exec(Arrays.copyOfRange(args, 1, args.length));
             } else {
-                printNotFound(args[0]);
+                printNotFound(System.err, args[0]);
             }
         }
     }
 
     //<editor-fold defaultstate="collapsed" desc="Implementation details">
-    private void printUsage() {
-        System.out.println(String.format("usage: %s <command> [<args>]\n", name));
+    private void printUsage(PrintStream stream) {
+        stream.println(Bundle.commandRegistry_usage(name));
     }
 
-    private void printAvailableCommands() {
-        System.out.println("Available commands:");
+    private void printAvailableCommands(PrintStream stream) {
+        stream.println(Bundle.commandRegistry_available());
         commands.stream().forEach((o) -> {
-            System.out.println("\t" + o.getName());
+            stream.println("\t" + o.getName());
         });
     }
 
-    private void printNotFound(String item) {
-        System.err.println(String.format("%s: '%s' is not a valid command.\n", name, item));
+    private void printNotFound(PrintStream stream, String item) {
+        stream.println(Bundle.commandRegistry_invalid(name, item));
         Predicate<String> bitapFilter = new BitapFilter(item, 1);
         List<Command> possibleCommands = commands.stream().filter(o -> bitapFilter.test(o.getName())).collect(Collectors.toList());
         if (possibleCommands.isEmpty()) {
-            printAvailableCommands();
+            printAvailableCommands(stream);
         } else {
-            System.err.println("Did you mean one of these?");
+            stream.println(Bundle.commandRegistry_found());
             possibleCommands.forEach((o) -> {
-                System.err.println("\t" + o.getName());
+                stream.println("\t" + o.getName());
             });
         }
     }

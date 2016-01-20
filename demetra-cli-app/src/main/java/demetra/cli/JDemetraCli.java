@@ -22,7 +22,6 @@ import be.nbb.cli.util.CommandRegistry;
 import be.nbb.cli.util.Utils;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import lombok.extern.slf4j.Slf4j;
 import org.openide.util.Lookup;
 
@@ -41,7 +40,7 @@ public final class JDemetraCli {
         }
         CommandRegistry.builder()
                 .name(AppassemblerProperty.APP_NAME.value())
-                .commands(new ArrayList<>(Lookup.getDefault().lookupAll(Command.class)))
+                .commands(Lookup.getDefault().lookupAll(Command.class))
                 .build()
                 .exec(args);
     }
