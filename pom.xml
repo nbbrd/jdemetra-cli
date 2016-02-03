@@ -28,6 +28,7 @@
     <modules>
         <module>demetra-cli-app</module>
         <module>cli-util</module>
+        <module>demetra-toolset</module>
     </modules>
 
     <build>

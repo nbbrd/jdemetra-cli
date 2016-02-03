@@ -16,12 +16,11 @@
  */
 package demetra.cli.research;
 
-import demetra.cli.helpers.Record;
+import be.nbb.demetra.toolset.Record;
 import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformation;
 import ec.tstoolkit.design.ServiceDefinition;
 import ec.tstoolkit.information.InformationSet;
-import ec.tstoolkit.information.StatisticalTest;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;

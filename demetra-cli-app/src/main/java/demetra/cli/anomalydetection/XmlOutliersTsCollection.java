@@ -16,6 +16,7 @@
  */
 package demetra.cli.anomalydetection;
 
+import be.nbb.demetra.toolset.AnomalyDetectionTool;
 import ec.tss.TsMoniker;
 import ec.tss.xml.IXmlConverter;
 import java.util.Arrays;

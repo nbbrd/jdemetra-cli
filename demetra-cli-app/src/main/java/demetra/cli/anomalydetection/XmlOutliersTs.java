@@ -16,6 +16,7 @@
  */
 package demetra.cli.anomalydetection;
 
+import be.nbb.demetra.toolset.AnomalyDetectionTool;
 import demetra.xml.XmlOutlierEstimation;
 import ec.tss.TsMoniker;
 import ec.tss.xml.IXmlConverter;
