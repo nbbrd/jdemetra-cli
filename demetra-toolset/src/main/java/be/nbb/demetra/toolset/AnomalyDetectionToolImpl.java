@@ -14,10 +14,10 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package demetra.cli.anomalydetection;
+package be.nbb.demetra.toolset;
 
-import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformation;
+import ec.tstoolkit.design.VisibleForTesting;
 import ec.tstoolkit.modelling.arima.CheckLast;
 import static ec.tstoolkit.modelling.arima.CheckLast.MAX_MISSING_COUNT;
 import static ec.tstoolkit.modelling.arima.CheckLast.MAX_REPEAT_COUNT;
@@ -27,17 +27,15 @@ import ec.tstoolkit.modelling.arima.tramo.TramoSpecification;
 import ec.tstoolkit.timeseries.regression.OutlierEstimation;
 import ec.tstoolkit.timeseries.simplets.TsData;
 import java.util.Arrays;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author Philippe Charles
  */
-@ServiceProvider(service = AnomalyDetectionTool.class)
-public final class AnomalyDetectionToolImpl implements AnomalyDetectionTool {
+@VisibleForTesting
+final class AnomalyDetectionToolImpl implements AnomalyDetectionTool {
 
     @Override
     public OutliersTs getOutliers(TsInformation info, OutliersOptions options) {
@@ -64,15 +62,6 @@ public final class AnomalyDetectionToolImpl implements AnomalyDetectionTool {
             result.setOutliers(null);
             result.setInvalidDataCause(error);
         }
-        return result;
-    }
-
-    @Override
-    public OutliersTsCollection getOutliers(TsCollectionInformation info, OutliersOptions options) {
-        OutliersTsCollection result = new OutliersTsCollection();
-        result.setName(info.name);
-        result.setMoniker(info.moniker);
-        result.setItems(info.items.parallelStream().map(o -> getOutliers(o, options)).collect(Collectors.toList()));
         return result;
     }
 

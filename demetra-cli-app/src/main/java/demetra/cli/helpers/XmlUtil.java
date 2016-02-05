@@ -18,8 +18,10 @@ package demetra.cli.helpers;
 
 import be.nbb.cli.util.InputOptions;
 import be.nbb.cli.util.OutputOptions;
+import ec.tss.TsCollectionInformation;
 import ec.tss.xml.IXmlConverter;
 import ec.tss.xml.IXmlInfoConverter;
+import ec.tss.xml.XmlTsCollection;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
@@ -30,8 +32,18 @@ import javax.annotation.Nonnull;
 public class XmlUtil {
 
     @Nonnull
+    public static TsCollectionInformation readTsCollection(@Nonnull InputOptions options) throws IOException {
+        return readValue(options, XmlTsCollection.class);
+    }
+
+    @Nonnull
     public static <Y, X extends IXmlConverter<Y>> Y readValue(@Nonnull InputOptions options, @Nonnull Class<X> clazz) throws IOException {
         return options.read(clazz).create();
+    }
+
+    @Nonnull
+    public static void writeTsCollection(@Nonnull OutputOptions options, @Nonnull TsCollectionInformation value) throws IOException {
+        writeValue(options, XmlTsCollection.class, value);
     }
 
     @Nonnull

@@ -20,8 +20,8 @@ import static com.google.common.net.MediaType.XML_UTF_8;
 import be.nbb.cli.util.InputOptions;
 import be.nbb.cli.util.OutputOptions;
 import be.nbb.cli.util.StandardOptions;
+import be.nbb.demetra.toolset.ProviderTool;
 import demetra.cli.helpers.XmlUtil;
-import demetra.cli.tsproviders.ProviderToolImpl;
 import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformationType;
 import ec.tss.tsproviders.common.random.RandomBean;
@@ -48,7 +48,7 @@ public class TsCropTest {
         RandomBean bean = new RandomBean();
         bean.setCount(3);
         bean.setLength(24);
-        return new ProviderToolImpl().getTsCollection(new RandomProvider(), bean, TsInformationType.All);
+        return ProviderTool.getDefault().getTsCollection(new RandomProvider(), bean, TsInformationType.All);
     }
 
     static void write(File file, TsCollectionInformation col) throws IOException {

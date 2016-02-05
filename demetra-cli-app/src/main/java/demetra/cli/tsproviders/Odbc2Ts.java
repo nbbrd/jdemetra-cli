@@ -16,6 +16,7 @@
  */
 package demetra.cli.tsproviders;
 
+import be.nbb.demetra.toolset.ProviderTool;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;

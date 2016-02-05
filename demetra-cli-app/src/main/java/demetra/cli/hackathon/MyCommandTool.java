@@ -16,7 +16,7 @@
  */
 package demetra.cli.hackathon;
 
-import demetra.cli.helpers.Record;
+import be.nbb.demetra.toolset.Record;
 import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformation;
 import ec.tstoolkit.design.ServiceDefinition;

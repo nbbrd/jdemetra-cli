@@ -14,13 +14,11 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package demetra.cli.anomalydetection;
+package be.nbb.demetra.toolset;
 
-import demetra.cli.helpers.Record;
 import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformation;
 import ec.tss.TsMoniker;
-import ec.tstoolkit.design.ServiceDefinition;
 import ec.tstoolkit.information.InformationSet;
 import ec.tstoolkit.modelling.DefaultTransformationType;
 import ec.tstoolkit.timeseries.regression.OutlierEstimation;
@@ -31,13 +29,11 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import lombok.Data;
 import lombok.Value;
-import org.openide.util.Lookup;
 
 /**
  *
  * @author Philippe Charles
  */
-@ServiceDefinition(isSingleton = true)
 public interface AnomalyDetectionTool {
 
     public enum DefaultSpec {
@@ -76,7 +72,13 @@ public interface AnomalyDetectionTool {
     OutliersTs getOutliers(@Nonnull TsInformation info, @Nonnull OutliersOptions options);
 
     @Nonnull
-    OutliersTsCollection getOutliers(@Nonnull TsCollectionInformation info, @Nonnull OutliersOptions options);
+    default OutliersTsCollection getOutliers(@Nonnull TsCollectionInformation info, @Nonnull OutliersOptions options) {
+        OutliersTsCollection result = new OutliersTsCollection();
+        result.setName(info.name);
+        result.setMoniker(info.moniker);
+        result.setItems(info.items.parallelStream().map(o -> getOutliers(o, options)).collect(Collectors.toList()));
+        return result;
+    }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="CheckLast API">
@@ -131,6 +133,6 @@ public interface AnomalyDetectionTool {
 
     @Nonnull
     public static AnomalyDetectionTool getDefault() {
-        return Lookup.getDefault().lookup(AnomalyDetectionTool.class);
+        return new AnomalyDetectionToolImpl();
     }
 }

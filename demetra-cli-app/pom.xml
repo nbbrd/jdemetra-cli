@@ -93,6 +93,11 @@
         </dependency>
         <!-- compile and runtime -->
         <dependency>
+            <groupId>be.nbb.demetra</groupId>
+            <artifactId>demetra-toolset</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>be.nbb.cli</groupId>
             <artifactId>cli-util-core</artifactId>
             <version>${project.version}</version>

@@ -18,7 +18,6 @@ package demetra.cli.anomalydetection;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
-import demetra.cli.anomalydetection.AnomalyDetectionTool.CheckLastOptions;
 import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
 import be.nbb.cli.util.BasicCliLauncher;
 import be.nbb.cli.util.InputOptions;
@@ -34,6 +33,8 @@ import joptsimple.OptionSpec;
 import be.nbb.cli.util.BasicCommand;
 import be.nbb.cli.util.proc.CommandRegistration;
 import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
+import be.nbb.demetra.toolset.AnomalyDetectionTool;
+import be.nbb.demetra.toolset.AnomalyDetectionTool.CheckLastOptions;
 import demetra.cli.helpers.CsvOutputOptions;
 import static demetra.cli.helpers.CsvOutputOptions.newCsvOutputOptionsSpec;
 import demetra.cli.helpers.XmlUtil;

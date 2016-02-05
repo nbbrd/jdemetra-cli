@@ -16,6 +16,7 @@
  */
 package demetra.cli.sa;
 
+import be.nbb.demetra.toolset.SaTool;
 import com.google.common.annotations.VisibleForTesting;
 import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
 import be.nbb.cli.util.BasicCliLauncher;
