@@ -20,6 +20,7 @@
         <jdk.version>1.8</jdk.version>
         <netbeans.hint.jdkPlatform>JDK_1.8</netbeans.hint.jdkPlatform>
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+        <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
         <!-- dependencies -->
         <lombok.version>1.16.4</lombok.version>
         <netbeans.version>RELEASE802</netbeans.version>
