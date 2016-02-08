@@ -210,6 +210,8 @@
                 <version>${appassembler-maven-plugin.version}</version>
                 <configuration>
                     <repositoryLayout>flat</repositoryLayout>
+                    <repositoryName>lib</repositoryName>
+                    <endorsedDir>lib/ext</endorsedDir>
                     <assembleDirectory>${project.build.directory}/${project.build.finalName}</assembleDirectory>
                     <configurationDirectory>etc</configurationDirectory>
                     <copyConfigurationDirectory>true</copyConfigurationDirectory>
