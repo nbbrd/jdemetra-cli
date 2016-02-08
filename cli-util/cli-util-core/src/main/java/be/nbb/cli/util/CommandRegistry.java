@@ -94,17 +94,11 @@ public final class CommandRegistry {
     static final class BitapFilter implements Predicate<String> {
 
         private final int alphabetRange = 128;
-        private final long[] r;
         private final long[] patternMask;
         private final int patternLength;
         private final int k;
 
         public BitapFilter(String pattern, int k) {
-            /* Initialize the bit array R */
-            this.r = new long[k + 1];
-            for (int i = 0; i <= k; i++) {
-                r[i] = 1;
-            }
             /* Initialize the pattern bitmasks */
             this.patternMask = new long[alphabetRange];
             for (int i = 0; i < pattern.length(); ++i) {
@@ -116,6 +110,12 @@ public final class CommandRegistry {
 
         @Override
         public boolean test(String text) {
+            /* Initialize the bit array R */
+            long[] r = new long[k + 1];
+            for (int i = 0; i <= k; i++) {
+                r[i] = 1;
+            }
+            /* Performs test */
             for (int i = 0; i < text.length(); i++) {
                 long old = 0;
                 long nextOld = 0;
