@@ -19,7 +19,7 @@
         <appassembler-maven-plugin.version>1.10</appassembler-maven-plugin.version>
         <assertj.version>1.6.0</assertj.version>
         <!-- dependencies -->
-        <demetra.version>2.1.0-rc3</demetra.version>
+        <demetra.version>2.1.0</demetra.version>
         <lombok.version>1.16.4</lombok.version>
     </properties>
 
