@@ -11,7 +11,6 @@
         <!-- build -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jdk.version>1.8</jdk.version>
-        <netbeans.hint.jdkPlatform>JDK_1.8</netbeans.hint.jdkPlatform>
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
         <!-- dependencies -->
         <demetra.version>2.1.0</demetra.version>
