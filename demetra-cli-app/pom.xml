@@ -211,7 +211,7 @@
                     <repositoryLayout>flat</repositoryLayout>
                     <repositoryName>lib</repositoryName>
                     <endorsedDir>lib/ext</endorsedDir>
-                    <assembleDirectory>${project.build.directory}/${project.build.finalName}</assembleDirectory>
+                    <assembleDirectory>${project.build.directory}/jdemetra-cli-${project.version}</assembleDirectory>
                     <configurationDirectory>etc</configurationDirectory>
                     <copyConfigurationDirectory>true</copyConfigurationDirectory>
                     <extraJvmArguments>-Djava.util.logging.config.file=@BASEDIR@/etc/logging.properties</extraJvmArguments>
@@ -230,6 +230,27 @@
                         </goals>
                     </execution>
                 </executions>                
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <finalName>jdemetra-cli-${project.version}</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <descriptors>
+                        <descriptor>src/assembly/app-assembly.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
