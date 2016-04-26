@@ -33,9 +33,5 @@
             <artifactId>jopt-simple</artifactId>
             <version>${jopt-simple.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-util</artifactId>
-        </dependency>
     </dependencies>
 </project>
