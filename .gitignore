@@ -1,6 +1,12 @@
-/demetra-cli-app/target/
 /cli-util/cli-util-core/target/
 /cli-util/cli-util-proc/target/
 /cli-util/cli-util-jackson/target/
 /cli-util/cli-util-joptsimple/target/
 /demetra-toolset/target/
+/demetra-cli/demetra-cli-app/target/
+/demetra-cli/demetra-cli-api/target/
+/demetra-cli/demetra-cli-spreadsheet/target/
+/demetra-cli/demetra-cli-common/target/
+/demetra-cli/demetra-cli-chart/target/
+/demetra-cli/demetra-cli-sdmx/target/
+/demetra-cli/demetra-cli-odbc/target/
