@@ -19,7 +19,7 @@ An exhaustive list of commands is available on the [wiki](https://github.com/nbb
 
 The following example extracts some time series from an Excel file, detects their outliers and writes a report.
 
-`$ spreadsheet2ts data.xslx | ts2outliers -o result.xml -f`
+`$ dem spreadsheet2ts data.xslx | dem ts2outliers -o result.xml -f`
 
 
 
