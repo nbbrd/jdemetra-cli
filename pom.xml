@@ -25,7 +25,7 @@
     </properties>
   
     <modules>
-        <module>demetra-cli-app</module>
+        <module>demetra-cli</module>
         <module>cli-util</module>
         <module>demetra-toolset</module>
     </modules>
