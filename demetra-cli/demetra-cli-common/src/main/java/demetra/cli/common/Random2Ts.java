@@ -37,6 +37,8 @@ import be.nbb.cli.util.BasicCommand;
 import be.nbb.cli.util.proc.CommandRegistration;
 import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
 import demetra.cli.helpers.XmlUtil;
+import static java.util.Arrays.asList;
+import java.util.List;
 
 /**
  * Creates random time series.
@@ -106,7 +108,7 @@ public final class Random2Ts implements BasicCommand<Random2Ts.Parameters> {
             this.bp = p.accepts("bp").withRequiredArg().ofType(Integer.class).defaultsTo(0);
             this.bd = p.accepts("bd").withRequiredArg().ofType(Integer.class).defaultsTo(1);
             this.bq = p.accepts("bq").withRequiredArg().ofType(Integer.class).defaultsTo(1);
-            this.coeff = p.accepts("coeff").withRequiredArg().ofType(Double.class).defaultsTo(-.8, -.6);
+            this.coeff = p.accepts("coeff").withRequiredArg().ofType(Double.class).withValuesSeparatedBy(',').defaultsTo(-.8, -.6);
             this.count = p.accepts("count").withRequiredArg().ofType(Integer.class).defaultsTo(100);
         }
 
