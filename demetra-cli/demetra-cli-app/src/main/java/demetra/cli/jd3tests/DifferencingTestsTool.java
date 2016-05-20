@@ -35,7 +35,7 @@ import org.openide.util.Lookup;
  * @author Philippe Charles
  */
 @ServiceDefinition(isSingleton = true)
-public interface LogLevelTestsTool {
+public interface DifferencingTestsTool {
 
     @Value
     public static class Options {
@@ -43,9 +43,11 @@ public interface LogLevelTestsTool {
     }
 
     @Data
-    public static class LogLevelTestsResults implements Record {
+    public static class DifferencingTestsResults implements Record {
 
         private String name;
+        private int dtramo, bdtramo, dx13, bdx13, dsimple, bdsimple;
+        private boolean mtramo, mx13, msimple;
         private String invalidDataCause;
 
         @Override
@@ -60,14 +62,14 @@ public interface LogLevelTestsTool {
     }
 
     @Nonnull
-    LogLevelTestsResults create(@Nonnull TsInformation info, @Nonnull Options options);
+    DifferencingTestsResults create(@Nonnull TsInformation info, @Nonnull Options options);
 
     @Nonnull
     default List<InformationSet> create(TsCollectionInformation info, Options options) {
         return info.items.parallelStream().map(o -> create(o, options).generate()).collect(Collectors.toList());
     }
 
-    public static LogLevelTestsTool getDefault() {
-        return Lookup.getDefault().lookup(LogLevelTestsTool.class);
+    public static DifferencingTestsTool getDefault() {
+        return Lookup.getDefault().lookup(DifferencingTestsTool.class);
     }
 }

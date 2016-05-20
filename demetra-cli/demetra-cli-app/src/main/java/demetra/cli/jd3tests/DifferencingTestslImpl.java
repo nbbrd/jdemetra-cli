@@ -28,12 +28,12 @@ import org.openide.util.lookup.ServiceProvider;
  *
  * @author Philippe Charles
  */
-@ServiceProvider(service = LogLevelTestsTool.class)
-public final class LogLevelTestslImpl implements LogLevelTestsTool {
+@ServiceProvider(service = DifferencingTestsTool.class)
+public final class DifferencingTestslImpl implements DifferencingTestsTool {
 
     @Override
-    public LogLevelTestsResults create(TsInformation info, Options options) {
-        LogLevelTestsResults result = new LogLevelTestsResults();
+    public DifferencingTestsResults create(TsInformation info, Options options) {
+        DifferencingTestsResults result = new DifferencingTestsResults();
         result.setName(info.name);
         try{
         }

@@ -25,6 +25,7 @@ import ec.tstoolkit.arima.estimation.RegArimaModel;
 import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.information.StatisticalTest;
 import ec.tstoolkit.modelling.arima.RegArimaEstimator;
+import ec.tstoolkit.modelling.arima.demetra.HannanRissanen2;
 import ec.tstoolkit.sarima.SarimaModel;
 import ec.tstoolkit.sarima.SarimaSpecification;
 import org.openide.util.lookup.ServiceProvider;
@@ -68,11 +69,23 @@ public final class ArmaTestslImpl implements ArmaTestsTool {
             double[] phr = new double[spec.getParametersCount()];
             parameters.copyTo(phr, 0);
             result.setHr(phr);
-            
-            regarima.setArima(hr.getModel());
+            SarimaModel model = hr.getModel();
+            SarimaMapping.stabilize(model);
+            regarima.setArima(model);
             double hrll = regarima.computeLikelihood().getLogLikelihood();
             result.setEhr(ll-hrll);
             
+            HannanRissanen2 hr2 = new HannanRissanen2();
+            hr2.process(info.data, spec);
+            parameters = hr2.getModel().getParameters();
+            double[] pnhr = new double[spec.getParametersCount()];
+            parameters.copyTo(pnhr, 0);
+            result.setNhr(pnhr);
+            model = hr2.getModel();
+            SarimaMapping.stabilize(model);
+            regarima.setArima(model);
+            double nhrll = regarima.computeLikelihood().getLogLikelihood();
+            result.setEnhr(ll-nhrll);
         } catch (Exception err) {
         }
         try {

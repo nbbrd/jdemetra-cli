@@ -41,15 +41,25 @@ import lombok.AllArgsConstructor;
 import org.openide.util.NbBundle;
 
 /**
- * Log/level tests.
+ * Computes outliers from time series.
  *
  * @author Philippe Charles
  */
-public final class Ts2LogLevelTests implements BasicCommand<Ts2LogLevelTests.Parameters> {
+public final class Ts2DifferencingTests implements BasicCommand<Ts2DifferencingTests.Parameters> {
 
     @CommandRegistration
     public static void main(String[] args) {
-        BasicCliLauncher.run(args, Parser::new, Ts2LogLevelTests::new, o -> o.so);
+        BasicCliLauncher.run(args, Parser::new, Ts2DifferencingTests::new, o -> o.so);
+    }
+
+    private List<String> items() {
+        List<String> items = new ArrayList<>();
+        items.add("series");
+        items.add("ftest:3");
+        items.add("ftestami:3");
+        items.add("kruskalwallis:3");
+        items.add("friedman:3");
+        return items;
     }
 
     @AllArgsConstructor
@@ -57,7 +67,7 @@ public final class Ts2LogLevelTests implements BasicCommand<Ts2LogLevelTests.Par
 
         StandardOptions so;
         public InputOptions input;
-        public LogLevelTestsTool.Options spec;
+        public DifferencingTestsTool.Options spec;
         public CsvOutputOptions output;
     }
 
@@ -69,9 +79,9 @@ public final class Ts2LogLevelTests implements BasicCommand<Ts2LogLevelTests.Par
             System.err.println("Processing " + input.items.size() + " time series");
         }
 
-        List<InformationSet> output = LogLevelTestsTool.getDefault().create(input, params.spec);
+        List<InformationSet> output = DifferencingTestsTool.getDefault().create(input, params.spec);
 
-        params.output.write(output, false);
+        params.output.write(output, items(), false);
     }
 
     @VisibleForTesting
@@ -79,7 +89,7 @@ public final class Ts2LogLevelTests implements BasicCommand<Ts2LogLevelTests.Par
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
-        private final ComposedOptionSpec<LogLevelTestsTool.Options> spec = new LogLevelTestsOptionsSpec(parser);
+        private final ComposedOptionSpec<DifferencingTestsTool.Options> spec = new DifferencingTestsOptionsSpec(parser);
         private final ComposedOptionSpec<CsvOutputOptions> output = newCsvOutputOptionsSpec(parser);
 
         @Override
@@ -89,14 +99,14 @@ public final class Ts2LogLevelTests implements BasicCommand<Ts2LogLevelTests.Par
     }
 
     @NbBundle.Messages({})
-    private static final class LogLevelTestsOptionsSpec implements ComposedOptionSpec<LogLevelTestsTool.Options> {
+    private static final class DifferencingTestsOptionsSpec implements ComposedOptionSpec<DifferencingTestsTool.Options> {
 
-        public LogLevelTestsOptionsSpec(OptionParser p) {
+        public DifferencingTestsOptionsSpec(OptionParser p) {
         }
 
         @Override
-        public LogLevelTestsTool.Options value(OptionSet o) {
-            return new LogLevelTestsTool.Options();
+        public DifferencingTestsTool.Options value(OptionSet o) {
+            return new DifferencingTestsTool.Options();
         }
     }
 }
