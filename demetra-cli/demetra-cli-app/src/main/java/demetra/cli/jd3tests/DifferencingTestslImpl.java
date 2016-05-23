@@ -16,12 +16,13 @@
  */
 package demetra.cli.jd3tests;
 
-import demetra.cli.tests.*;
-import ec.satoolkit.diagnostics.FTest;
-import ec.satoolkit.diagnostics.FriedmanTest;
-import ec.satoolkit.diagnostics.KruskalWallisTest;
 import ec.tss.TsInformation;
-import ec.tstoolkit.information.StatisticalTest;
+import ec.tstoolkit.modelling.arima.ModellingContext;
+import ec.tstoolkit.modelling.arima.PreprocessingModel;
+import ec.tstoolkit.modelling.arima.demetra.DifferencingModule;
+import ec.tstoolkit.modelling.arima.tramo.TramoSpecification;
+import ec.tstoolkit.sarima.SarimaComponent;
+import ec.tstoolkit.sarima.SarimaSpecification;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
@@ -35,9 +36,36 @@ public final class DifferencingTestslImpl implements DifferencingTestsTool {
     public DifferencingTestsResults create(TsInformation info, Options options) {
         DifferencingTestsResults result = new DifferencingTestsResults();
         result.setName(info.name);
-        try{
+        try {
+            PreprocessingModel model = TramoSpecification.TRfull.build().process(info.data, null);
+            SarimaComponent arima = model.description.getArimaComponent();
+            result.setDauto(arima.getD());
+            result.setBdauto(arima.getBD());
+            result.setMauto(arima.isMean());
+            int freq = model.description.getFrequency();
+            ModellingContext context = new ModellingContext();
+            context.description = model.description;
+            context.estimation = model.estimation;
+            context.hasseas=true;
+            context.automodelling=true;
+            SarimaSpecification xspec = new SarimaSpecification(freq);
+            context.description.setSpecification(xspec);
+            ec.tstoolkit.modelling.arima.tramo.DifferencingModule dtramo=new ec.tstoolkit.modelling.arima.tramo.DifferencingModule();
+            dtramo.process(context);
+            result.setDtramo(dtramo.getD());
+            result.setBdtramo(dtramo.getBD());
+            result.setMtramo(dtramo.isMean());
+            context.description = model.description;
+            context.estimation = model.estimation;
+            context.description.setSpecification(xspec);
+            DifferencingModule dsimple=new DifferencingModule();
+            dsimple.process(context);
+            result.setDsimple(dsimple.getD());
+            result.setBdsimple(dsimple.getBD());
+            result.setMsimple(dsimple.isMean());
+            
+        } catch (Exception err) {
         }
-        catch (Exception err){}
         return result;
     }
 

@@ -52,17 +52,7 @@ public final class Ts2DifferencingTests implements BasicCommand<Ts2DifferencingT
         BasicCliLauncher.run(args, Parser::new, Ts2DifferencingTests::new, o -> o.so);
     }
 
-    private List<String> items() {
-        List<String> items = new ArrayList<>();
-        items.add("series");
-        items.add("ftest:3");
-        items.add("ftestami:3");
-        items.add("kruskalwallis:3");
-        items.add("friedman:3");
-        return items;
-    }
-
-    @AllArgsConstructor
+     @AllArgsConstructor
     public static class Parameters {
 
         StandardOptions so;
@@ -81,7 +71,7 @@ public final class Ts2DifferencingTests implements BasicCommand<Ts2DifferencingT
 
         List<InformationSet> output = DifferencingTestsTool.getDefault().create(input, params.spec);
 
-        params.output.write(output, items(), false);
+        params.output.write(output, false);
     }
 
     @VisibleForTesting
