@@ -45,11 +45,11 @@ import org.openide.util.NbBundle;
  *
  * @author Jean Palate
  */
-public final class Ts2ArmaTests implements BasicCommand<Ts2ArmaTests.Parameters> {
+public final class Ts2HrTests implements BasicCommand<Ts2HrTests.Parameters> {
 
     @CommandRegistration
     public static void main(String[] args) {
-        BasicCliLauncher.run(args, Parser::new, Ts2ArmaTests::new, o -> o.so);
+        BasicCliLauncher.run(args, Parser::new, Ts2HrTests::new, o -> o.so);
     }
 
     private List<String> items() {
@@ -63,7 +63,7 @@ public final class Ts2ArmaTests implements BasicCommand<Ts2ArmaTests.Parameters>
 
         StandardOptions so;
         public InputOptions input;
-        public ArmaTestsTool.Options spec;
+        public HrTestsTool.Options spec;
         public CsvOutputOptions output;
     }
 
@@ -75,7 +75,7 @@ public final class Ts2ArmaTests implements BasicCommand<Ts2ArmaTests.Parameters>
             System.err.println("Processing " + input.items.size() + " time series");
         }
 
-        List<InformationSet> output = ArmaTestsTool.getDefault().create(input, params.spec);
+        List<InformationSet> output = HrTestsTool.getDefault().create(input, params.spec);
 
         params.output.write(output, false);
     }
@@ -85,7 +85,7 @@ public final class Ts2ArmaTests implements BasicCommand<Ts2ArmaTests.Parameters>
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
-        private final ComposedOptionSpec<ArmaTestsTool.Options> spec = new ArmaTestsOptionsSpec(parser);
+        private final ComposedOptionSpec<HrTestsTool.Options> spec = new HrTestsOptionsSpec(parser);
         private final ComposedOptionSpec<CsvOutputOptions> output = newCsvOutputOptionsSpec(parser);
 
         @Override
@@ -96,15 +96,19 @@ public final class Ts2ArmaTests implements BasicCommand<Ts2ArmaTests.Parameters>
 
     @NbBundle.Messages(
             {
+        "ts2hrtests.p=Regular AR order",
+        "ts2hrtests.bp=Seasonal AR order",
+        "ts2hrtests.q=Regular MA order",
+        "ts2hrtests.bq=Seasonal MA order"
             })
-    private static final class ArmaTestsOptionsSpec implements ComposedOptionSpec<ArmaTestsTool.Options> {
+    private static final class HrTestsOptionsSpec implements ComposedOptionSpec<HrTestsTool.Options> {
 
         private final OptionSpec<Integer> p;
         private final OptionSpec<Integer> q;
         private final OptionSpec<Integer> bp;
         private final OptionSpec<Integer> bq;
         
-        public ArmaTestsOptionsSpec(OptionParser p) {
+        public HrTestsOptionsSpec(OptionParser p) {
             this.p = p.accepts("p").withRequiredArg().ofType(Integer.class).defaultsTo(0);
             this.q = p.accepts("q").withRequiredArg().ofType(Integer.class).defaultsTo(1);
             this.bp = p.accepts("bp").withRequiredArg().ofType(Integer.class).defaultsTo(0);
@@ -112,8 +116,8 @@ public final class Ts2ArmaTests implements BasicCommand<Ts2ArmaTests.Parameters>
         }
 
         @Override
-        public ArmaTestsTool.Options value(OptionSet o) {
-            return new ArmaTestsTool.Options(p.value(o), bp.value(o), q.value(o), bq.value(o));
+        public HrTestsTool.Options value(OptionSet o) {
+            return new HrTestsTool.Options(p.value(o), bp.value(o), q.value(o), bq.value(o));
         }
     }
 }

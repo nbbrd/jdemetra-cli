@@ -16,6 +16,7 @@
  */
 package demetra.cli.jd3tests;
 
+import demetra.cli.tests.*;
 import com.google.common.annotations.VisibleForTesting;
 import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
 import be.nbb.cli.util.BasicCliLauncher;
@@ -36,25 +37,31 @@ import demetra.cli.helpers.XmlUtil;
 import ec.tstoolkit.information.InformationSet;
 import java.util.ArrayList;
 import java.util.List;
-import joptsimple.OptionSpec;
 import lombok.AllArgsConstructor;
 import org.openide.util.NbBundle;
 
 /**
- * Compare the precision of different estimation procedures of SARIMA models 
+ * Computes outliers from time series.
  *
- * @author Jean Palate
+ * @author Philippe Charles
  */
-public final class Ts2ArmaTests implements BasicCommand<Ts2ArmaTests.Parameters> {
+public final class Ts2SeasonalityTests implements BasicCommand<Ts2SeasonalityTests.Parameters> {
 
     @CommandRegistration
     public static void main(String[] args) {
-        BasicCliLauncher.run(args, Parser::new, Ts2ArmaTests::new, o -> o.so);
+        BasicCliLauncher.run(args, Parser::new, Ts2SeasonalityTests::new, o -> o.so);
     }
 
     private List<String> items() {
         List<String> items = new ArrayList<>();
         items.add("series");
+        items.add("seas");
+        items.add("ftest:3");
+        items.add("ftestami:3");
+        items.add("kruskalwallis:3");
+        items.add("friedman:3");
+        items.add("qstest:3");
+        items.add("ptest:3");
         return items;
     }
 
@@ -63,7 +70,7 @@ public final class Ts2ArmaTests implements BasicCommand<Ts2ArmaTests.Parameters>
 
         StandardOptions so;
         public InputOptions input;
-        public ArmaTestsTool.Options spec;
+        public SeasonalityTestsTool.Options spec;
         public CsvOutputOptions output;
     }
 
@@ -75,9 +82,9 @@ public final class Ts2ArmaTests implements BasicCommand<Ts2ArmaTests.Parameters>
             System.err.println("Processing " + input.items.size() + " time series");
         }
 
-        List<InformationSet> output = ArmaTestsTool.getDefault().create(input, params.spec);
+        List<InformationSet> output = SeasonalityTestsTool.getDefault().create(input, params.spec);
 
-        params.output.write(output, false);
+        params.output.write(output, items(), false);
     }
 
     @VisibleForTesting
@@ -85,7 +92,7 @@ public final class Ts2ArmaTests implements BasicCommand<Ts2ArmaTests.Parameters>
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
-        private final ComposedOptionSpec<ArmaTestsTool.Options> spec = new ArmaTestsOptionsSpec(parser);
+        private final ComposedOptionSpec<SeasonalityTestsTool.Options> spec = new SeasonalityTestsOptionsSpec(parser);
         private final ComposedOptionSpec<CsvOutputOptions> output = newCsvOutputOptionsSpec(parser);
 
         @Override
@@ -94,26 +101,15 @@ public final class Ts2ArmaTests implements BasicCommand<Ts2ArmaTests.Parameters>
         }
     }
 
-    @NbBundle.Messages(
-            {
-            })
-    private static final class ArmaTestsOptionsSpec implements ComposedOptionSpec<ArmaTestsTool.Options> {
+    @NbBundle.Messages({})
+    private static final class SeasonalityTestsOptionsSpec implements ComposedOptionSpec<SeasonalityTestsTool.Options> {
 
-        private final OptionSpec<Integer> p;
-        private final OptionSpec<Integer> q;
-        private final OptionSpec<Integer> bp;
-        private final OptionSpec<Integer> bq;
-        
-        public ArmaTestsOptionsSpec(OptionParser p) {
-            this.p = p.accepts("p").withRequiredArg().ofType(Integer.class).defaultsTo(0);
-            this.q = p.accepts("q").withRequiredArg().ofType(Integer.class).defaultsTo(1);
-            this.bp = p.accepts("bp").withRequiredArg().ofType(Integer.class).defaultsTo(0);
-            this.bq = p.accepts("bq").withRequiredArg().ofType(Integer.class).defaultsTo(1);
+        public SeasonalityTestsOptionsSpec(OptionParser p) {
         }
 
         @Override
-        public ArmaTestsTool.Options value(OptionSet o) {
-            return new ArmaTestsTool.Options(p.value(o), bp.value(o), q.value(o), bq.value(o));
+        public SeasonalityTestsTool.Options value(OptionSet o) {
+            return new SeasonalityTestsTool.Options();
         }
     }
 }
