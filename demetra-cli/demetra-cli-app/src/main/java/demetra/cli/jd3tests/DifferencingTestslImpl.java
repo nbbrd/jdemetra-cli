@@ -17,6 +17,8 @@
 package demetra.cli.jd3tests;
 
 import ec.tss.TsInformation;
+import ec.tstoolkit.data.DataBlock;
+import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.modelling.arima.ModellingContext;
 import ec.tstoolkit.modelling.arima.PreprocessingModel;
 import ec.tstoolkit.modelling.arima.demetra.DifferencingModule;
@@ -42,28 +44,29 @@ public final class DifferencingTestslImpl implements DifferencingTestsTool {
             result.setDauto(arima.getD());
             result.setBdauto(arima.getBD());
             result.setMauto(arima.isMean());
+            
+            // correct data for estimated outliers...
+            int xcount = model.estimation.getRegArima().getXCount();
+            int xout = model.description.getOutliers().size();
+            IReadDataBlock res = model.estimation.getCorrectedData(xcount - xout, xcount);
             int freq = model.description.getFrequency();
-            ModellingContext context = new ModellingContext();
-            context.description = model.description;
-            context.estimation = model.estimation;
-            context.hasseas=true;
-            context.automodelling=true;
-            SarimaSpecification xspec = new SarimaSpecification(freq);
-            context.description.setSpecification(xspec);
-            ec.tstoolkit.modelling.arima.tramo.DifferencingModule dtramo=new ec.tstoolkit.modelling.arima.tramo.DifferencingModule();
-            dtramo.process(context);
+            ec.tstoolkit.modelling.arima.tramo.DifferencingModule dtramo = new ec.tstoolkit.modelling.arima.tramo.DifferencingModule();
+            dtramo.setSeas(true);
+            dtramo.process(res, freq);
             result.setDtramo(dtramo.getD());
             result.setBdtramo(dtramo.getBD());
-            result.setMtramo(dtramo.isMean());
-            context.description = model.description;
-            context.estimation = model.estimation;
-            context.description.setSpecification(xspec);
-            DifferencingModule dsimple=new DifferencingModule();
-            dsimple.process(context);
+            result.setMtramo(dtramo.isMeanCorrection());
+            ec.tstoolkit.modelling.arima.x13.DifferencingModule dx13 = new ec.tstoolkit.modelling.arima.x13.DifferencingModule();
+            dx13.process(res, freq);
+            result.setDx13(dx13.getD());
+            result.setBdx13(dx13.getBD());
+            result.setMx13(dx13.isMeanCorrection());
+            DifferencingModule dsimple = new DifferencingModule();
+            dsimple.process(res, freq);
             result.setDsimple(dsimple.getD());
             result.setBdsimple(dsimple.getBD());
-            result.setMsimple(dsimple.isMean());
-            
+            result.setMsimple(dsimple.isMeanCorrection());
+
         } catch (Exception err) {
         }
         return result;

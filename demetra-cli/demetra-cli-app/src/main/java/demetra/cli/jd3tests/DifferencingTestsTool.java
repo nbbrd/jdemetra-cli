@@ -60,9 +60,9 @@ public interface DifferencingTestsTool {
             info.set("dtramo", dtramo);
             info.set("bdtramo", bdtramo);
             info.set("mtramo", mtramo);
-//            info.set("dx13", dx13);
-//            info.set("bdx13", bdx13);
-//            info.set("mx13", mx13);
+            info.set("dx13", dx13);
+            info.set("bdx13", bdx13);
+            info.set("mx13", mx13);
             info.set("dsimple", dsimple);
             info.set("bdsimple", bdsimple);
             info.set("msimple", msimple);
