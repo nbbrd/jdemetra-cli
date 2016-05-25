@@ -38,7 +38,6 @@ import joptsimple.OptionSpec;
 import be.nbb.cli.util.BasicCommand;
 import be.nbb.cli.util.proc.CommandRegistration;
 import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
-import demetra.cli.chart.Bundle;
 import demetra.cli.helpers.XmlUtil;
 import org.openide.util.NbBundle;
 
@@ -59,7 +58,6 @@ public final class Ts2Chart implements BasicCommand<Ts2Chart.Parameters> {
         StandardOptions so;
         public InputOptions input;
         public File outputFile;
-        public MediaType mediaType;
         public ChartTool.Options chart;
     }
 
@@ -68,7 +66,7 @@ public final class Ts2Chart implements BasicCommand<Ts2Chart.Parameters> {
         TsCollectionInformation input = XmlUtil.readValue(params.input, XmlTsCollection.class);
 
         try (OutputStream stream = Files.newOutputStream(params.outputFile.toPath())) {
-            ChartTool.getDefault().writeChart(input, params.chart, stream, params.mediaType);
+            ChartTool.getDefault().writeChart(input, params.chart, stream, Utils.getMediaType(params.outputFile).orElse(MediaType.SVG_UTF_8));
         }
     }
 
@@ -78,20 +76,18 @@ public final class Ts2Chart implements BasicCommand<Ts2Chart.Parameters> {
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
         private final OptionSpec<File> outputFile = parser.nonOptions("Output file").ofType(File.class);
-        private final OptionSpec<String> mediaType = parser
-                .acceptsAll(asList("ot", "output-type"), "Output media type")
-                .withRequiredArg()
-                .ofType(String.class)
-                .describedAs("Media type");
         private final ComposedOptionSpec<ChartTool.Options> chart = new ChartOptionsSpec(parser);
 
         @Override
         protected Parameters parse(OptionSet o) {
+            File nonOptionFile = outputFile.value(o);
+            if (nonOptionFile == null) {
+                throw new IllegalArgumentException("Missing output file");
+            }
             Parameters result = new Parameters();
             result.so = so.value(o);
             result.input = input.value(o);
-            result.outputFile = o.has(outputFile) ? outputFile.value(o) : null;
-            result.mediaType = o.has(mediaType) ? MediaType.parse(mediaType.value(o)) : (result.outputFile != null ? Utils.getMediaType(result.outputFile).orElse(MediaType.SVG_UTF_8) : MediaType.SVG_UTF_8);
+            result.outputFile = nonOptionFile;
             result.chart = chart.value(o);
             return result;
         }

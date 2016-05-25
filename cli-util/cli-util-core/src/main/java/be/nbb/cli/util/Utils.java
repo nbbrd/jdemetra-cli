@@ -23,12 +23,8 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.function.Function;
 import javax.annotation.Nonnull;
 import lombok.experimental.UtilityClass;
 
@@ -70,10 +66,12 @@ public class Utils {
 
     @Nonnull
     public static Optional<MediaType> getMediaType(@Nonnull File file) {
-        return MEDIA_TYPE_FACTORIES.stream()
-                .map(o -> o.apply(file))
-                .filter(o -> o != null)
-                .findFirst();
+        try {
+            String contentType = Files.probeContentType(file.toPath());
+            return contentType != null ? Optional.of(MediaType.parse(contentType)) : Optional.empty();
+        } catch (IOException | IllegalArgumentException ex) {
+            return Optional.empty();
+        }
     }
 
     public static void loadSystemProperties(Path file) throws IOException {
@@ -83,39 +81,4 @@ public class Utils {
             System.getProperties().putAll(properties);
         }
     }
-
-    //<editor-fold defaultstate="collapsed" desc="Implementation details">
-    private static final List<Function<File, MediaType>> MEDIA_TYPE_FACTORIES = Arrays.asList(Utils::probeMediaType, Utils::getMediaTypeByExtension);
-
-    private static MediaType probeMediaType(File file) {
-        try {
-            String contentType = Files.probeContentType(file.toPath());
-            return contentType != null ? MediaType.parse(contentType) : null;
-        } catch (IOException | IllegalArgumentException ex) {
-            return null;
-        }
-    }
-
-    private static MediaType getMediaTypeByExtension(File file) {
-        String fileName = file.getName().toLowerCase(Locale.ROOT);
-        if (fileName.endsWith(".json")) {
-            return MediaType.JSON_UTF_8;
-        }
-        if (fileName.endsWith(".xml")) {
-            return MediaType.XML_UTF_8;
-        }
-        if (fileName.endsWith(".png")) {
-            return MediaType.PNG;
-        }
-        if (fileName.endsWith(".svg")) {
-            return MediaType.SVG_UTF_8;
-        }
-        if (fileName.endsWith(".yaml")) {
-            return YAML;
-        }
-        return null;
-    }
-
-    private static final MediaType YAML = MediaType.parse("application/yaml");
-    //</editor-fold>
 }
