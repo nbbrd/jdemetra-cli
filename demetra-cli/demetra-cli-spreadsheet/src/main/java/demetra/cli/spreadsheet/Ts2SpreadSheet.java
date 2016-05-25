@@ -91,9 +91,13 @@ public final class Ts2SpreadSheet implements BasicCommand<Ts2SpreadSheet.Paramet
 
         @Override
         protected Parameters parse(OptionSet o) {
+            File nonOptionFile = outputFile.value(o);
+            if (nonOptionFile == null) {
+                throw new IllegalArgumentException("Missing output file");
+            }
             Parameters result = new Parameters();
             result.input = input.value(o);
-            result.outputFile = o.has(outputFile) ? outputFile.value(o) : null;
+            result.outputFile = nonOptionFile;
             result.exportOptions = exportOptions.value(o);
             result.so = so.value(o);
             return result;

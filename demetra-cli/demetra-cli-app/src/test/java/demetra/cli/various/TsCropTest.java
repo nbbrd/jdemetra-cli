@@ -20,14 +20,13 @@ import static com.google.common.net.MediaType.XML_UTF_8;
 import be.nbb.cli.util.InputOptions;
 import be.nbb.cli.util.OutputOptions;
 import be.nbb.cli.util.StandardOptions;
-import be.nbb.demetra.toolset.ProviderTool;
 import demetra.cli.helpers.XmlUtil;
 import ec.tss.TsCollectionInformation;
-import ec.tss.TsInformationType;
-import ec.tss.tsproviders.common.random.RandomBean;
-import ec.tss.tsproviders.common.random.RandomProvider;
+import ec.tss.TsInformation;
 import ec.tss.xml.XmlTsCollection;
 import ec.tstoolkit.timeseries.TsPeriodSelector;
+import ec.tstoolkit.timeseries.simplets.TsData;
+import ec.tstoolkit.timeseries.simplets.TsFrequency;
 import java.io.File;
 import java.io.IOException;
 import org.assertj.core.api.Assertions;
@@ -45,10 +44,11 @@ public class TsCropTest {
     public TemporaryFolder folder = new TemporaryFolder();
 
     static TsCollectionInformation getSample() {
-        RandomBean bean = new RandomBean();
-        bean.setCount(3);
-        bean.setLength(24);
-        return ProviderTool.getDefault().getTsCollection(new RandomProvider(), bean, TsInformationType.All);
+        TsCollectionInformation result = new TsCollectionInformation();
+        TsInformation ts = new TsInformation();
+        ts.data = TsData.random(TsFrequency.Monthly);
+        result.items.add(ts);
+        return result;
     }
 
     static void write(File file, TsCollectionInformation col) throws IOException {
@@ -78,6 +78,6 @@ public class TsCropTest {
 
         TsCollectionInformation result = read(out);
 
-        Assertions.assertThat(result.items).hasSize(3);
+        Assertions.assertThat(result.items).hasSize(1);
     }
 }
