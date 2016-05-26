@@ -47,7 +47,7 @@ public abstract class JOptSimpleArgsParser<T> implements ArgsParser<T> {
         try {
             return parse(parser.parse(args));
         } catch (OptionException ex) {
-            throw new IllegalArgumentException(ex.getMessage());
+            throw new IllegalArgumentException(ex.getMessage(), ex);
         }
     }
 
