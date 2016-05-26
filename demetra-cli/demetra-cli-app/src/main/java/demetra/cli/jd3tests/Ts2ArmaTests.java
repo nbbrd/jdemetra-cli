@@ -99,21 +99,21 @@ public final class Ts2ArmaTests implements BasicCommand<Ts2ArmaTests.Parameters>
             })
     private static final class ArmaTestsOptionsSpec implements ComposedOptionSpec<ArmaTestsTool.Options> {
 
-        private final OptionSpec<Integer> p;
-        private final OptionSpec<Integer> q;
-        private final OptionSpec<Integer> bp;
-        private final OptionSpec<Integer> bq;
+//        private final OptionSpec<Integer> p;
+//        private final OptionSpec<Integer> q;
+//        private final OptionSpec<Integer> bp;
+//        private final OptionSpec<Integer> bq;
         
         public ArmaTestsOptionsSpec(OptionParser p) {
-            this.p = p.accepts("p").withRequiredArg().ofType(Integer.class).defaultsTo(0);
-            this.q = p.accepts("q").withRequiredArg().ofType(Integer.class).defaultsTo(1);
-            this.bp = p.accepts("bp").withRequiredArg().ofType(Integer.class).defaultsTo(0);
-            this.bq = p.accepts("bq").withRequiredArg().ofType(Integer.class).defaultsTo(1);
+//            this.p = p.accepts("p").withRequiredArg().ofType(Integer.class).defaultsTo(0);
+//            this.q = p.accepts("q").withRequiredArg().ofType(Integer.class).defaultsTo(1);
+//            this.bp = p.accepts("bp").withRequiredArg().ofType(Integer.class).defaultsTo(0);
+//            this.bq = p.accepts("bq").withRequiredArg().ofType(Integer.class).defaultsTo(1);
         }
 
         @Override
         public ArmaTestsTool.Options value(OptionSet o) {
-            return new ArmaTestsTool.Options(p.value(o), bp.value(o), q.value(o), bq.value(o));
+            return new ArmaTestsTool.Options();
         }
     }
 }

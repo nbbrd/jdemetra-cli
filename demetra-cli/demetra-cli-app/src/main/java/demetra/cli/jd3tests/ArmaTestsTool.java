@@ -40,39 +40,38 @@ public interface ArmaTestsTool {
 
     @Value
     public static class Options {
-
-        private int p, bp, q, bq;
     }
 
     @Data
     public static class ArmaTestsResults implements Record {
 
         private String name;
-        private double[] ml, hr, nhr;
-        private double ehr, enhr;
+        private int pauto, qauto, bpauto, bqauto;
+        private int ptramo, qtramo, bptramo, bqtramo;
+        private int px13, qx13, bpx13, bqx13;
+        private int pdemetra, qdemetra, bpdemetra, bqdemetra;
         private String invalidDataCause;
 
         @Override
         public InformationSet generate() {
             InformationSet info = new InformationSet();
             info.set("series", name);
-            info.set("ehr", ehr);
-            info.set("enhr", enhr);
-            if (ml != null) {
-                for (int i = 0; i < ml.length; ++i) {
-                    info.set("ml" + i, ml[i]);
-                }
-            }
-            if (hr != null) {
-                for (int i = 0; i < hr.length; ++i) {
-                    info.set("hr" + i, hr[i]);
-                }
-            }
-            if (nhr != null) {
-                for (int i = 0; i < nhr.length; ++i) {
-                    info.set("nhr" + i, nhr[i]);
-                }
-            }
+            info.set("p", pauto);
+            info.set("q", qauto);
+            info.set("bp", bpauto);
+            info.set("bq", bqauto);
+            info.set("ptramo", ptramo);
+            info.set("qtramo", qtramo);
+            info.set("bptramo", bptramo);
+            info.set("bqtramo", bqtramo);
+            info.set("px13", px13);
+            info.set("qx13", qx13);
+            info.set("bpx13", bpx13);
+            info.set("bqx13", bqx13);
+            info.set("pdemetra", pdemetra);
+            info.set("qdemetra", qdemetra);
+            info.set("bpdemetra", bpdemetra);
+            info.set("bqdemetra", bqdemetra);
             if (invalidDataCause != null) {
                 info.set("error", invalidDataCause);
             }

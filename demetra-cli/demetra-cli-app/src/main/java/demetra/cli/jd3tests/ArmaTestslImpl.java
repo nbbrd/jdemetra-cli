@@ -22,10 +22,15 @@ import ec.satoolkit.diagnostics.KruskalWallisTest;
 import ec.tss.TsInformation;
 import ec.tstoolkit.arima.estimation.RegArimaEstimation;
 import ec.tstoolkit.arima.estimation.RegArimaModel;
+import ec.tstoolkit.data.DataBlock;
 import ec.tstoolkit.data.IReadDataBlock;
 import ec.tstoolkit.information.StatisticalTest;
+import ec.tstoolkit.modelling.arima.PreprocessingModel;
 import ec.tstoolkit.modelling.arima.RegArimaEstimator;
 import ec.tstoolkit.modelling.arima.demetra.HannanRissanen2;
+import ec.tstoolkit.modelling.arima.tramo.ArmaModule;
+import ec.tstoolkit.modelling.arima.tramo.TramoSpecification;
+import ec.tstoolkit.sarima.SarimaComponent;
 import ec.tstoolkit.sarima.SarimaModel;
 import ec.tstoolkit.sarima.SarimaSpecification;
 import org.openide.util.lookup.ServiceProvider;
@@ -45,53 +50,46 @@ public final class ArmaTestslImpl implements ArmaTestsTool {
     public ArmaTestsResults create(TsInformation info, Options options) {
         ArmaTestsResults result = new ArmaTestsResults();
         result.setName(info.name);
-        SarmaSpecification spec = new SarmaSpecification(info.data.getFrequency().intValue());
-        spec.setP(options.getP());
-        spec.setBP(options.getBp());
-        spec.setQ(options.getQ());
-        spec.setBQ(options.getBq());
-        RegArimaModel<SarimaModel> regarima=new RegArimaModel<SarimaModel>();
-        regarima.setY(info.data);
-        regarima.setArima(new SarimaModel(spec));
         try {
-            RegArimaEstimator gls=new RegArimaEstimator(new SarimaMapping(new SarimaSpecification(spec), false));
-            //GlsSarimaMonitor gls = new GlsSarimaMonitor();
-            RegArimaEstimation<SarimaModel> m = gls.process(regarima);
-            double ll=m.likelihood.getLogLikelihood();
-                    
-            IReadDataBlock parameters = m.model.getArima().getParameters();
-            double[] pml = new double[spec.getParametersCount()];
-            parameters.copyTo(pml, 0);
-            result.setMl(pml);
-            HannanRissanen hr = new HannanRissanen();
-            hr.process(info.data, spec);
-            parameters = hr.getModel().getParameters();
-            double[] phr = new double[spec.getParametersCount()];
-            parameters.copyTo(phr, 0);
-            result.setHr(phr);
-            SarimaModel model = hr.getModel();
-            SarimaMapping.stabilize(model);
-            regarima.setArima(model);
-            double hrll = regarima.computeLikelihood().getLogLikelihood();
-            result.setEhr(ll-hrll);
-            
-            HannanRissanen2 hr2 = new HannanRissanen2();
-            hr2.process(info.data, spec);
-            parameters = hr2.getModel().getParameters();
-            double[] pnhr = new double[spec.getParametersCount()];
-            parameters.copyTo(pnhr, 0);
-            result.setNhr(pnhr);
-            model = hr2.getModel();
-            SarimaMapping.stabilize(model);
-            regarima.setArima(model);
-            double nhrll = regarima.computeLikelihood().getLogLikelihood();
-            result.setEnhr(ll-nhrll);
-        } catch (Exception err) {
-        }
-        try {
-        } catch (Exception err) {
-        }
-        try {
+            PreprocessingModel model = TramoSpecification.TRfull.build().process(info.data, null);
+            SarimaComponent arima = model.description.getArimaComponent();
+            result.setPauto(arima.getP());
+            result.setQauto(arima.getQ());
+            result.setBpauto(arima.getBP());
+            result.setBqauto(arima.getBQ());
+
+            // correct data for estimated outliers...
+            DataBlock res = model.estimation.getLinearizedData();
+            DataBlock dres=new DataBlock(res.getLength()-arima.getDifferencingOrder());
+            arima.getDifferencingFilter().filter(res, dres);
+           
+            int freq = model.description.getFrequency();
+            SarmaSpecification maxspec = new SarmaSpecification(freq);
+            maxspec.setP(3);
+            maxspec.setQ(3);
+            maxspec.setBP(1);
+            maxspec.setBQ(1);
+            try {
+                ec.tstoolkit.modelling.arima.tramo.ArmaModule tramo = new ec.tstoolkit.modelling.arima.tramo.ArmaModule();
+                tramo.setAcceptingWhiteNoise(true);
+                tramo.tramo(dres, maxspec, 0, 0, true);
+                ArmaModule.HRBic cur = tramo.getPreferedModels()[0];
+                SarmaSpecification spec = cur.getHR().getSpec();
+                result.setPtramo(spec.getP());
+                result.setQtramo(spec.getQ());
+                result.setBptramo(spec.getBP());
+                result.setBqtramo(spec.getBQ());
+            } catch (Exception err) {
+            }
+            try {
+                ec.tstoolkit.modelling.arima.x13.ArmaModule x13 = new ec.tstoolkit.modelling.arima.x13.ArmaModule();
+                SarmaSpecification spec = x13.select(new DataBlock(dres), freq, 3, 1,arima.getD(), arima.getBD() );
+                result.setPx13(spec.getP());
+                result.setQx13(spec.getQ());
+                result.setBpx13(spec.getBP());
+                result.setBqx13(spec.getBQ());
+            } catch (Exception err) {
+            }
         } catch (Exception err) {
         }
         return result;
