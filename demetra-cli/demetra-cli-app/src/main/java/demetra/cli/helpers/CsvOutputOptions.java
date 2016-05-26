@@ -16,9 +16,12 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import static java.util.Arrays.asList;
 import java.util.List;
 import java.util.Optional;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import javax.annotation.Nonnull;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -61,13 +64,29 @@ public class CsvOutputOptions {
         return new CsvOutputOptions(Optional.of(file));
     }
 
-    public void write(@Nonnull List<InformationSet> info, @Nonnull List<String> items, boolean fullname) throws IOException {
+    public void write(@Nonnull List<InformationSet> info, List<String> items, boolean fullname) throws IOException {
         try (Writer wr = writer()) {
             CsvInformationFormatter fmt = new CsvInformationFormatter();
             fmt.format(wr, info, items, fullname);
         }
     }
 
+    public void write(@Nonnull List<InformationSet> info, boolean fullname) throws IOException {
+        try (Writer wr = writer()) {
+            List<String> items = new ArrayList<>();
+            for (InformationSet set : info) {
+                List<String> tmp = new ArrayList();
+                set.fillDictionary(null, tmp);
+                for (String s : tmp){
+                    if (! items.contains(s))
+                        items.add(s);
+                }
+            }
+            CsvInformationFormatter fmt = new CsvInformationFormatter();
+            fmt.format(wr, info, new ArrayList<>(items), fullname);
+        }
+    }
+    
     private Writer writer() throws FileNotFoundException {
         if (getFile().isPresent()) {
             FileOutputStream matrix = new FileOutputStream(getFile().get());
