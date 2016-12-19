@@ -28,7 +28,7 @@ import ec.tstoolkit.timeseries.regression.OutlierType;
 public final class XmlOutlierEstimation implements IXmlConverter<OutlierEstimation> {
 
     public XmlTsPeriod position;
-    public OutlierType code;
+    public String code;
     public double stdev;
     public double value;
 

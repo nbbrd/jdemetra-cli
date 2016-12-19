@@ -4,7 +4,7 @@
 
     <groupId>be.nbb.cli</groupId>
     <artifactId>cli-util-parent</artifactId>
-    <version>2.1.0-SNAPSHOT</version>
+    <version>2.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     
     <modules>
@@ -21,9 +21,9 @@
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
         <!-- dependencies -->
-        <lombok.version>1.16.4</lombok.version>
-        <netbeans.version>RELEASE802</netbeans.version>
-        <guava.version>18.0</guava.version>
+        <lombok.version>1.16.10</lombok.version>
+        <netbeans.version>RELEASE81</netbeans.version>
+        <guava.version>19.0</guava.version>
         <jsr305.version>3.0.1</jsr305.version>
         <junit.version>4.12</junit.version>
     </properties>
