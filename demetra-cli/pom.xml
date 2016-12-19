@@ -32,12 +32,25 @@
 
     <repositories>
         <repository>
-            <id>joinup-releases</id>
-            <url>https://joinup.ec.europa.eu/nexus/content/repositories/releases/</url>
+            <id>netbeans-releases</id>
+            <url>http://bits.netbeans.org/maven2/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>        
         </repository>
         <repository>
-            <id>netbeans</id>
-            <url>http://bits.netbeans.org/maven2/</url>
+            <id>joinup-releases</id>
+            <url>https://joinup.ec.europa.eu/nexus/content/repositories/releases/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>        
+        </repository>
+        <repository>
+            <id>joinup-snapshots</id>
+            <url>https://joinup.ec.europa.eu/nexus/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>        
         </repository>
     </repositories>
     
