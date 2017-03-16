@@ -31,7 +31,6 @@ import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
 import be.nbb.cli.util.proc.CommandRegistration;
 import be.nbb.demetra.toolset.BenchmarkingTool;
 import be.nbb.demetra.toolset.BenchmarkingTool.ExpanderOptions;
-import com.google.common.annotations.VisibleForTesting;
 import static demetra.cli.benchmarking.Util.domainConverter;
 import static demetra.cli.benchmarking.Util.toTsCollectionInformation;
 import static demetra.cli.helpers.XmlUtil.readTsCollection;
@@ -40,6 +39,7 @@ import demetra.xml.MediaTypeAdapter;
 import ec.benchmarking.simplets.TsExpander;
 import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformation;
+import ec.tstoolkit.design.VisibleForTesting;
 import ec.tstoolkit.timeseries.TsAggregationType;
 import ec.tstoolkit.timeseries.simplets.TsDomain;
 import ec.tstoolkit.timeseries.simplets.TsFrequency;
@@ -50,7 +50,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import lombok.AllArgsConstructor;
 
 /**
  *
@@ -63,7 +62,7 @@ public final class Expander implements BasicCommand<Expander.Parameters> {
         BasicCliLauncher.run(args, Parser::new, Expander::new, o -> o.so);
     }
 
-    @AllArgsConstructor
+    @lombok.AllArgsConstructor
     public static final class Parameters {
 
         StandardOptions so;
@@ -72,7 +71,7 @@ public final class Expander implements BasicCommand<Expander.Parameters> {
         public OutputOptions output;
     }
 
-    @AllArgsConstructor
+    @lombok.AllArgsConstructor
     public static final class ExpanderInput {
 
         private final Optional<TsDomain> domain;

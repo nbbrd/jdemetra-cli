@@ -16,13 +16,11 @@
  */
 package be.nbb.cli.util;
 
-import lombok.Data;
-
 /**
  *
  * @author Philippe Charles
  */
-@Data
+@lombok.Data
 public final class StandardOptions {
 
     private final boolean showHelp;

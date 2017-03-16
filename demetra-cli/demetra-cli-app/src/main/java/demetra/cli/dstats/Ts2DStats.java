@@ -16,7 +16,6 @@
  */
 package demetra.cli.dstats;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
 import be.nbb.cli.util.BasicCliLauncher;
@@ -37,6 +36,7 @@ import joptsimple.OptionSpec;
 import be.nbb.cli.util.BasicCommand;
 import be.nbb.cli.util.proc.CommandRegistration;
 import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
+import ec.tstoolkit.design.VisibleForTesting;
 import org.openide.util.NbBundle;
 
 /**

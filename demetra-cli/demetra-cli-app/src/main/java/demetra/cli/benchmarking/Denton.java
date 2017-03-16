@@ -49,7 +49,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import lombok.AllArgsConstructor;
 
 /**
  *
@@ -62,7 +61,7 @@ public final class Denton implements BasicCommand<Denton.Parameters> {
         BasicCliLauncher.run(args, Parser::new, Denton::new, o -> o.so);
     }
 
-    @AllArgsConstructor
+    @lombok.AllArgsConstructor
     public static final class Parameters {
 
         StandardOptions so;
@@ -71,7 +70,7 @@ public final class Denton implements BasicCommand<Denton.Parameters> {
         public OutputOptions output;
     }
 
-    @AllArgsConstructor
+    @lombok.AllArgsConstructor
     public static final class DentonInput {
 
         private final Optional<File> xFile;

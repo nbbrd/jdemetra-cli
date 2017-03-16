@@ -26,13 +26,12 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import lombok.experimental.UtilityClass;
 
 /**
  *
  * @author Philippe Charles
  */
-@UtilityClass
+@lombok.experimental.UtilityClass
 public class ForkJoinTasks {
 
     @Nonnull

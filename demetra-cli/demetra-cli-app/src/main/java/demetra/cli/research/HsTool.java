@@ -24,8 +24,6 @@ import ec.tstoolkit.information.InformationSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import lombok.Data;
-import lombok.Value;
 import org.openide.util.Lookup;
 
 /**
@@ -35,12 +33,12 @@ import org.openide.util.Lookup;
 @ServiceDefinition(isSingleton = true)
 public interface HsTool {
 
-    @Value
+    @lombok.Value
     public static class Options {
 
     }
 
-    @Data
+    @lombok.Data
     public static class HsResults implements Record {
 
         public static String[] items = new String[]{"series", "nvar", "lvar", "svar", "seasvar1", "seasvar2", "llstm", "llhs", "stmbias", "hsbias", "n1", "n2", "n3", "n4", "n5", "n6", "n7", "n8", "n9", "n10", "n11", "n12"};

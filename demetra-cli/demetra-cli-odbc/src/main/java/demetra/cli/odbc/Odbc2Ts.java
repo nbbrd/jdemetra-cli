@@ -17,7 +17,6 @@
 package demetra.cli.odbc;
 
 import be.nbb.demetra.toolset.ProviderTool;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
 import be.nbb.cli.util.BasicCliLauncher;
@@ -41,6 +40,7 @@ import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
 import demetra.cli.helpers.XmlUtil;
 import demetra.cli.tsproviders.TsDataBuild;
 import demetra.cli.tsproviders.TsProviderOptionSpecs;
+import ec.tstoolkit.design.VisibleForTesting;
 
 /**
  * Retrieves time series from an ODBC DSN.

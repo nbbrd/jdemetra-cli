@@ -16,7 +16,6 @@
  */
 package demetra.cli.research;
 
-import com.google.common.annotations.VisibleForTesting;
 import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
 import be.nbb.cli.util.BasicCliLauncher;
 import be.nbb.cli.util.InputOptions;
@@ -34,10 +33,10 @@ import demetra.cli.helpers.CsvOutputOptions;
 import static demetra.cli.helpers.CsvOutputOptions.newCsvOutputOptionsSpec;
 import demetra.cli.helpers.XmlUtil;
 import demetra.cli.research.HsTool.HsResults;
+import ec.tstoolkit.design.VisibleForTesting;
 import ec.tstoolkit.information.InformationSet;
 import java.util.Arrays;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import org.openide.util.NbBundle;
 
 /**
@@ -56,7 +55,7 @@ public final class HsCommand implements BasicCommand<HsCommand.Parameters> {
         return Arrays.asList(HsResults.items);
     }
 
-    @AllArgsConstructor
+    @lombok.AllArgsConstructor
     public static class Parameters {
 
         StandardOptions so;

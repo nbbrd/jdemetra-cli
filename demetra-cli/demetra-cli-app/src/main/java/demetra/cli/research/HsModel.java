@@ -15,13 +15,12 @@ import ec.tstoolkit.ssf.implementation.SsfNoise;
 import ec.tstoolkit.structural.BasicStructuralModel;
 import ec.tstoolkit.structural.Component;
 import ec.tstoolkit.utilities.DoubleList;
-import lombok.Data;
 
 /**
  *
  * @author Admin
  */
-@Data
+@lombok.Data
 public class HsModel {
 
     private double nVar, lVar, sVar, seasVar1, seasVar2;

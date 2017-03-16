@@ -24,8 +24,6 @@ import ec.tstoolkit.information.InformationSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import lombok.Data;
-import lombok.Value;
 import org.openide.util.Lookup;
 
 /**
@@ -37,7 +35,7 @@ public interface MyCommandTool {
 
     public static String[] items=new String[]{"series", "error"};
     
-    @Value
+    @lombok.Value
     public static class Options {
         private String str;
         private int n;
@@ -45,7 +43,7 @@ public interface MyCommandTool {
        List<String> items;
      }
 
-    @Data
+    @lombok.Data
     public static class MyCommandResults implements Record {
         
 

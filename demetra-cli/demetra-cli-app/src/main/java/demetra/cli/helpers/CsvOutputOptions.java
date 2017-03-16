@@ -20,19 +20,16 @@ import java.util.ArrayList;
 import static java.util.Arrays.asList;
 import java.util.List;
 import java.util.Optional;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import javax.annotation.Nonnull;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import lombok.Data;
 
 /**
  *
  * @author Jean Palate
  */
-@Data
+@lombok.Data
 public class CsvOutputOptions {
 
     static final class CsvOutputOptionsSpec implements ComposedOptionSpec<CsvOutputOptions> {

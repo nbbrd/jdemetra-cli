@@ -23,7 +23,6 @@ import ec.tstoolkit.timeseries.simplets.TsData;
 import ec.tstoolkit.timeseries.simplets.TsDomain;
 import ec.tstoolkit.timeseries.simplets.TsFrequency;
 import javax.annotation.Nonnull;
-import lombok.Value;
 
 /**
  *
@@ -31,7 +30,7 @@ import lombok.Value;
  */
 public interface BenchmarkingTool {
 
-    @Value
+    @lombok.Value
     public static final class DentonOptions {
 
         boolean multiplicative;
@@ -44,7 +43,7 @@ public interface BenchmarkingTool {
 
     TsData computeDenton(@Nonnull TsFrequency freq, @Nonnull TsData y, @Nonnull DentonOptions options);
 
-    @Value
+    @lombok.Value
     public static final class SsfDentonOptions {
 
         boolean multiplicative;
@@ -53,7 +52,7 @@ public interface BenchmarkingTool {
 
     TsData computeSsfDenton(@Nonnull TsData x, @Nonnull TsData y, @Nonnull SsfDentonOptions options);
 
-    @Value
+    @lombok.Value
     public static final class CholetteOptions {
 
         double rho;
@@ -64,7 +63,7 @@ public interface BenchmarkingTool {
 
     TsData computeCholette(@Nonnull TsData x, @Nonnull TsData y, @Nonnull CholetteOptions options);
 
-    @Value
+    @lombok.Value
     public static final class ExpanderOptions {
 
         boolean useParameter;

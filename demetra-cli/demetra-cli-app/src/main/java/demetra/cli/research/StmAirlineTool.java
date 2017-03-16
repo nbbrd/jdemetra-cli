@@ -24,8 +24,6 @@ import ec.tstoolkit.information.InformationSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import lombok.Data;
-import lombok.Value;
 import org.openide.util.Lookup;
 
 /**
@@ -35,12 +33,12 @@ import org.openide.util.Lookup;
 @ServiceDefinition(isSingleton = true)
 public interface StmAirlineTool {
 
-    @Value
+    @lombok.Value
     public static class Options {
 
     }
 
-    @Data
+    @lombok.Data
     public static class StmResults implements Record {
         
         public static String[] items=new String[]{"series", "th", "bth", "cochran", "nvar", "lvar", "svar", "seasvar", "distance", "airse", "stmse"};

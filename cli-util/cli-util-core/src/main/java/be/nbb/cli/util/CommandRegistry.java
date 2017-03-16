@@ -24,16 +24,14 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import lombok.Builder;
-import lombok.Value;
 import org.openide.util.NbBundle;
 
 /**
  *
  * @author Philippe Charles
  */
-@Value
-@Builder
+@lombok.Value
+@lombok.Builder
 @NbBundle.Messages({
     "# {0} - app name",
     "commandRegistry.usage=usage: {0} <command> [<args>]\n",

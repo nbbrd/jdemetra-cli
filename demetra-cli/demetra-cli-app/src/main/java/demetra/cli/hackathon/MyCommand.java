@@ -16,7 +16,6 @@
  */
 package demetra.cli.hackathon;
 
-import com.google.common.annotations.VisibleForTesting;
 import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
 import be.nbb.cli.util.BasicCliLauncher;
 import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newInputOptionsSpec;
@@ -32,12 +31,12 @@ import be.nbb.cli.util.InputOptions;
 import be.nbb.cli.util.StandardOptions;
 import static demetra.cli.helpers.CsvOutputOptions.newCsvOutputOptionsSpec;
 import demetra.cli.helpers.XmlUtil;
+import ec.tstoolkit.design.VisibleForTesting;
 import ec.tstoolkit.information.InformationSet;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import joptsimple.OptionSpec;
-import lombok.AllArgsConstructor;
 import org.openide.util.NbBundle;
 
 /**
@@ -55,7 +54,7 @@ public final class MyCommand implements BasicCommand<MyCommand.Parameters> {
         return Arrays.asList(MyCommandTool.items);
     }
 
-    @AllArgsConstructor
+    @lombok.AllArgsConstructor
     public static class Parameters {
 
         StandardOptions so;

@@ -29,13 +29,12 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import joptsimple.ValueConversionException;
 import joptsimple.ValueConverter;
-import lombok.experimental.UtilityClass;
 
 /**
  *
  * @author Philippe Charles
  */
-@UtilityClass
+@lombok.experimental.UtilityClass
 class Util {
 
     @Nonnull

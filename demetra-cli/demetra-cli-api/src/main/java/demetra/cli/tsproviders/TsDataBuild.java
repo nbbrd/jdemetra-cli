@@ -18,13 +18,12 @@ package demetra.cli.tsproviders;
 
 import ec.tstoolkit.timeseries.TsAggregationType;
 import ec.tstoolkit.timeseries.simplets.TsFrequency;
-import lombok.Value;
 
 /**
  *
  * @author Philippe Charles
  */
-@Value
+@lombok.Value
 public class TsDataBuild {
 
     TsFrequency frequency;

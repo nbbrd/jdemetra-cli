@@ -23,13 +23,12 @@ import javax.annotation.Nonnull;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import lombok.Data;
 
 /**
  *
  * @author Philippe Charles
  */
-@Data
+@lombok.Data
 @XmlJavaTypeAdapter(OutputOptions.XmlAdapter.class)
 public final class OutputOptions {
 

@@ -16,7 +16,6 @@
  */
 package demetra.cli.anomalydetection;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
 import be.nbb.cli.util.BasicCliLauncher;
@@ -38,10 +37,10 @@ import be.nbb.demetra.toolset.AnomalyDetectionTool.CheckLastOptions;
 import demetra.cli.helpers.CsvOutputOptions;
 import static demetra.cli.helpers.CsvOutputOptions.newCsvOutputOptionsSpec;
 import demetra.cli.helpers.XmlUtil;
+import ec.tstoolkit.design.VisibleForTesting;
 import ec.tstoolkit.information.InformationSet;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import org.openide.util.NbBundle;
 
 /**
@@ -68,7 +67,7 @@ public final class Terror implements BasicCommand<Terror.Parameters> {
         return items;
     }
 
-    @AllArgsConstructor
+    @lombok.AllArgsConstructor
     public static class Parameters {
 
         StandardOptions so;

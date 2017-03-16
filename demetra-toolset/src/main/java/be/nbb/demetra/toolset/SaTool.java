@@ -23,8 +23,6 @@ import ec.tstoolkit.timeseries.simplets.TsData;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import lombok.Data;
-import lombok.Value;
 
 /**
  *
@@ -32,7 +30,7 @@ import lombok.Value;
  */
 public interface SaTool {
 
-    @Value
+    @lombok.Value
     public static class Options {
 
         String algorithm;
@@ -40,7 +38,7 @@ public interface SaTool {
         List<String> items;
     }
 
-    @Data
+    @lombok.Data
     public static class SaTs {
 
         String name;
@@ -51,7 +49,7 @@ public interface SaTool {
         String invalidDataCause;
     }
 
-    @Data
+    @lombok.Data
     public static class SaTsCollection {
 
         String name;

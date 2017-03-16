@@ -16,7 +16,6 @@
  */
 package demetra.cli.anomalydetection;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
 import be.nbb.cli.util.BasicCliLauncher;
@@ -47,7 +46,7 @@ import be.nbb.demetra.toolset.AnomalyDetectionTool.DefaultSpec;
 import be.nbb.demetra.toolset.AnomalyDetectionTool.OutliersOptions;
 import be.nbb.demetra.toolset.AnomalyDetectionTool.OutliersTsCollection;
 import demetra.cli.helpers.XmlUtil;
-import lombok.AllArgsConstructor;
+import ec.tstoolkit.design.VisibleForTesting;
 import org.openide.util.NbBundle;
 
 /**
@@ -62,7 +61,7 @@ public final class Ts2Outliers implements BasicCommand<Ts2Outliers.Parameters> {
         BasicCliLauncher.run(args, Parser::new, Ts2Outliers::new, o -> o.so);
     }
 
-    @AllArgsConstructor
+    @lombok.AllArgsConstructor
     public static class Parameters {
 
         StandardOptions so;

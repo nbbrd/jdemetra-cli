@@ -25,8 +25,6 @@ import ec.tstoolkit.information.StatisticalTest;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import lombok.Data;
-import lombok.Value;
 import org.openide.util.Lookup;
 
 /**
@@ -36,12 +34,12 @@ import org.openide.util.Lookup;
 @ServiceDefinition(isSingleton = true)
 public interface SeasonalityTestsTool {
 
-    @Value
+    @lombok.Value
     public static class Options {
 
     }
 
-    @Data
+    @lombok.Data
     public static class SeasonalityTestsResults implements Record {
 
         private String name;

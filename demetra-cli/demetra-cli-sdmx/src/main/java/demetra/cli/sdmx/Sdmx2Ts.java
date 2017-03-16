@@ -17,7 +17,6 @@
 package demetra.cli.sdmx;
 
 import be.nbb.demetra.toolset.ProviderTool;
-import com.google.common.annotations.VisibleForTesting;
 import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
 import be.nbb.cli.util.BasicCliLauncher;
 import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
@@ -38,6 +37,7 @@ import be.nbb.cli.util.proc.CommandRegistration;
 import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
 import demetra.cli.helpers.XmlUtil;
 import demetra.cli.tsproviders.TsProviderOptionSpecs;
+import ec.tstoolkit.design.VisibleForTesting;
 import org.openide.util.NbBundle;
 
 /**

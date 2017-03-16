@@ -48,7 +48,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import lombok.AllArgsConstructor;
 
 /**
  *
@@ -61,7 +60,7 @@ public final class Cholette implements BasicCommand<Cholette.Parameters> {
         BasicCliLauncher.run(args, Parser::new, Cholette::new, o -> o.so);
     }
 
-    @AllArgsConstructor
+    @lombok.AllArgsConstructor
     public static final class Parameters {
 
         StandardOptions so;
@@ -70,7 +69,7 @@ public final class Cholette implements BasicCommand<Cholette.Parameters> {
         public OutputOptions output;
     }
 
-    @AllArgsConstructor
+    @lombok.AllArgsConstructor
     public static final class CholetteInput {
 
         private final File xFile;

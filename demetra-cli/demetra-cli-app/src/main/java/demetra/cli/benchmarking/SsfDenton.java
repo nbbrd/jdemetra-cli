@@ -31,7 +31,6 @@ import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
 import be.nbb.cli.util.proc.CommandRegistration;
 import be.nbb.demetra.toolset.BenchmarkingTool;
 import be.nbb.demetra.toolset.BenchmarkingTool.SsfDentonOptions;
-import com.google.common.annotations.VisibleForTesting;
 import static demetra.cli.benchmarking.Util.toTsCollectionInformation;
 import static demetra.cli.benchmarking.Util.zip;
 import static demetra.cli.helpers.XmlUtil.readTsCollection;
@@ -39,6 +38,7 @@ import static demetra.cli.helpers.XmlUtil.writeTsCollection;
 import demetra.xml.MediaTypeAdapter;
 import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformation;
+import ec.tstoolkit.design.VisibleForTesting;
 import ec.tstoolkit.timeseries.TsAggregationType;
 import java.io.File;
 import static java.util.Arrays.asList;
@@ -47,7 +47,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import lombok.AllArgsConstructor;
 
 /**
  *
@@ -60,7 +59,7 @@ public final class SsfDenton implements BasicCommand<SsfDenton.Parameters> {
         BasicCliLauncher.run(args, Parser::new, SsfDenton::new, o -> o.so);
     }
 
-    @AllArgsConstructor
+    @lombok.AllArgsConstructor
     public static final class Parameters {
 
         StandardOptions so;
@@ -69,7 +68,7 @@ public final class SsfDenton implements BasicCommand<SsfDenton.Parameters> {
         public OutputOptions output;
     }
 
-    @AllArgsConstructor
+    @lombok.AllArgsConstructor
     public static final class SsfDentonInput {
 
         public File xFile;

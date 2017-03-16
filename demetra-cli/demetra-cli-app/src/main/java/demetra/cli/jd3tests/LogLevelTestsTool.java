@@ -16,18 +16,14 @@
  */
 package demetra.cli.jd3tests;
 
-import demetra.cli.tests.*;
 import be.nbb.demetra.toolset.Record;
 import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformation;
 import ec.tstoolkit.design.ServiceDefinition;
 import ec.tstoolkit.information.InformationSet;
-import ec.tstoolkit.information.StatisticalTest;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import lombok.Data;
-import lombok.Value;
 import org.openide.util.Lookup;
 
 /**
@@ -37,12 +33,12 @@ import org.openide.util.Lookup;
 @ServiceDefinition(isSingleton = true)
 public interface LogLevelTestsTool {
 
-    @Value
+    @lombok.Value
     public static class Options {
 
     }
 
-    @Data
+    @lombok.Data
     public static class LogLevelTestsResults implements Record {
 
         private String name;

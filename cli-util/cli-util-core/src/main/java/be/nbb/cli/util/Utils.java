@@ -25,13 +25,12 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Properties;
 import javax.annotation.Nonnull;
-import lombok.experimental.UtilityClass;
 
 /**
  *
  * @author Philippe Charles
  */
-@UtilityClass
+@lombok.experimental.UtilityClass
 public class Utils {
 
     public static void printVersion(Class<?> clazz, PrintStream stream) {

@@ -37,7 +37,6 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
-import lombok.Value;
 import org.openide.util.lookup.ServiceProvider;
 import be.nbb.cli.util.Command;
 
@@ -72,7 +71,7 @@ public final class CommandRegistrationProcessor extends AbstractProcessor {
         }
     }
 
-    @Value
+    @lombok.Value
     private static class CommandProviderInfo {
 
         String command;

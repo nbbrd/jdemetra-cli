@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import lombok.Data;
-import lombok.Value;
 
 /**
  *
@@ -42,7 +40,7 @@ public interface AnomalyDetectionTool {
     }
 
     //<editor-fold defaultstate="collapsed" desc="Outliers API">
-    @Value
+    @lombok.Value
     public static class OutliersOptions {
 
         DefaultSpec defaultSpec;
@@ -51,7 +49,7 @@ public interface AnomalyDetectionTool {
         Set<OutlierType> outlierTypes;
     }
 
-    @Data
+    @lombok.Data
     public static class OutliersTs {
 
         String name;
@@ -60,7 +58,7 @@ public interface AnomalyDetectionTool {
         String invalidDataCause;
     }
 
-    @Data
+    @lombok.Data
     public static class OutliersTsCollection {
 
         String name;
@@ -82,7 +80,7 @@ public interface AnomalyDetectionTool {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="CheckLast API">
-    @Value
+    @lombok.Value
     public static class CheckLastOptions {
 
         DefaultSpec defaultSpec;
@@ -90,7 +88,7 @@ public interface AnomalyDetectionTool {
         int nBacks;
     }
 
-    @Data
+    @lombok.Data
     public static class CheckLastTs implements Record {
 
         private String name;

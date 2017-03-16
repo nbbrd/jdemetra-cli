@@ -22,7 +22,6 @@ import ec.tstoolkit.design.ServiceDefinition;
 import java.io.IOException;
 import java.io.OutputStream;
 import javax.annotation.Nonnull;
-import lombok.Value;
 import org.openide.util.Lookup;
 
 /**
@@ -32,7 +31,7 @@ import org.openide.util.Lookup;
 @ServiceDefinition(isSingleton = true)
 public interface ChartTool {
 
-    @Value
+    @lombok.Value
     public static class Options {
 
         int width;
