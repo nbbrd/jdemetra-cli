@@ -16,7 +16,6 @@
  */
 package be.nbb.cli.util;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Collection;
@@ -90,7 +89,7 @@ public final class CommandRegistry {
     }
 
     // https://en.wikipedia.org/wiki/Bitap_algorithm
-    @VisibleForTesting
+    //@VisibleForTesting
     static final class BitapFilter implements Predicate<String> {
 
         private final int alphabetRange = 128;

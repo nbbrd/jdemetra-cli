@@ -16,7 +16,7 @@
  */
 package demetra.cli.chart;
 
-import com.google.common.net.MediaType;
+import be.nbb.cli.util.MediaType;
 import java.io.IOException;
 import java.nio.file.Paths;
 import static org.assertj.core.api.Assertions.assertThat;

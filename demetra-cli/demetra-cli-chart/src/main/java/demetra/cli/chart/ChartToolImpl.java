@@ -16,10 +16,10 @@
  */
 package demetra.cli.chart;
 
+import be.nbb.cli.util.MediaType;
 import com.google.common.base.Preconditions;
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
-import com.google.common.net.MediaType;
 import ec.tss.Ts;
 import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformation;
@@ -48,6 +48,7 @@ import org.jfree.data.DomainOrder;
 import org.jfree.data.general.AbstractSeriesDataset;
 import org.jfree.data.xy.IntervalXYDataset;
 import org.openide.util.lookup.ServiceProvider;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @ServiceProvider(service = ChartTool.class)
 public final class ChartToolImpl implements ChartTool {

@@ -16,8 +16,8 @@
  */
 package demetra.cli.helpers;
 
-import com.google.common.net.MediaType;
-import static com.google.common.net.MediaType.parse;
+import be.nbb.cli.util.MediaType;
+import static be.nbb.cli.util.MediaType.parse;
 import lombok.experimental.UtilityClass;
 
 /**

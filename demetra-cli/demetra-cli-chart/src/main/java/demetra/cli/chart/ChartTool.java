@@ -16,7 +16,7 @@
  */
 package demetra.cli.chart;
 
-import com.google.common.net.MediaType;
+import be.nbb.cli.util.MediaType;
 import ec.tss.TsCollectionInformation;
 import ec.tstoolkit.design.ServiceDefinition;
 import java.io.IOException;

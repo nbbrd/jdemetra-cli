@@ -16,7 +16,6 @@
  */
 package be.nbb.cli.util;
 
-import com.google.common.net.MediaType;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

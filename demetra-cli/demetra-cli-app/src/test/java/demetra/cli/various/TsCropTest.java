@@ -16,8 +16,8 @@
  */
 package demetra.cli.various;
 
-import static com.google.common.net.MediaType.XML_UTF_8;
 import be.nbb.cli.util.InputOptions;
+import static be.nbb.cli.util.MediaType.XML_UTF_8;
 import be.nbb.cli.util.OutputOptions;
 import be.nbb.cli.util.StandardOptions;
 import demetra.cli.helpers.XmlUtil;

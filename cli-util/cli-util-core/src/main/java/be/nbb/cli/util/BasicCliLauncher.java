@@ -16,11 +16,8 @@
  */
 package be.nbb.cli.util;
 
-import com.google.common.base.Stopwatch;
-import static com.google.common.net.MediaType.JSON_UTF_8;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import javax.annotation.Nonnull;
@@ -77,14 +74,13 @@ public final class BasicCliLauncher<T> {
         }
 
         try {
-            Stopwatch stopwatch = Stopwatch.createUnstarted();
+            long startTime = System.currentTimeMillis();
             if (so.isVerbose()) {
                 printParams(params, System.err);
-                stopwatch.start();
             }
             commandSupplier.get().exec(params);
             if (so.isVerbose()) {
-                System.err.println("Executed in " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms");
+                System.err.println("Executed in " + (System.currentTimeMillis() - startTime) + "ms");
             }
         } catch (Exception ex) {
             if (so.isVerbose()) {
@@ -106,7 +102,7 @@ public final class BasicCliLauncher<T> {
     }
 
     private static <T> void printParams(@Nonnull T params, @Nonnull PrintStream stream) {
-        Serializer serializer = SerializerFactory.of(JSON_UTF_8, params.getClass(), true);
+        Serializer serializer = SerializerFactory.of(MediaType.JSON_UTF_8, params.getClass(), true);
         try {
             serializer.serialize(params, stream);
         } catch (IOException ex) {

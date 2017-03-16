@@ -16,7 +16,7 @@
  */
 package demetra.xml;
 
-import com.google.common.net.MediaType;
+import be.nbb.cli.util.MediaType;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**

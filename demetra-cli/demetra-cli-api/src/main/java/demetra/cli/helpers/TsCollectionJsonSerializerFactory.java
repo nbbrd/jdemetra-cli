@@ -16,10 +16,10 @@
  */
 package demetra.cli.helpers;
 
+import be.nbb.cli.util.MediaType;
 import be.nbb.cli.util.Serializer;
 import be.nbb.cli.util.SerializerFactory;
 import be.nbb.cli.util.SerializerFactoryAlias;
-import com.google.common.net.MediaType;
 import static demetra.cli.helpers.DemetraMediaTypes.TS_COLLECTION_JSON;
 import ec.tss.xml.XmlTsCollection;
 import org.openide.util.Lookup;

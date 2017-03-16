@@ -16,7 +16,6 @@
  */
 package be.nbb.cli.util;
 
-import com.google.common.net.MediaType;
 import java.util.Collection;
 import javax.annotation.Nonnull;
 
@@ -42,7 +41,7 @@ public final class SerializerFactoryAlias {
     }
 
     public boolean canHandle(@Nonnull MediaType mediaType, @Nonnull Class<?> type, @Nonnull Collection<? extends SerializerFactory> factories) {
-        return fromType.equals(type) && fromMediaType.is(mediaType)
+        return fromType.equals(type) && fromMediaType.isCompatible(mediaType)
                 && factories.stream().anyMatch(o -> o.canHandle(toMediaType, type));
     }
 

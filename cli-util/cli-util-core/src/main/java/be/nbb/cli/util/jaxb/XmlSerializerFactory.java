@@ -16,9 +16,9 @@
  */
 package be.nbb.cli.util.jaxb;
 
+import be.nbb.cli.util.MediaType;
 import be.nbb.cli.util.Serializer;
 import be.nbb.cli.util.SerializerFactory;
-import com.google.common.net.MediaType;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,7 +38,7 @@ public final class XmlSerializerFactory implements SerializerFactory {
 
     @Override
     public boolean canHandle(MediaType mediaType, Class<?> type) {
-        return MediaType.XML_UTF_8.is(mediaType);
+        return MediaType.XML_UTF_8.isCompatible(mediaType);
     }
 
     @Override
