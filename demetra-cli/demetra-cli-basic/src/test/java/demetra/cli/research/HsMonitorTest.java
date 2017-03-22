@@ -5,28 +5,25 @@
  */
 package demetra.cli.research;
 
-import ec.tstoolkit.data.DataBlock;
-import ec.tstoolkit.ssf.SsfComposite;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
  * @author Admin
  */
 public class HsMonitorTest {
-    
+
     public HsMonitorTest() {
     }
 
     @Test
     public void testSomeMethod() {
-        long t0=System.currentTimeMillis();
+        long t0 = System.currentTimeMillis();
         HsMonitor monitor = new HsMonitor();
         monitor.process(data.Data.P);
-         long t1=System.currentTimeMillis();
-        System.out.println(t1-t0);
+        long t1 = System.currentTimeMillis();
+        System.out.println(t1 - t0);
         System.out.println(monitor.getResults());
     }
-    
+
 }

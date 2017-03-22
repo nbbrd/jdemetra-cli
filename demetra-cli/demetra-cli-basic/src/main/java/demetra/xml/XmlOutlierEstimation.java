@@ -19,7 +19,6 @@ package demetra.xml;
 import ec.tss.xml.IXmlConverter;
 import ec.tss.xml.XmlTsPeriod;
 import ec.tstoolkit.timeseries.regression.OutlierEstimation;
-import ec.tstoolkit.timeseries.regression.OutlierType;
 
 /**
  *
