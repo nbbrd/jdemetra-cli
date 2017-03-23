@@ -59,10 +59,10 @@ public final class Random2Ts implements BasicCommand<Random2Ts.Parameters> {
 
     @Override
     public void exec(Parameters params) throws Exception {
-        RandomProvider provider = new RandomProvider();
-        TsCollectionInformation result = ProviderTool.getDefault().getTsCollection(provider, params.input, TsInformationType.All);
-        XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
-        provider.dispose();
+        try (RandomProvider p = new RandomProvider()) {
+            TsCollectionInformation result = ProviderTool.getDefault().getTsCollection(p, params.input, TsInformationType.All);
+            XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+        }
     }
 
     @VisibleForTesting

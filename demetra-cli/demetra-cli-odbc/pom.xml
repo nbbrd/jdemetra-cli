@@ -68,6 +68,7 @@
                     <artifactSet>
                         <includes>
                             <include>eu.europa.ec.joinup.sat:demetra-jdbc</include>
+                            <include>eu.europa.ec.joinup.sat:demetra-odbc</include>
                         </includes>
                     </artifactSet>
                 </configuration>

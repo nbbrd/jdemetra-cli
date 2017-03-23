@@ -63,10 +63,10 @@ public final class Odbc2Ts implements BasicCommand<Odbc2Ts.Parameters> {
 
     @Override
     public void exec(Parameters params) throws Exception {
-        OdbcProvider provider = new OdbcProvider();
-        TsCollectionInformation result = ProviderTool.getDefault().getTsCollection(provider, params.input, TsInformationType.All);
-        XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
-        provider.dispose();
+        try (OdbcProvider p = new OdbcProvider()) {
+            TsCollectionInformation result = ProviderTool.getDefault().getTsCollection(p, params.input, TsInformationType.All);
+            XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+        }
     }
 
     @VisibleForTesting

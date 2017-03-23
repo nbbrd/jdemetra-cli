@@ -61,12 +61,12 @@ public final class Sdmx2Ts implements BasicCommand<Sdmx2Ts.Parameters> {
 
     @Override
     public void exec(Parameters params) throws Exception {
-        SdmxProvider provider = new SdmxProvider();
-        provider.setCompactNaming(true);
-        ProviderTool.getDefault().applyWorkingDir(provider);
-        TsCollectionInformation result = ProviderTool.getDefault().getTsCollection(provider, params.sdmx, TsInformationType.All);
-        XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
-        provider.dispose();
+        try (SdmxProvider p = new SdmxProvider()) {
+            p.setCompactNaming(true);
+            ProviderTool.getDefault().applyWorkingDir(p);
+            TsCollectionInformation result = ProviderTool.getDefault().getTsCollection(p, params.sdmx, TsInformationType.All);
+            XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+        }
     }
 
     @VisibleForTesting
