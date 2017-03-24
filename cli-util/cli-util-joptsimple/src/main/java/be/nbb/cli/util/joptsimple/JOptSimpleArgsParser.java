@@ -17,12 +17,12 @@
 package be.nbb.cli.util.joptsimple;
 
 import be.nbb.cli.util.ArgsParser;
-import com.google.common.base.Joiner;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import joptsimple.BuiltinHelpFormatter;
 import joptsimple.OptionDescriptor;
 import joptsimple.OptionException;
@@ -174,7 +174,7 @@ public abstract class JOptSimpleArgsParser<T> implements ArgsParser<T> {
         }
 
         private static void appendOptionNames(StringBuilder sb, List<String> options) {
-            Joiner.on(" | ").appendTo(sb, options.stream().map(UsageFactory::dash).iterator());
+            sb.append(options.stream().map(UsageFactory::dash).collect(Collectors.joining(" | ")));
         }
 
         private static String dash(String option) {

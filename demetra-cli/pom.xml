@@ -15,6 +15,8 @@
         <module>demetra-cli-chart</module>
         <module>demetra-cli-sdmx</module>
         <module>demetra-cli-odbc</module>
+        <module>demetra-cli-basic</module>
+        <module>demetra-cli-workspace</module>
     </modules>
     
     <properties>

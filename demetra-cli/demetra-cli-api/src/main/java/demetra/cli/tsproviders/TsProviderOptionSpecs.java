@@ -25,14 +25,13 @@ import javax.annotation.Nonnull;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import lombok.experimental.UtilityClass;
 import org.openide.util.NbBundle;
 
 /**
  *
  * @author Philippe Charles
  */
-@UtilityClass
+@lombok.experimental.UtilityClass
 public class TsProviderOptionSpecs {
 
     @Nonnull

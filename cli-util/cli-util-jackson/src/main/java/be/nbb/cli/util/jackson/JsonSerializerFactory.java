@@ -16,13 +16,13 @@
  */
 package be.nbb.cli.util.jackson;
 
+import be.nbb.cli.util.MediaType;
 import be.nbb.cli.util.Serializer;
 import be.nbb.cli.util.SerializerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
-import com.google.common.net.MediaType;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
@@ -39,7 +39,7 @@ public final class JsonSerializerFactory implements SerializerFactory {
 
     @Override
     public boolean canHandle(MediaType mediaType, Class<?> type) {
-        return available && MediaType.JSON_UTF_8.is(mediaType);
+        return available && MediaType.JSON_UTF_8.isCompatible(mediaType);
     }
 
     @Override

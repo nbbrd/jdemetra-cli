@@ -16,15 +16,14 @@
  */
 package demetra.cli.helpers;
 
-import com.google.common.net.MediaType;
-import static com.google.common.net.MediaType.parse;
-import lombok.experimental.UtilityClass;
+import be.nbb.cli.util.MediaType;
+import static be.nbb.cli.util.MediaType.parse;
 
 /**
  *
  * @author Philippe Charles
  */
-@UtilityClass
+@lombok.experimental.UtilityClass
 public class DemetraMediaTypes {
 
     public static final MediaType TS_COLLECTION_XML = parse("application/vnd.demetra.tscollection+xml");

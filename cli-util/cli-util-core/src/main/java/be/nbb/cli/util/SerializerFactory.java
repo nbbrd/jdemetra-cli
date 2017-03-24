@@ -16,7 +16,6 @@
  */
 package be.nbb.cli.util;
 
-import com.google.common.net.MediaType;
 import javax.annotation.Nonnull;
 import org.openide.util.Lookup;
 

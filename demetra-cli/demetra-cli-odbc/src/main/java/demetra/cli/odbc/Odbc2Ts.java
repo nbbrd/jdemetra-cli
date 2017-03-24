@@ -17,7 +17,6 @@
 package demetra.cli.odbc;
 
 import be.nbb.demetra.toolset.ProviderTool;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
 import be.nbb.cli.util.BasicCliLauncher;
@@ -41,6 +40,7 @@ import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
 import demetra.cli.helpers.XmlUtil;
 import demetra.cli.tsproviders.TsDataBuild;
 import demetra.cli.tsproviders.TsProviderOptionSpecs;
+import ec.tstoolkit.design.VisibleForTesting;
 
 /**
  * Retrieves time series from an ODBC DSN.
@@ -63,10 +63,10 @@ public final class Odbc2Ts implements BasicCommand<Odbc2Ts.Parameters> {
 
     @Override
     public void exec(Parameters params) throws Exception {
-        OdbcProvider provider = new OdbcProvider();
-        TsCollectionInformation result = ProviderTool.getDefault().getTsCollection(provider, params.input, TsInformationType.All);
-        XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
-        provider.dispose();
+        try (OdbcProvider p = new OdbcProvider()) {
+            TsCollectionInformation result = ProviderTool.getDefault().getTsCollection(p, params.input, TsInformationType.All);
+            XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+        }
     }
 
     @VisibleForTesting

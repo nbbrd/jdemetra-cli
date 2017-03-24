@@ -45,7 +45,7 @@ final class ProviderToolImpl implements ProviderTool {
         if (dataSource.isPresent()) {
             Optional<IDataSourceProvider> provider = lookup(providers, IDataSourceProvider.class, dataSource.get().getProviderName());
             if (provider.isPresent()) {
-                return getTsCollection(provider.get(), dataSource.get(), scope);
+                return loadTsCollection(provider.get(), dataSource.get(), scope);
             }
             throw new IllegalArgumentException(dataSource.get().getProviderName());
         }
@@ -55,12 +55,12 @@ final class ProviderToolImpl implements ProviderTool {
             if (provider.isPresent()) {
                 switch (dataSet.get().getKind()) {
                     case COLLECTION:
-                        return getTsCollection(provider.get(), dataSet.get(), scope);
+                        return loadTsCollection(provider.get(), dataSet.get(), scope);
                     case DUMMY:
                         return new TsCollectionInformation();
                     case SERIES:
                         TsCollectionInformation result = new TsCollectionInformation();
-                        result.items.add(getTs(provider.get(), dataSet.get(), scope));
+                        result.items.add(loadTs(provider.get(), dataSet.get(), scope));
                         return result;
                 }
             }
@@ -71,7 +71,7 @@ final class ProviderToolImpl implements ProviderTool {
 
     @Override
     public TsCollectionInformation getTsCollection(IDataSourceLoader loader, Object bean, TsInformationType scope) {
-        return getTsCollection((IDataSourceProvider) loader, loader.encodeBean(bean), scope);
+        return loadTsCollection((IDataSourceProvider) loader, loader.encodeBean(bean), scope);
     }
 
     @Override
@@ -80,27 +80,33 @@ final class ProviderToolImpl implements ProviderTool {
     }
 
     //<editor-fold defaultstate="collapsed" desc="Internal implementation">
-    private static TsCollectionInformation getTsCollection(IDataSourceProvider provider, DataSource dataSource, TsInformationType scope) {
+    private static TsCollectionInformation loadTsCollection(IDataSourceProvider provider, DataSource dataSource, TsInformationType scope) {
         TsCollectionInformation result = new TsCollectionInformation();
         result.type = scope;
         result.moniker = provider.toMoniker(dataSource);
-        provider.get(result);
+        if (!provider.get(result)) {
+            throw new RuntimeException(result.invalidDataCause);
+        }
         return result;
     }
 
-    private static TsCollectionInformation getTsCollection(IDataSourceProvider provider, DataSet dataSet, TsInformationType scope) {
+    private static TsCollectionInformation loadTsCollection(IDataSourceProvider provider, DataSet dataSet, TsInformationType scope) {
         TsCollectionInformation result = new TsCollectionInformation();
         result.type = scope;
         result.moniker = provider.toMoniker(dataSet);
-        provider.get(result);
+        if (!provider.get(result)) {
+            throw new RuntimeException(result.invalidDataCause);
+        }
         return result;
     }
 
-    private static TsInformation getTs(IDataSourceProvider provider, DataSet dataSet, TsInformationType scope) {
+    private static TsInformation loadTs(IDataSourceProvider provider, DataSet dataSet, TsInformationType scope) {
         TsInformation result = new TsInformation();
         result.type = scope;
         result.moniker = provider.toMoniker(dataSet);
-        provider.get(result);
+        if (!provider.get(result)) {
+            throw new RuntimeException(result.invalidDataCause);
+        }
         return result;
     }
 

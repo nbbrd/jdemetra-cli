@@ -16,7 +16,6 @@
  */
 package be.nbb.cli.util;
 
-import com.google.common.net.MediaType;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
@@ -24,13 +23,12 @@ import javax.annotation.Nonnull;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import lombok.Data;
 
 /**
  *
  * @author Philippe Charles
  */
-@Data
+@lombok.Data
 @XmlJavaTypeAdapter(OutputOptions.XmlAdapter.class)
 public final class OutputOptions {
 

@@ -17,7 +17,6 @@
 package demetra.cli.common;
 
 import be.nbb.demetra.toolset.ProviderTool;
-import com.google.common.annotations.VisibleForTesting;
 import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
 import be.nbb.cli.util.BasicCliLauncher;
 import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
@@ -44,6 +43,7 @@ import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
 import demetra.cli.helpers.XmlUtil;
 import demetra.cli.tsproviders.TsDataBuild;
 import demetra.cli.tsproviders.TsProviderOptionSpecs;
+import ec.tstoolkit.design.VisibleForTesting;
 
 /**
  * Retrieves time series from a text file such as CSV or TSV.
@@ -66,11 +66,11 @@ public final class Txt2Ts implements BasicCommand<Txt2Ts.Parameters> {
 
     @Override
     public void exec(Parameters params) throws Exception {
-        TxtProvider provider = new TxtProvider();
-        ProviderTool.getDefault().applyWorkingDir(provider);
-        TsCollectionInformation result = ProviderTool.getDefault().getTsCollection(provider, params.input, TsInformationType.All);
-        XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
-        provider.dispose();
+        try (TxtProvider p = new TxtProvider()) {
+            ProviderTool.getDefault().applyWorkingDir(p);
+            TsCollectionInformation result = ProviderTool.getDefault().getTsCollection(p, params.input, TsInformationType.All);
+            XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+        }
     }
 
     @VisibleForTesting

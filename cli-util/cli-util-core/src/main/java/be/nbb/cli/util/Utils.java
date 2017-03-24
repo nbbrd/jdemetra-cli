@@ -16,7 +16,6 @@
  */
 package be.nbb.cli.util;
 
-import com.google.common.net.MediaType;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,13 +25,12 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Properties;
 import javax.annotation.Nonnull;
-import lombok.experimental.UtilityClass;
 
 /**
  *
  * @author Philippe Charles
  */
-@UtilityClass
+@lombok.experimental.UtilityClass
 public class Utils {
 
     public static void printVersion(Class<?> clazz, PrintStream stream) {

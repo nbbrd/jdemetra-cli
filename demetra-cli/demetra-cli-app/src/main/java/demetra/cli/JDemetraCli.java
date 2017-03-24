@@ -22,14 +22,13 @@ import be.nbb.cli.util.CommandRegistry;
 import be.nbb.cli.util.Utils;
 import java.io.IOException;
 import java.nio.file.Paths;
-import lombok.extern.slf4j.Slf4j;
 import org.openide.util.Lookup;
 
 /**
  *
  * @author Philippe Charles
  */
-@Slf4j
+@lombok.extern.slf4j.Slf4j
 public final class JDemetraCli {
 
     public static void main(String[] args) {

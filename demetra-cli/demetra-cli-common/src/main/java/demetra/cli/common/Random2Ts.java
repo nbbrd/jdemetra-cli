@@ -17,7 +17,6 @@
 package demetra.cli.common;
 
 import be.nbb.demetra.toolset.ProviderTool;
-import com.google.common.annotations.VisibleForTesting;
 import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
 import com.google.common.primitives.Doubles;
 import be.nbb.cli.util.BasicCliLauncher;
@@ -37,8 +36,7 @@ import be.nbb.cli.util.BasicCommand;
 import be.nbb.cli.util.proc.CommandRegistration;
 import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
 import demetra.cli.helpers.XmlUtil;
-import static java.util.Arrays.asList;
-import java.util.List;
+import ec.tstoolkit.design.VisibleForTesting;
 
 /**
  * Creates random time series.
@@ -61,10 +59,10 @@ public final class Random2Ts implements BasicCommand<Random2Ts.Parameters> {
 
     @Override
     public void exec(Parameters params) throws Exception {
-        RandomProvider provider = new RandomProvider();
-        TsCollectionInformation result = ProviderTool.getDefault().getTsCollection(provider, params.input, TsInformationType.All);
-        XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
-        provider.dispose();
+        try (RandomProvider p = new RandomProvider()) {
+            TsCollectionInformation result = ProviderTool.getDefault().getTsCollection(p, params.input, TsInformationType.All);
+            XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+        }
     }
 
     @VisibleForTesting
