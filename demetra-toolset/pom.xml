@@ -14,7 +14,6 @@
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
         <!-- dependencies -->
         <demetra.version>2.2.0-SNAPSHOT</demetra.version>
-        <lombok.version>1.16.10</lombok.version>
     </properties>
 
     <repositories>
@@ -77,7 +76,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
         <!-- compile and runtime -->
