@@ -14,25 +14,18 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package be.nbb.cli.util;
+package be.nbb.cli.command;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import org.junit.Test;
+import javax.annotation.Nonnull;
 
 /**
  *
  * @author Philippe Charles
  */
-public class CommandRegistryTest {
+public interface Command {
 
-    @Test
-    public void testFilter() {
-        CommandRegistry.BitapFilter filter = new CommandRegistry.BitapFilter("mycommand", 1);
-        assertTrue(filter.test("mycommand"));
-        assertTrue(filter.test("mycommant"));
-        assertTrue(filter.test("mycomand"));
-        assertTrue(filter.test("ymcommand"));
-        assertFalse(filter.test("hello"));
-    }
+    @Nonnull
+    String getName();
+
+    void exec(@Nonnull String[] args);
 }

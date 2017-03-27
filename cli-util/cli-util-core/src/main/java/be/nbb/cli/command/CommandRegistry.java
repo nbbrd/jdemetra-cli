@@ -14,7 +14,7 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package be.nbb.cli.util;
+package be.nbb.cli.command;
 
 import java.io.PrintStream;
 import java.util.Arrays;
@@ -31,7 +31,7 @@ import org.openide.util.NbBundle;
  * @author Philippe Charles
  */
 @lombok.Value
-@lombok.Builder
+@lombok.Builder(builderClassName = "Builder")
 @NbBundle.Messages({
     "# {0} - app name",
     "commandRegistry.usage=usage: {0} <command> [<args>]\n",
@@ -43,33 +43,39 @@ import org.openide.util.NbBundle;
 })
 public final class CommandRegistry {
 
-    private final String name;
-    private final Collection<? extends Command> commands;
+    @lombok.NonNull
+    String name;
+
+    @lombok.NonNull
+    Collection<? extends Command> commands;
 
     public void exec(@Nonnull String[] args) {
         if (args.length == 0) {
             printUsage(System.out);
             printAvailableCommands(System.out);
         } else {
-            Optional<? extends Command> cp = commands.stream().filter(o -> o.getName().equals(args[0])).findFirst();
+            String commandName = args[0];
+            Optional<? extends Command> cp = getCommandByName(commandName);
             if (cp.isPresent()) {
                 cp.get().exec(Arrays.copyOfRange(args, 1, args.length));
             } else {
-                printNotFound(System.err, args[0]);
+                printNotFound(System.err, commandName);
             }
         }
     }
 
     //<editor-fold defaultstate="collapsed" desc="Implementation details">
+    private Optional<? extends Command> getCommandByName(String commandName) {
+        return commands.stream().filter(o -> o.getName().equals(commandName)).findFirst();
+    }
+
     private void printUsage(PrintStream stream) {
         stream.println(Bundle.commandRegistry_usage(name));
     }
 
     private void printAvailableCommands(PrintStream stream) {
         stream.println(Bundle.commandRegistry_available());
-        commands.stream().forEach((o) -> {
-            stream.println("\t" + o.getName());
-        });
+        commands.forEach(o -> stream.println("\t" + o.getName()));
     }
 
     private void printNotFound(PrintStream stream, String item) {
@@ -80,9 +86,7 @@ public final class CommandRegistry {
             printAvailableCommands(stream);
         } else {
             stream.println(Bundle.commandRegistry_found());
-            possibleCommands.forEach((o) -> {
-                stream.println("\t" + o.getName());
-            });
+            possibleCommands.forEach(o -> stream.println("\t" + o.getName()));
         }
     }
 

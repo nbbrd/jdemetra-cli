@@ -17,8 +17,8 @@
 package demetra.cli;
 
 import be.nbb.cli.util.AppassemblerProperty;
-import be.nbb.cli.util.Command;
-import be.nbb.cli.util.CommandRegistry;
+import be.nbb.cli.command.Command;
+import be.nbb.cli.command.CommandRegistry;
 import be.nbb.cli.util.Utils;
 import java.io.IOException;
 import java.nio.file.Paths;

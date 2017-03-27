@@ -38,7 +38,7 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import org.openide.util.lookup.ServiceProvider;
-import be.nbb.cli.util.Command;
+import be.nbb.cli.command.Command;
 
 /**
  *
