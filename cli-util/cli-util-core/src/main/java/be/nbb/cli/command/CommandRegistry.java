@@ -19,10 +19,16 @@ package be.nbb.cli.command;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 import org.openide.util.NbBundle;
 
@@ -46,8 +52,13 @@ public final class CommandRegistry {
     @lombok.NonNull
     String name;
 
+    String description;
+
     @lombok.NonNull
     Collection<? extends Command> commands;
+
+    @lombok.NonNull
+    UnaryOperator<String> categories;
 
     public int exec(@Nonnull String[] args) {
         if (args.length == 0) {
@@ -66,34 +77,90 @@ public final class CommandRegistry {
         }
     }
 
+    public static final class Builder {
+
+        private UnaryOperator<String> categories = UnaryOperator.identity();
+    }
+
     //<editor-fold defaultstate="collapsed" desc="Implementation details">
     private Optional<? extends Command> getCommandByName(String commandName) {
-        return commands.stream().filter(o -> o.getName().equals(commandName)).findFirst();
+        return commands.stream().filter(getFilterByName(commandName)).findFirst();
+    }
+
+    private List<Command> getPossibleCommands(String query) {
+        return commands.stream().filter(getFilterByQuery(query)).collect(Collectors.toList());
+    }
+
+    private SortedMap<String, List<Command>> getCommandsByCategory() {
+        return commands.stream().collect(Collectors.groupingBy((Command o) -> nullToEmpty(o.getCategory()), TreeMap::new, Collectors.toList()));
     }
 
     private void printUsage(PrintStream stream) {
+//        if (!isNullOrEmpty(description)) {
+//            stream.println(description);
+//        }
         stream.println(Bundle.commandRegistry_usage(name));
     }
 
     private void printAvailableCommands(PrintStream stream) {
         stream.println(Bundle.commandRegistry_available());
-        commands.forEach(o -> stream.println("\t" + o.getName()));
+        getCommandsByCategory().forEach((category, list) -> {
+            stream.println(categories.apply(category));
+            list.sort(Comparator.comparing(Command::getName));
+            list.forEach(o -> printCommandSummary(stream, o, getSpacer(list)));
+            stream.println();
+        });
+    }
+
+    private void printCommandSummary(PrintStream stream, Command command, BiConsumer<PrintStream, Command> spacer) {
+        stream.append(PREFIX).append(command.getName());
+        String commandDescription = command.getDescription();
+        if (!isNullOrEmpty(commandDescription)) {
+            spacer.accept(stream, command);
+            stream.append(commandDescription);
+        }
+        stream.println();
     }
 
     private void printNotFound(PrintStream stream, String query) {
         stream.println(Bundle.commandRegistry_invalid(name, query));
-        Predicate<String> bitapFilter = new BitapFilter(query, 1);
-        List<Command> possibleCommands = commands.stream().filter(o -> bitapFilter.test(o.getName())).collect(Collectors.toList());
+        List<Command> possibleCommands = getPossibleCommands(query);
         if (possibleCommands.isEmpty()) {
             printAvailableCommands(stream);
         } else {
             stream.println(Bundle.commandRegistry_found());
-            possibleCommands.forEach(o -> stream.println("\t" + o.getName()));
+            possibleCommands.forEach(o -> printCommandSummary(stream, o, getSpacer(possibleCommands)));
         }
     }
 
+    private static Predicate<Command> getFilterByName(String name) {
+        return o -> o.getName().equals(name);
+    }
+
+    private static Predicate<Command> getFilterByQuery(String query) {
+        Predicate<String> bitapFilter = new BitapFilter(query, 1);
+        return o -> bitapFilter.test(o.getName());
+    }
+
+    private static BiConsumer<PrintStream, Command> getSpacer(List<Command> list) {
+        int maxLength = list.stream().mapToInt(o -> o.getName().length()).max().orElse(0);
+        return (stream, o) -> {
+            IntStream.range(0, maxLength - o.getName().length()).forEach(i -> stream.append(' '));
+            stream.append(PREFIX);
+        };
+    }
+
+    private static String nullToEmpty(String o) {
+        return o != null ? o : "";
+    }
+
+    private static boolean isNullOrEmpty(String o) {
+        return o == null || o.isEmpty();
+    }
+
+    private static final String PREFIX = "   ";
+
     // https://en.wikipedia.org/wiki/Bitap_algorithm
-    //@VisibleForTesting
     static final class BitapFilter implements Predicate<String> {
 
         private final int alphabetRange = 128;

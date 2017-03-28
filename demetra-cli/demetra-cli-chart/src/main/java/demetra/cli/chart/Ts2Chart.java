@@ -28,6 +28,7 @@ import be.nbb.cli.util.InputOptions;
 import be.nbb.cli.util.MediaType;
 import be.nbb.cli.util.StandardOptions;
 import be.nbb.cli.util.Utils;
+import static demetra.cli.helpers.Categories.IO_CATEGORY;
 import demetra.cli.helpers.XmlUtil;
 import ec.tss.TsCollectionInformation;
 import ec.tss.xml.XmlTsCollection;
@@ -52,6 +53,8 @@ public final class Ts2Chart {
     @CommandRegistration
     static Command CMD = OptionsParsingCommand.<Options>builder()
             .name("ts2chart")
+            .category(IO_CATEGORY)
+            .description("Generate a chart from time series")
             .parser(Parser::new)
             .executor(Executor::new)
             .so(o -> o.so)

@@ -20,6 +20,7 @@ import be.nbb.cli.util.AppassemblerProperty;
 import be.nbb.cli.command.Command;
 import be.nbb.cli.command.CommandRegistry;
 import be.nbb.cli.util.Utils;
+import demetra.cli.helpers.Categories;
 import java.io.IOException;
 import java.nio.file.Paths;
 import org.openide.util.Lookup;
@@ -29,18 +30,34 @@ import org.openide.util.Lookup;
  * @author Philippe Charles
  */
 @lombok.extern.slf4j.Slf4j
-public final class JDemetraCli {
+@lombok.experimental.UtilityClass
+public class JDemetraCli {
 
-    public static void main(String[] args) {
+    public void main(String[] args) {
+        initContext();
+        int status = CommandRegistry.builder()
+                .name(AppassemblerProperty.APP_NAME.value())
+                .description("Command line interface for JDemetra+")
+                .commands(Lookup.getDefault().lookupAll(Command.class))
+                .categories(JDemetraCli::getCategoryLabel)
+                .build()
+                .exec(args);
+        System.exit(status);
+    }
+
+    private void initContext() {
         try {
             Utils.loadSystemProperties(Paths.get(AppassemblerProperty.BASEDIR.value(), "etc", "system.properties"));
         } catch (IOException ex) {
             log.warn("While loading system properties", ex);
         }
-        System.exit(CommandRegistry.builder()
-                .name(AppassemblerProperty.APP_NAME.value())
-                .commands(Lookup.getDefault().lookupAll(Command.class))
-                .build()
-                .exec(args));
+    }
+
+    private String getCategoryLabel(String category) {
+        switch (category) {
+            case Categories.IO_CATEGORY:
+                return "I/O commands";
+        }
+        return category;
     }
 }

@@ -28,6 +28,7 @@ import be.nbb.cli.util.OutputOptions;
 import be.nbb.cli.util.StandardOptions;
 import be.nbb.demetra.toolset.ProviderTool;
 import com.google.common.primitives.Doubles;
+import static demetra.cli.helpers.Categories.IO_CATEGORY;
 import demetra.cli.helpers.XmlUtil;
 import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformationType;
@@ -49,6 +50,8 @@ public final class Random2Ts {
     @CommandRegistration
     static Command CMD = OptionsParsingCommand.<Options>builder()
             .name("random2ts")
+            .category(IO_CATEGORY)
+            .description("Generate random time series")
             .parser(Parser::new)
             .executor(Executor::new)
             .so(o -> o.so)

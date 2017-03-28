@@ -28,6 +28,7 @@ import be.nbb.cli.util.OutputOptions;
 import be.nbb.cli.util.StandardOptions;
 import be.nbb.demetra.toolset.ProviderTool;
 import com.google.common.base.Joiner;
+import static demetra.cli.helpers.Categories.IO_CATEGORY;
 import demetra.cli.helpers.XmlUtil;
 import demetra.cli.tsproviders.TsDataBuild;
 import demetra.cli.tsproviders.TsProviderOptionSpecs;
@@ -53,6 +54,8 @@ public final class Odbc2Ts {
     @CommandRegistration
     static Command CMD = OptionsParsingCommand.<Options>builder()
             .name("odbc2ts")
+            .category(IO_CATEGORY)
+            .description("Retrieve time series from an ODBC DSN")
             .parser(Parser::new)
             .executor(Executor::new)
             .so(o -> o.so)

@@ -27,6 +27,7 @@ import be.nbb.cli.command.proc.CommandRegistration;
 import be.nbb.cli.util.OutputOptions;
 import be.nbb.cli.util.StandardOptions;
 import be.nbb.demetra.toolset.ProviderTool;
+import static demetra.cli.helpers.Categories.IO_CATEGORY;
 import demetra.cli.helpers.XmlUtil;
 import demetra.cli.tsproviders.TsProviderOptionSpecs;
 import ec.tss.TsCollectionInformation;
@@ -51,6 +52,8 @@ public final class Sdmx2Ts {
     @CommandRegistration
     static Command CMD = OptionsParsingCommand.<Options>builder()
             .name("sdmx2ts")
+            .category(IO_CATEGORY)
+            .description("Retrieve time series from an SDMX file")
             .parser(Parser::new)
             .executor(Executor::new)
             .so(o -> o.so)

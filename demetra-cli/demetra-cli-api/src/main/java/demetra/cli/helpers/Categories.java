@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 National Bank of Belgium
+ * Copyright 2017 National Bank of Belgium
  * 
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved 
  * by the European Commission - subsequent versions of the EUPL (the "Licence");
@@ -14,25 +14,14 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package be.nbb.cli.command;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+package demetra.cli.helpers;
 
 /**
  *
  * @author Philippe Charles
  */
-public interface Command {
+@lombok.experimental.UtilityClass
+public class Categories {
 
-    @Nonnull
-    String getName();
-
-    @Nullable
-    String getCategory();
-
-    @Nullable
-    String getDescription();
-
-    int exec(@Nonnull String[] args);
+    public static final String IO_CATEGORY = "I/O";
 }

@@ -40,6 +40,10 @@ public final class OptionsParsingCommand<T> implements Command {
     @lombok.NonNull
     String name;
 
+    String category;
+
+    String description;
+
     @lombok.NonNull
     Supplier<OptionsParser<T>> parser;
 

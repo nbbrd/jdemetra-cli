@@ -27,6 +27,7 @@ import be.nbb.cli.command.proc.CommandRegistration;
 import be.nbb.cli.util.InputOptions;
 import be.nbb.cli.util.StandardOptions;
 import com.google.common.collect.Streams;
+import static demetra.cli.helpers.Categories.IO_CATEGORY;
 import demetra.cli.helpers.XmlUtil;
 import ec.tss.TsCollectionInformation;
 import ec.tss.tsproviders.spreadsheet.engine.SpreadSheetFactory;
@@ -54,6 +55,8 @@ public final class Ts2SpreadSheet {
     @CommandRegistration
     static Command CMD = OptionsParsingCommand.<Options>builder()
             .name("ts2spreadsheet")
+            .category(IO_CATEGORY)
+            .description("Generate a spreadsheet file from time series")
             .parser(Parser::new)
             .executor(Executor::new)
             .so(o -> o.so)

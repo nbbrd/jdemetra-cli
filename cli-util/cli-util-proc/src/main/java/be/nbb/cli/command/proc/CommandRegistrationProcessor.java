@@ -100,31 +100,19 @@ public final class CommandRegistrationProcessor extends AbstractProcessor {
 
         @Override
         public JavaFile get() {
-            MethodSpec nameMethod = MethodSpec.methodBuilder("getName")
-                    .addAnnotation(Override.class)
-                    .addModifiers(Modifier.PUBLIC)
-                    .returns(String.class)
-                    .addStatement("return $S", commandName)
+            MethodSpec name = nameBuilder().addStatement("return $S", commandName).build();
+            MethodSpec category = categoryBuilder().addStatement("return null").build();
+            MethodSpec description = descriptionBuilder().addStatement("return null").build();
+            MethodSpec exec = execBuilder().addStatement("return $T.$L(args)", sourceType, sourceMethod).build();
+
+            TypeSpec command = commandBuilder(commandName + "Command")
+                    .addMethod(name)
+                    .addMethod(category)
+                    .addMethod(description)
+                    .addMethod(exec)
                     .build();
 
-            MethodSpec execMethod = MethodSpec.methodBuilder("exec")
-                    .addAnnotation(Override.class)
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(String[].class, "args")
-                    .returns(int.class)
-                    .addStatement("return $T.$L(args)", sourceType, sourceMethod)
-                    .build();
-
-            TypeSpec providerClass = TypeSpec.classBuilder(commandName + "Command")
-                    .addAnnotation(newGeneratedAnnotation())
-                    .addAnnotation(newServiceProviderAnnotation())
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addSuperinterface(Command.class)
-                    .addMethod(nameMethod)
-                    .addMethod(execMethod)
-                    .build();
-
-            return JavaFile.builder(sourceType.packageName(), providerClass).build();
+            return JavaFile.builder(sourceType.packageName(), command).build();
         }
     }
 
@@ -145,38 +133,63 @@ public final class CommandRegistrationProcessor extends AbstractProcessor {
 
         @Override
         public JavaFile get() {
-            FieldSpec delegateField = FieldSpec.builder(Command.class, "delegate")
+            FieldSpec delegate = FieldSpec.builder(Command.class, "delegate")
                     .addModifiers(Modifier.PRIVATE, Modifier.FINAL)
                     .initializer("$T.$L", sourceType, sourceField)
                     .build();
 
-            MethodSpec nameMethod = MethodSpec.methodBuilder("getName")
-                    .addAnnotation(Override.class)
-                    .addModifiers(Modifier.PUBLIC)
-                    .returns(String.class)
-                    .addStatement("return delegate.getName()")
+            MethodSpec name = nameBuilder().addStatement("return delegate.getName()").build();
+            MethodSpec category = categoryBuilder().addStatement("return delegate.getCategory()").build();
+            MethodSpec description = descriptionBuilder().addStatement("return delegate.getDescription()").build();
+            MethodSpec exec = execBuilder().addStatement("return delegate.exec(args)").build();
+
+            TypeSpec command = commandBuilder(commandName + "Command")
+                    .addField(delegate)
+                    .addMethod(name)
+                    .addMethod(category)
+                    .addMethod(description)
+                    .addMethod(exec)
                     .build();
 
-            MethodSpec execMethod = MethodSpec.methodBuilder("exec")
-                    .addAnnotation(Override.class)
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(String[].class, "args")
-                    .returns(int.class)
-                    .addStatement("return delegate.exec(args)")
-                    .build();
-
-            TypeSpec providerClass = TypeSpec.classBuilder(commandName + "Command")
-                    .addAnnotation(newGeneratedAnnotation())
-                    .addAnnotation(newServiceProviderAnnotation())
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addSuperinterface(Command.class)
-                    .addMethod(nameMethod)
-                    .addMethod(execMethod)
-                    .addField(delegateField)
-                    .build();
-
-            return JavaFile.builder(sourceType.packageName(), providerClass).build();
+            return JavaFile.builder(sourceType.packageName(), command).build();
         }
+    }
+
+    private static MethodSpec.Builder nameBuilder() {
+        return MethodSpec.methodBuilder("getName")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .returns(String.class);
+    }
+
+    private static MethodSpec.Builder categoryBuilder() {
+        return MethodSpec.methodBuilder("getCategory")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .returns(String.class);
+    }
+
+    private static MethodSpec.Builder descriptionBuilder() {
+        return MethodSpec.methodBuilder("getDescription")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .returns(String.class);
+    }
+
+    private static MethodSpec.Builder execBuilder() {
+        return MethodSpec.methodBuilder("exec")
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(String[].class, "args")
+                .returns(int.class);
+    }
+
+    private static TypeSpec.Builder commandBuilder(String className) {
+        return TypeSpec.classBuilder(className)
+                .addAnnotation(newGeneratedAnnotation())
+                .addAnnotation(newServiceProviderAnnotation())
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addSuperinterface(Command.class);
     }
 
     private static AnnotationSpec newGeneratedAnnotation() {
