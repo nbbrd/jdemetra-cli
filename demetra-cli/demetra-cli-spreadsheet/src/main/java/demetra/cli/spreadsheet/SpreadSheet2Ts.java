@@ -16,30 +16,31 @@
  */
 package demetra.cli.spreadsheet;
 
-import be.nbb.demetra.toolset.ProviderTool;
-import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
-import be.nbb.cli.util.BasicCliLauncher;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
+import be.nbb.cli.command.Command;
+import be.nbb.cli.command.core.OptionsExecutor;
+import be.nbb.cli.command.core.OptionsParsingCommand;
+import be.nbb.cli.command.joptsimple.ComposedOptionSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
+import be.nbb.cli.command.joptsimple.JOptSimpleParser;
+import be.nbb.cli.command.proc.CommandRegistration;
 import be.nbb.cli.util.OutputOptions;
 import be.nbb.cli.util.StandardOptions;
+import be.nbb.demetra.toolset.ProviderTool;
+import demetra.cli.helpers.XmlUtil;
+import demetra.cli.tsproviders.TsDataBuild;
+import demetra.cli.tsproviders.TsProviderOptionSpecs;
 import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformationType;
 import ec.tss.tsproviders.spreadsheet.SpreadSheetBean;
 import ec.tss.tsproviders.spreadsheet.SpreadSheetProvider;
 import ec.tss.tsproviders.utils.DataFormat;
 import ec.tss.xml.XmlTsCollection;
+import ec.tstoolkit.design.VisibleForTesting;
 import java.io.File;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import be.nbb.cli.util.BasicCommand;
-import be.nbb.cli.util.proc.CommandRegistration;
-import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
-import demetra.cli.helpers.XmlUtil;
-import demetra.cli.tsproviders.TsDataBuild;
-import demetra.cli.tsproviders.TsProviderOptionSpecs;
-import ec.tstoolkit.design.VisibleForTesting;
 import org.openide.util.NbBundle;
 
 /**
@@ -47,39 +48,48 @@ import org.openide.util.NbBundle;
  *
  * @author Philippe Charles
  */
-public final class SpreadSheet2Ts implements BasicCommand<SpreadSheet2Ts.Parameters> {
+public final class SpreadSheet2Ts {
 
     @CommandRegistration
-    public static void main(String[] args) {
-        BasicCliLauncher.run(args, Parser::new, SpreadSheet2Ts::new, o -> o.so);
-    }
+    static Command CMD = OptionsParsingCommand.<Options>builder()
+            .name("spreadsheet2ts")
+            .parser(Parser::new)
+            .executor(Executor::new)
+            .so(o -> o.so)
+            .build();
 
-    public static final class Parameters {
+    public static final class Options {
 
         StandardOptions so;
         public SpreadSheetBean input;
         public OutputOptions output;
     }
 
-    @Override
-    public void exec(Parameters params) throws Exception {
-        try (SpreadSheetProvider p = new SpreadSheetProvider()) {
-            ProviderTool.getDefault().applyWorkingDir(p);
-            TsCollectionInformation result = ProviderTool.getDefault().getTsCollection(p, params.input, TsInformationType.All);
-            XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+    @VisibleForTesting
+    static final class Executor implements OptionsExecutor<Options> {
+
+        final ProviderTool tool = ProviderTool.getDefault();
+
+        @Override
+        public void exec(Options params) throws Exception {
+            try (SpreadSheetProvider p = new SpreadSheetProvider()) {
+                tool.applyWorkingDir(p);
+                TsCollectionInformation result = tool.getTsCollection(p, params.input, TsInformationType.All);
+                XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+            }
         }
     }
 
     @VisibleForTesting
-    static final class Parser extends JOptSimpleArgsParser<Parameters> {
+    static final class Parser extends JOptSimpleParser<Options> {
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final ComposedOptionSpec<SpreadSheetBean> input = new SpreadSheetOptionsSpec(parser);
         private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet o) {
-            Parameters result = new Parameters();
+        protected Options parse(OptionSet o) {
+            Options result = new Options();
             result.input = input.value(o);
             result.output = output.value(o);
             result.so = so.value(o);

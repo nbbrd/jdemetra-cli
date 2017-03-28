@@ -16,19 +16,20 @@
  */
 package demetra.cli.benchmarking;
 
-import be.nbb.cli.util.BasicCliLauncher;
-import be.nbb.cli.util.BasicCommand;
+import be.nbb.cli.command.Command;
+import be.nbb.cli.command.core.OptionsExecutor;
+import be.nbb.cli.command.core.OptionsParsingCommand;
+import be.nbb.cli.command.joptsimple.ComposedOptionSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.optional;
+import be.nbb.cli.command.joptsimple.JOptSimpleParser;
+import be.nbb.cli.command.proc.CommandRegistration;
 import be.nbb.cli.util.InputOptions;
 import be.nbb.cli.util.MediaType;
 import be.nbb.cli.util.OutputOptions;
 import be.nbb.cli.util.StandardOptions;
 import be.nbb.cli.util.Utils;
-import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.optional;
-import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
-import be.nbb.cli.util.proc.CommandRegistration;
 import be.nbb.demetra.toolset.BenchmarkingTool;
 import be.nbb.demetra.toolset.BenchmarkingTool.SsfDentonOptions;
 import static demetra.cli.benchmarking.Util.toTsCollectionInformation;
@@ -52,15 +53,18 @@ import joptsimple.OptionSpec;
  *
  * @author Philippe Charles
  */
-public final class SsfDenton implements BasicCommand<SsfDenton.Parameters> {
+public final class SsfDenton {
 
     @CommandRegistration
-    public static void main(String[] args) {
-        BasicCliLauncher.run(args, Parser::new, SsfDenton::new, o -> o.so);
-    }
+    static Command CMD = OptionsParsingCommand.<Options>builder()
+            .name("ssfdenton")
+            .parser(Parser::new)
+            .executor(Executor::new)
+            .so(o -> o.so)
+            .build();
 
     @lombok.AllArgsConstructor
-    public static final class Parameters {
+    public static final class Options {
 
         StandardOptions so;
         public SsfDentonInput input;
@@ -77,30 +81,34 @@ public final class SsfDenton implements BasicCommand<SsfDenton.Parameters> {
         public MediaType mediaType;
     }
 
-    @Override
-    public void exec(Parameters p) throws Exception {
-        TsCollectionInformation y = readTsCollection(InputOptions.of(p.input.yFile, p.input.mediaType));
-        TsCollectionInformation x = readTsCollection(InputOptions.of(p.input.xFile, p.input.mediaType));
+    @VisibleForTesting
+    static final class Executor implements OptionsExecutor<Options> {
 
-        BenchmarkingTool tool = BenchmarkingTool.getDefault();
+        final BenchmarkingTool tool = BenchmarkingTool.getDefault();
 
-        TsCollectionInformation result = zip(x.items, y.items)
-                .parallelStream()
-                .map(o -> exec(tool, o, p.options))
-                .collect(toTsCollectionInformation());
+        @Override
+        public void exec(Options p) throws Exception {
+            TsCollectionInformation y = readTsCollection(InputOptions.of(p.input.yFile, p.input.mediaType));
+            TsCollectionInformation x = readTsCollection(InputOptions.of(p.input.xFile, p.input.mediaType));
 
-        writeTsCollection(p.output, result);
-    }
+            TsCollectionInformation result = zip(x.items, y.items)
+                    .parallelStream()
+                    .map(o -> exec(tool, o, p.options))
+                    .collect(toTsCollectionInformation());
 
-    private static TsInformation exec(BenchmarkingTool tool, Entry<TsInformation, TsInformation> input, SsfDentonOptions options) {
-        TsInformation result = new TsInformation();
-        result.name = input.getKey().name;
-        result.data = tool.computeSsfDenton(input.getKey().data, input.getValue().data, options);
-        return result;
+            writeTsCollection(p.output, result);
+        }
+
+        private static TsInformation exec(BenchmarkingTool tool, Entry<TsInformation, TsInformation> input, SsfDentonOptions options) {
+            TsInformation result = new TsInformation();
+            result.name = input.getKey().name;
+            result.data = tool.computeSsfDenton(input.getKey().data, input.getValue().data, options);
+            return result;
+        }
     }
 
     @VisibleForTesting
-    static final class Parser extends JOptSimpleArgsParser<Parameters> {
+    static final class Parser extends JOptSimpleParser<Options> {
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final InputSpec input = new InputSpec(parser);
@@ -108,8 +116,8 @@ public final class SsfDenton implements BasicCommand<SsfDenton.Parameters> {
         private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet o) {
-            return new Parameters(so.value(o), input.value(o), options.value(o), output.value(o));
+        protected Options parse(OptionSet o) {
+            return new Options(so.value(o), input.value(o), options.value(o), output.value(o));
         }
     }
 

@@ -16,43 +16,47 @@
  */
 package demetra.cli.various;
 
-import com.google.common.base.Joiner;
-import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
-import be.nbb.cli.util.BasicCliLauncher;
+import be.nbb.cli.command.Command;
+import be.nbb.cli.command.core.OptionsExecutor;
+import be.nbb.cli.command.core.OptionsParsingCommand;
+import be.nbb.cli.command.joptsimple.ComposedOptionSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newInputOptionsSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
+import be.nbb.cli.command.joptsimple.JOptSimpleParser;
+import be.nbb.cli.command.proc.CommandRegistration;
 import be.nbb.cli.util.InputOptions;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newInputOptionsSpec;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
 import be.nbb.cli.util.OutputOptions;
 import be.nbb.cli.util.StandardOptions;
+import com.google.common.base.Joiner;
+import demetra.cli.helpers.XmlUtil;
 import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformationType;
 import ec.tss.TsMoniker;
 import ec.tss.xml.XmlTsCollection;
+import ec.tstoolkit.design.VisibleForTesting;
 import java.util.EnumSet;
 import java.util.Set;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import be.nbb.cli.util.BasicCommand;
-import be.nbb.cli.util.proc.CommandRegistration;
-import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
-import demetra.cli.helpers.XmlUtil;
-import ec.tstoolkit.design.VisibleForTesting;
 import org.openide.util.NbBundle;
 
 /**
  *
  * @author Philippe Charles
  */
-public final class TsClean implements BasicCommand<TsClean.Parameters> {
+public final class TsClean {
 
     @CommandRegistration
-    public static void main(String[] args) {
-        BasicCliLauncher.run(args, Parser::new, TsClean::new, o -> o.so);
-    }
+    static Command CMD = OptionsParsingCommand.<Options>builder()
+            .name("tsclean")
+            .parser(Parser::new)
+            .executor(Executor::new)
+            .so(o -> o.so)
+            .build();
 
-    public static final class Parameters {
+    public static final class Options {
 
         StandardOptions so;
         public InputOptions input;
@@ -60,34 +64,38 @@ public final class TsClean implements BasicCommand<TsClean.Parameters> {
         public OutputOptions output;
     }
 
-    @Override
-    public void exec(Parameters params) throws Exception {
-        TsCollectionInformation result = XmlUtil.readValue(params.input, XmlTsCollection.class);
-        if (!params.itemsToRemove.isEmpty()) {
-            removeItems(result, params.itemsToRemove);
+    @VisibleForTesting
+    static final class Executor implements OptionsExecutor<Options> {
+
+        @Override
+        public void exec(Options params) throws Exception {
+            TsCollectionInformation result = XmlUtil.readValue(params.input, XmlTsCollection.class);
+            if (!params.itemsToRemove.isEmpty()) {
+                removeItems(result, params.itemsToRemove);
+            }
+            XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
         }
-        XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+
+        @VisibleForTesting
+        static void removeItems(TsCollectionInformation info, Set<TsItem> items) {
+            info.name = items.contains(TsItem.name) ? null : info.name;
+            info.moniker = items.contains(TsItem.moniker) ? new TsMoniker() : info.moniker;
+            info.metaData = items.contains(TsItem.metaData) ? null : info.metaData;
+            info.invalidDataCause = items.contains(TsItem.cause) ? null : info.invalidDataCause;
+            info.type = items.contains(TsItem.type) ? TsInformationType.UserDefined : info.type;
+            info.items.forEach(o -> {
+                o.name = items.contains(TsItem.name) ? null : o.name;
+                o.moniker = items.contains(TsItem.moniker) ? new TsMoniker() : o.moniker;
+                o.metaData = o.hasMetaData() ? (items.contains(TsItem.metaData) ? null : o.metaData) : null;
+                o.invalidDataCause = items.contains(TsItem.cause) ? null : o.invalidDataCause;
+                o.type = items.contains(TsItem.type) ? TsInformationType.UserDefined : o.type;
+                o.data = o.hasData() ? (items.contains(TsItem.data) ? null : o.data) : null;
+            });
+        }
     }
 
     @VisibleForTesting
-    static void removeItems(TsCollectionInformation info, Set<TsItem> items) {
-        info.name = items.contains(TsItem.name) ? null : info.name;
-        info.moniker = items.contains(TsItem.moniker) ? new TsMoniker() : info.moniker;
-        info.metaData = items.contains(TsItem.metaData) ? null : info.metaData;
-        info.invalidDataCause = items.contains(TsItem.cause) ? null : info.invalidDataCause;
-        info.type = items.contains(TsItem.type) ? TsInformationType.UserDefined : info.type;
-        info.items.forEach(o -> {
-            o.name = items.contains(TsItem.name) ? null : o.name;
-            o.moniker = items.contains(TsItem.moniker) ? new TsMoniker() : o.moniker;
-            o.metaData = o.hasMetaData() ? (items.contains(TsItem.metaData) ? null : o.metaData) : null;
-            o.invalidDataCause = items.contains(TsItem.cause) ? null : o.invalidDataCause;
-            o.type = items.contains(TsItem.type) ? TsInformationType.UserDefined : o.type;
-            o.data = o.hasData() ? (items.contains(TsItem.data) ? null : o.data) : null;
-        });
-    }
-
-    @VisibleForTesting
-    static final class Parser extends JOptSimpleArgsParser<Parameters> {
+    static final class Parser extends JOptSimpleParser<Options> {
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
@@ -95,8 +103,8 @@ public final class TsClean implements BasicCommand<TsClean.Parameters> {
         private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet o) {
-            Parameters result = new Parameters();
+        protected Options parse(OptionSet o) {
+            Options result = new Options();
             result.input = input.value(o);
             result.itemsToRemove = itemsToRemove.value(o);
             result.output = output.value(o);

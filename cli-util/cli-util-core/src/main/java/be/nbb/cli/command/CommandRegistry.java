@@ -49,17 +49,19 @@ public final class CommandRegistry {
     @lombok.NonNull
     Collection<? extends Command> commands;
 
-    public void exec(@Nonnull String[] args) {
+    public int exec(@Nonnull String[] args) {
         if (args.length == 0) {
             printUsage(System.out);
             printAvailableCommands(System.out);
+            return 0;
         } else {
             String commandName = args[0];
             Optional<? extends Command> cp = getCommandByName(commandName);
             if (cp.isPresent()) {
-                cp.get().exec(Arrays.copyOfRange(args, 1, args.length));
+                return cp.get().exec(Arrays.copyOfRange(args, 1, args.length));
             } else {
                 printNotFound(System.err, commandName);
+                return 0;
             }
         }
     }
@@ -78,9 +80,9 @@ public final class CommandRegistry {
         commands.forEach(o -> stream.println("\t" + o.getName()));
     }
 
-    private void printNotFound(PrintStream stream, String item) {
-        stream.println(Bundle.commandRegistry_invalid(name, item));
-        Predicate<String> bitapFilter = new BitapFilter(item, 1);
+    private void printNotFound(PrintStream stream, String query) {
+        stream.println(Bundle.commandRegistry_invalid(name, query));
+        Predicate<String> bitapFilter = new BitapFilter(query, 1);
         List<Command> possibleCommands = commands.stream().filter(o -> bitapFilter.test(o.getName())).collect(Collectors.toList());
         if (possibleCommands.isEmpty()) {
             printAvailableCommands(stream);

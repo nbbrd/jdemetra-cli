@@ -14,9 +14,9 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package be.nbb.cli.util.joptsimple;
+package be.nbb.cli.command.joptsimple;
 
-import be.nbb.cli.util.ArgsParser;
+import be.nbb.cli.command.core.OptionsParser;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.LinkedHashSet;
@@ -36,7 +36,7 @@ import joptsimple.internal.Strings;
  * @author Philippe Charles
  * @param <T>
  */
-public abstract class JOptSimpleArgsParser<T> implements ArgsParser<T> {
+public abstract class JOptSimpleParser<T> implements OptionsParser<T> {
 
     protected final OptionParser parser = newOptionParser();
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 National Bank of Belgium
+ * Copyright 2017 National Bank of Belgium
  * 
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved 
  * by the European Commission - subsequent versions of the EUPL (the "Licence");
@@ -14,18 +14,23 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package be.nbb.cli.command;
+package be.nbb.cli.command.core;
 
+import java.io.PrintStream;
 import javax.annotation.Nonnull;
 
 /**
+ * http://stackoverflow.com/questions/1183876/what-are-the-best-practices-for-implementing-a-cli-tool-in-perl
+ * http://www.gnu.org/prep/standards/html_node/Command_002dLine-Interfaces.html#Command_002dLine-Interfaces
+ * http://initscreen.developpez.com/tutoriels/batch/apprendre-la-programmation-de-script-batch/
  *
  * @author Philippe Charles
+ * @param <T>
  */
-public interface Command {
+public interface OptionsParser<T> {
 
     @Nonnull
-    String getName();
+    T parse(@Nonnull String[] args) throws IllegalArgumentException;
 
-    int exec(@Nonnull String[] args);
+    void printHelp(@Nonnull PrintStream stream);
 }

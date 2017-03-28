@@ -16,71 +16,81 @@
  */
 package demetra.cli.tsproviders;
 
-import be.nbb.demetra.toolset.ProviderTool;
-import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
-import com.google.common.collect.Iterables;
-import be.nbb.cli.util.BasicCliLauncher;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
+import be.nbb.cli.command.Command;
+import be.nbb.cli.command.core.OptionsExecutor;
+import be.nbb.cli.command.core.OptionsParsingCommand;
+import be.nbb.cli.command.joptsimple.ComposedOptionSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
+import be.nbb.cli.command.joptsimple.JOptSimpleParser;
+import be.nbb.cli.command.proc.CommandRegistration;
 import be.nbb.cli.util.OutputOptions;
 import be.nbb.cli.util.StandardOptions;
+import be.nbb.demetra.toolset.ProviderTool;
+import com.google.common.collect.ImmutableList;
+import demetra.cli.helpers.XmlUtil;
 import ec.tss.ITsProvider;
 import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformationType;
 import ec.tss.tsproviders.IFileLoader;
 import ec.tss.xml.XmlTsCollection;
+import ec.tstoolkit.design.VisibleForTesting;
 import java.net.URI;
+import java.util.List;
 import java.util.ServiceLoader;
+import java.util.function.Supplier;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import be.nbb.cli.util.BasicCommand;
-import be.nbb.cli.util.proc.CommandRegistration;
-import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
-import demetra.cli.helpers.XmlUtil;
-import ec.tstoolkit.design.VisibleForTesting;
 
 /**
  * Retrieves time series from an URI.
  *
  * @author Philippe Charles
  */
-public final class Uri2Ts implements BasicCommand<Uri2Ts.Parameters> {
+public final class Uri2Ts {
 
     @CommandRegistration
-    public static void main(String[] args) {
-        BasicCliLauncher.run(args, Parser::new, Uri2Ts::new, o -> o.so);
-    }
+    static Command CMD = OptionsParsingCommand.<Options>builder()
+            .name("uri2ts")
+            .parser(Parser::new)
+            .executor(Executor::new)
+            .so(o -> o.so)
+            .build();
 
-    public static final class Parameters {
+    public static final class Options {
 
         StandardOptions so;
         public URI uri;
         public OutputOptions output;
     }
 
-    @Override
-    public void exec(Parameters params) throws Exception {
-        Iterable<ITsProvider> providers = ServiceLoader.load(ITsProvider.class);
-        for (IFileLoader o : Iterables.filter(providers, IFileLoader.class)) {
-            ProviderTool.getDefault().applyWorkingDir(o);
-        }
-        TsCollectionInformation result = ProviderTool.getDefault().getTsCollection(providers, params.uri, TsInformationType.All);
-        XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
-        for (ITsProvider o : providers) {
-            o.dispose();
+    @VisibleForTesting
+    static final class Executor implements OptionsExecutor<Options> {
+
+        final ProviderTool tool = ProviderTool.getDefault();
+        final Supplier<Iterable<ITsProvider>> providers = () -> ServiceLoader.load(ITsProvider.class);
+
+        @Override
+        public void exec(Options params) throws Exception {
+            List<ITsProvider> providerList = ImmutableList.copyOf(providers.get());
+            providerList.stream()
+                    .filter(IFileLoader.class::isInstance)
+                    .forEach(o -> tool.applyWorkingDir((IFileLoader) o));
+            TsCollectionInformation result = tool.getTsCollection(providerList, params.uri, TsInformationType.All);
+            XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
         }
     }
 
     @VisibleForTesting
-    static final class Parser extends JOptSimpleArgsParser<Parameters> {
+    static final class Parser extends JOptSimpleParser<Options> {
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final OptionSpec<URI> uri = parser.nonOptions("uri").ofType(URI.class);
         private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet o) {
-            Parameters result = new Parameters();
+        protected Options parse(OptionSet o) {
+            Options result = new Options();
             result.uri = o.has(uri) ? uri.value(o) : null;
             result.output = output.value(o);
             result.so = so.value(o);

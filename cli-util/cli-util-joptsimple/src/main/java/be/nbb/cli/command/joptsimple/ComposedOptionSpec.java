@@ -14,7 +14,7 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package be.nbb.cli.util.joptsimple;
+package be.nbb.cli.command.joptsimple;
 
 import be.nbb.cli.util.InputOptions;
 import be.nbb.cli.util.OutputOptions;

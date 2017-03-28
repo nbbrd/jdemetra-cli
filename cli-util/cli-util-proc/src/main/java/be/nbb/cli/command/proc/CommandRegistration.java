@@ -14,18 +14,20 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package be.nbb.cli.command;
+package be.nbb.cli.command.proc;
 
-import javax.annotation.Nonnull;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  *
  * @author Philippe Charles
  */
-public interface Command {
+@Retention(RetentionPolicy.SOURCE)
+@Target({ElementType.METHOD, ElementType.FIELD})
+public @interface CommandRegistration {
 
-    @Nonnull
-    String getName();
-
-    int exec(@Nonnull String[] args);
+    String name() default "";
 }

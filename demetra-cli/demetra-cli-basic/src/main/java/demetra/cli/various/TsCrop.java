@@ -16,17 +16,23 @@
  */
 package demetra.cli.various;
 
-import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
-import be.nbb.cli.util.BasicCliLauncher;
+import be.nbb.cli.command.Command;
+import be.nbb.cli.command.core.OptionsExecutor;
+import be.nbb.cli.command.core.OptionsParsingCommand;
+import be.nbb.cli.command.joptsimple.ComposedOptionSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newInputOptionsSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
+import be.nbb.cli.command.joptsimple.JOptSimpleParser;
+import be.nbb.cli.command.proc.CommandRegistration;
 import be.nbb.cli.util.InputOptions;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newInputOptionsSpec;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
 import be.nbb.cli.util.OutputOptions;
 import be.nbb.cli.util.StandardOptions;
+import demetra.cli.helpers.XmlUtil;
 import demetra.xml.TsPeriodSelectorAdapter;
 import ec.tss.TsCollectionInformation;
 import ec.tss.xml.XmlTsCollection;
+import ec.tstoolkit.design.VisibleForTesting;
 import ec.tstoolkit.timeseries.Day;
 import ec.tstoolkit.timeseries.PeriodSelectorType;
 import ec.tstoolkit.timeseries.TsPeriodSelector;
@@ -35,24 +41,22 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import be.nbb.cli.util.BasicCommand;
-import be.nbb.cli.util.proc.CommandRegistration;
-import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
-import demetra.cli.helpers.XmlUtil;
-import ec.tstoolkit.design.VisibleForTesting;
 
 /**
  *
  * @author Philippe Charles
  */
-public final class TsCrop implements BasicCommand<TsCrop.Parameters> {
+public final class TsCrop {
 
     @CommandRegistration
-    public static void main(String[] args) {
-        BasicCliLauncher.run(args, Parser::new, TsCrop::new, o -> o.so);
-    }
+    static Command CMD = OptionsParsingCommand.<Options>builder()
+            .name("tscrop")
+            .parser(Parser::new)
+            .executor(Executor::new)
+            .so(o -> o.so)
+            .build();
 
-    public static final class Parameters {
+    public static final class Options {
 
         StandardOptions so;
         public InputOptions input;
@@ -61,24 +65,26 @@ public final class TsCrop implements BasicCommand<TsCrop.Parameters> {
         public OutputOptions output;
     }
 
-    @Override
-    public void exec(Parameters params) throws Exception {
-        TsCollectionInformation result = XmlUtil.readValue(params.input, XmlTsCollection.class);
-        if (params.periodSelector.getType() != PeriodSelectorType.All) {
-            selectPeriods(result, params.periodSelector);
+    @VisibleForTesting
+    static final class Executor implements OptionsExecutor<Options> {
+
+        @Override
+        public void exec(Options params) throws Exception {
+            TsCollectionInformation result = XmlUtil.readValue(params.input, XmlTsCollection.class);
+            if (params.periodSelector.getType() != PeriodSelectorType.All) {
+                selectPeriods(result, params.periodSelector);
+            }
+            XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
         }
-        XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+
+        @VisibleForTesting
+        static void selectPeriods(TsCollectionInformation info, TsPeriodSelector selector) {
+            info.items.forEach(o -> o.data = o.hasData() ? o.data.select(selector) : null);
+        }
     }
 
     @VisibleForTesting
-    static void selectPeriods(TsCollectionInformation info, TsPeriodSelector selector) {
-        info.items.forEach(o -> {
-            o.data = o.hasData() ? o.data.select(selector) : null;
-        });
-    }
-
-    @VisibleForTesting
-    static final class Parser extends JOptSimpleArgsParser<Parameters> {
+    static final class Parser extends JOptSimpleParser<Options> {
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
@@ -86,8 +92,8 @@ public final class TsCrop implements BasicCommand<TsCrop.Parameters> {
         private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet o) {
-            Parameters result = new Parameters();
+        protected Options parse(OptionSet o) {
+            Options result = new Options();
             result.input = input.value(o);
             result.periodSelector = periodSelector.value(o);
             result.output = output.value(o);

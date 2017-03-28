@@ -16,7 +16,7 @@
  */
 package demetra.cli.tsproviders;
 
-import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
+import be.nbb.cli.command.joptsimple.ComposedOptionSpec;
 import ec.tss.tsproviders.utils.DataFormat;
 import ec.tstoolkit.timeseries.TsAggregationType;
 import ec.tstoolkit.timeseries.simplets.TsFrequency;

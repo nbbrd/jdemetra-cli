@@ -16,17 +16,27 @@
  */
 package demetra.cli.anomalydetection;
 
-import com.google.common.base.Joiner;
-import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
-import be.nbb.cli.util.BasicCliLauncher;
+import be.nbb.cli.command.Command;
+import be.nbb.cli.command.core.OptionsExecutor;
+import be.nbb.cli.command.core.OptionsParsingCommand;
+import be.nbb.cli.command.joptsimple.ComposedOptionSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newInputOptionsSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
+import be.nbb.cli.command.joptsimple.JOptSimpleParser;
+import be.nbb.cli.command.proc.CommandRegistration;
 import be.nbb.cli.util.InputOptions;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newInputOptionsSpec;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
 import be.nbb.cli.util.OutputOptions;
 import be.nbb.cli.util.StandardOptions;
+import be.nbb.demetra.toolset.AnomalyDetectionTool;
+import be.nbb.demetra.toolset.AnomalyDetectionTool.DefaultSpec;
+import be.nbb.demetra.toolset.AnomalyDetectionTool.OutliersOptions;
+import be.nbb.demetra.toolset.AnomalyDetectionTool.OutliersTsCollection;
+import com.google.common.base.Joiner;
+import demetra.cli.helpers.XmlUtil;
 import ec.tss.TsCollectionInformation;
 import ec.tss.xml.XmlTsCollection;
+import ec.tstoolkit.design.VisibleForTesting;
 import ec.tstoolkit.modelling.DefaultTransformationType;
 import ec.tstoolkit.timeseries.regression.OutlierType;
 import static ec.tstoolkit.timeseries.regression.OutlierType.AO;
@@ -38,15 +48,6 @@ import java.util.EnumSet;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import be.nbb.cli.util.BasicCommand;
-import be.nbb.cli.util.proc.CommandRegistration;
-import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
-import be.nbb.demetra.toolset.AnomalyDetectionTool;
-import be.nbb.demetra.toolset.AnomalyDetectionTool.DefaultSpec;
-import be.nbb.demetra.toolset.AnomalyDetectionTool.OutliersOptions;
-import be.nbb.demetra.toolset.AnomalyDetectionTool.OutliersTsCollection;
-import demetra.cli.helpers.XmlUtil;
-import ec.tstoolkit.design.VisibleForTesting;
 import org.openide.util.NbBundle;
 
 /**
@@ -54,15 +55,18 @@ import org.openide.util.NbBundle;
  *
  * @author Philippe Charles
  */
-public final class Ts2Outliers implements BasicCommand<Ts2Outliers.Parameters> {
+public final class Ts2Outliers {
 
     @CommandRegistration
-    public static void main(String[] args) {
-        BasicCliLauncher.run(args, Parser::new, Ts2Outliers::new, o -> o.so);
-    }
+    static Command CMD = OptionsParsingCommand.<Options>builder()
+            .name("ts2outliers")
+            .parser(Parser::new)
+            .executor(Executor::new)
+            .so(o -> o.so)
+            .build();
 
     @lombok.AllArgsConstructor
-    public static class Parameters {
+    public static class Options {
 
         StandardOptions so;
         public InputOptions input;
@@ -70,21 +74,27 @@ public final class Ts2Outliers implements BasicCommand<Ts2Outliers.Parameters> {
         public OutputOptions output;
     }
 
-    @Override
-    public void exec(Parameters params) throws Exception {
-        TsCollectionInformation input = XmlUtil.readValue(params.input, XmlTsCollection.class);
+    @VisibleForTesting
+    static final class Executor implements OptionsExecutor<Options> {
 
-        if (params.so.isVerbose()) {
-            System.err.println("Processing " + input.items.size() + " time series");
+        final AnomalyDetectionTool tool = AnomalyDetectionTool.getDefault();
+
+        @Override
+        public void exec(Options params) throws Exception {
+            TsCollectionInformation input = XmlUtil.readValue(params.input, XmlTsCollection.class);
+
+            if (params.so.isVerbose()) {
+                System.err.println("Processing " + input.items.size() + " time series");
+            }
+
+            OutliersTsCollection output = tool.getOutliers(input, params.spec);
+
+            XmlUtil.writeValue(params.output, XmlOutliersTsCollection.class, output);
         }
-
-        OutliersTsCollection output = AnomalyDetectionTool.getDefault().getOutliers(input, params.spec);
-
-        XmlUtil.writeValue(params.output, XmlOutliersTsCollection.class, output);
     }
 
     @VisibleForTesting
-    static final class Parser extends JOptSimpleArgsParser<Parameters> {
+    static final class Parser extends JOptSimpleParser<Options> {
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
@@ -92,8 +102,8 @@ public final class Ts2Outliers implements BasicCommand<Ts2Outliers.Parameters> {
         private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet o) {
-            return new Parameters(so.value(o), input.value(o), spec.value(o), output.value(o));
+        protected Options parse(OptionSet o) {
+            return new Options(so.value(o), input.value(o), spec.value(o), output.value(o));
         }
     }
 

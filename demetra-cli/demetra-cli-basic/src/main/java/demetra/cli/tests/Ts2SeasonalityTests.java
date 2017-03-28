@@ -16,26 +16,27 @@
  */
 package demetra.cli.tests;
 
-import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
-import be.nbb.cli.util.BasicCliLauncher;
+import be.nbb.cli.command.Command;
+import be.nbb.cli.command.core.OptionsExecutor;
+import be.nbb.cli.command.core.OptionsParsingCommand;
+import be.nbb.cli.command.joptsimple.ComposedOptionSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newInputOptionsSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
+import be.nbb.cli.command.joptsimple.JOptSimpleParser;
+import be.nbb.cli.command.proc.CommandRegistration;
 import be.nbb.cli.util.InputOptions;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newInputOptionsSpec;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
 import be.nbb.cli.util.StandardOptions;
-import ec.tss.TsCollectionInformation;
-import ec.tss.xml.XmlTsCollection;
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
-import be.nbb.cli.util.BasicCommand;
-import be.nbb.cli.util.proc.CommandRegistration;
-import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
 import demetra.cli.helpers.CsvOutputOptions;
 import static demetra.cli.helpers.CsvOutputOptions.newCsvOutputOptionsSpec;
 import demetra.cli.helpers.XmlUtil;
+import ec.tss.TsCollectionInformation;
+import ec.tss.xml.XmlTsCollection;
 import ec.tstoolkit.design.VisibleForTesting;
 import ec.tstoolkit.information.InformationSet;
 import java.util.ArrayList;
 import java.util.List;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 import org.openide.util.NbBundle;
 
 /**
@@ -43,25 +44,18 @@ import org.openide.util.NbBundle;
  *
  * @author Philippe Charles
  */
-public final class Ts2SeasonalityTests implements BasicCommand<Ts2SeasonalityTests.Parameters> {
+public final class Ts2SeasonalityTests {
 
     @CommandRegistration
-    public static void main(String[] args) {
-        BasicCliLauncher.run(args, Parser::new, Ts2SeasonalityTests::new, o -> o.so);
-    }
-
-    private List<String> items() {
-        List<String> items = new ArrayList<>();
-        items.add("series");
-        items.add("ftest:3");
-        items.add("ftestami:3");
-        items.add("kruskalwallis:3");
-        items.add("friedman:3");
-        return items;
-    }
+    static Command CMD = OptionsParsingCommand.<Options>builder()
+            .name("ts2seasonalitytests")
+            .parser(Parser::new)
+            .executor(Executor::new)
+            .so(o -> o.so)
+            .build();
 
     @lombok.AllArgsConstructor
-    public static class Parameters {
+    public static class Options {
 
         StandardOptions so;
         public InputOptions input;
@@ -69,21 +63,37 @@ public final class Ts2SeasonalityTests implements BasicCommand<Ts2SeasonalityTes
         public CsvOutputOptions output;
     }
 
-    @Override
-    public void exec(Parameters params) throws Exception {
-        TsCollectionInformation input = XmlUtil.readValue(params.input, XmlTsCollection.class);
+    @VisibleForTesting
+    static final class Executor implements OptionsExecutor<Options> {
 
-        if (params.so.isVerbose()) {
-            System.err.println("Processing " + input.items.size() + " time series");
+        final SeasonalityTestsTool tool = SeasonalityTestsTool.getDefault();
+
+        @Override
+        public void exec(Options params) throws Exception {
+            TsCollectionInformation input = XmlUtil.readValue(params.input, XmlTsCollection.class);
+
+            if (params.so.isVerbose()) {
+                System.err.println("Processing " + input.items.size() + " time series");
+            }
+
+            List<InformationSet> output = tool.create(input, params.spec);
+
+            params.output.write(output, items(), false);
         }
 
-        List<InformationSet> output = SeasonalityTestsTool.getDefault().create(input, params.spec);
-
-        params.output.write(output, items(), false);
+        private List<String> items() {
+            List<String> items = new ArrayList<>();
+            items.add("series");
+            items.add("ftest:3");
+            items.add("ftestami:3");
+            items.add("kruskalwallis:3");
+            items.add("friedman:3");
+            return items;
+        }
     }
 
     @VisibleForTesting
-    static final class Parser extends JOptSimpleArgsParser<Parameters> {
+    static final class Parser extends JOptSimpleParser<Options> {
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
@@ -91,8 +101,8 @@ public final class Ts2SeasonalityTests implements BasicCommand<Ts2SeasonalityTes
         private final ComposedOptionSpec<CsvOutputOptions> output = newCsvOutputOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet o) {
-            return new Parameters(so.value(o), input.value(o), spec.value(o), output.value(o));
+        protected Options parse(OptionSet o) {
+            return new Options(so.value(o), input.value(o), spec.value(o), output.value(o));
         }
     }
 

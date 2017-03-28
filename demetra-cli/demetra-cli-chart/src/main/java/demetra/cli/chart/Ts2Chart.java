@@ -16,15 +16,22 @@
  */
 package demetra.cli.chart;
 
-import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
-import be.nbb.cli.util.BasicCliLauncher;
+import be.nbb.cli.command.Command;
+import be.nbb.cli.command.core.OptionsExecutor;
+import be.nbb.cli.command.core.OptionsParsingCommand;
+import be.nbb.cli.command.joptsimple.ComposedOptionSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newInputOptionsSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
+import be.nbb.cli.command.joptsimple.JOptSimpleParser;
+import be.nbb.cli.command.proc.CommandRegistration;
 import be.nbb.cli.util.InputOptions;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newInputOptionsSpec;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
+import be.nbb.cli.util.MediaType;
 import be.nbb.cli.util.StandardOptions;
 import be.nbb.cli.util.Utils;
+import demetra.cli.helpers.XmlUtil;
 import ec.tss.TsCollectionInformation;
 import ec.tss.xml.XmlTsCollection;
+import ec.tstoolkit.design.VisibleForTesting;
 import ec.util.chart.impl.SmartColorScheme;
 import java.io.File;
 import java.io.OutputStream;
@@ -33,12 +40,6 @@ import static java.util.Arrays.asList;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import be.nbb.cli.util.BasicCommand;
-import be.nbb.cli.util.MediaType;
-import be.nbb.cli.util.proc.CommandRegistration;
-import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
-import demetra.cli.helpers.XmlUtil;
-import ec.tstoolkit.design.VisibleForTesting;
 import org.openide.util.NbBundle;
 
 /**
@@ -46,14 +47,17 @@ import org.openide.util.NbBundle;
  *
  * @author Philippe Charles
  */
-public final class Ts2Chart implements BasicCommand<Ts2Chart.Parameters> {
+public final class Ts2Chart {
 
     @CommandRegistration
-    public static void main(String[] args) {
-        BasicCliLauncher.run(args, Parser::new, Ts2Chart::new, o -> o.so);
-    }
+    static Command CMD = OptionsParsingCommand.<Options>builder()
+            .name("ts2chart")
+            .parser(Parser::new)
+            .executor(Executor::new)
+            .so(o -> o.so)
+            .build();
 
-    public static final class Parameters {
+    public static final class Options {
 
         StandardOptions so;
         public InputOptions input;
@@ -61,17 +65,23 @@ public final class Ts2Chart implements BasicCommand<Ts2Chart.Parameters> {
         public ChartTool.Options chart;
     }
 
-    @Override
-    public void exec(Parameters params) throws Exception {
-        TsCollectionInformation input = XmlUtil.readValue(params.input, XmlTsCollection.class);
+    @VisibleForTesting
+    static final class Executor implements OptionsExecutor<Options> {
 
-        try (OutputStream stream = Files.newOutputStream(params.outputFile.toPath())) {
-            ChartTool.getDefault().writeChart(input, params.chart, stream, Utils.getMediaType(params.outputFile).orElse(MediaType.SVG_UTF_8));
+        final ChartTool tool = ChartTool.getDefault();
+
+        @Override
+        public void exec(Options params) throws Exception {
+            TsCollectionInformation input = XmlUtil.readValue(params.input, XmlTsCollection.class);
+
+            try (OutputStream stream = Files.newOutputStream(params.outputFile.toPath())) {
+                tool.writeChart(input, params.chart, stream, Utils.getMediaType(params.outputFile).orElse(MediaType.SVG_UTF_8));
+            }
         }
     }
 
     @VisibleForTesting
-    static final class Parser extends JOptSimpleArgsParser<Parameters> {
+    static final class Parser extends JOptSimpleParser<Options> {
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
@@ -79,12 +89,12 @@ public final class Ts2Chart implements BasicCommand<Ts2Chart.Parameters> {
         private final ComposedOptionSpec<ChartTool.Options> chart = new ChartOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet o) {
+        protected Options parse(OptionSet o) {
             File nonOptionFile = outputFile.value(o);
             if (nonOptionFile == null) {
                 throw new IllegalArgumentException("Missing output file");
             }
-            Parameters result = new Parameters();
+            Options result = new Options();
             result.so = so.value(o);
             result.input = input.value(o);
             result.outputFile = nonOptionFile;

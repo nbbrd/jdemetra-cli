@@ -16,43 +16,50 @@
  */
 package demetra.cli.spreadsheet;
 
-import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
-import com.google.common.base.Optional;
-import be.nbb.cli.util.BasicCliLauncher;
+import be.nbb.cli.command.Command;
+import be.nbb.cli.command.core.OptionsExecutor;
+import be.nbb.cli.command.core.OptionsParsingCommand;
+import be.nbb.cli.command.joptsimple.ComposedOptionSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newInputOptionsSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
+import be.nbb.cli.command.joptsimple.JOptSimpleParser;
+import be.nbb.cli.command.proc.CommandRegistration;
 import be.nbb.cli.util.InputOptions;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newInputOptionsSpec;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
 import be.nbb.cli.util.StandardOptions;
+import com.google.common.collect.Streams;
+import demetra.cli.helpers.XmlUtil;
 import ec.tss.TsCollectionInformation;
 import ec.tss.tsproviders.spreadsheet.engine.SpreadSheetFactory;
 import ec.tss.tsproviders.spreadsheet.engine.TsExportOptions;
 import ec.tss.xml.XmlTsCollection;
+import ec.tstoolkit.design.VisibleForTesting;
 import ec.util.spreadsheet.Book;
 import ec.util.spreadsheet.helpers.ArraySheet;
 import java.io.File;
+import java.io.IOException;
+import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.function.Supplier;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import be.nbb.cli.util.BasicCommand;
-import be.nbb.cli.util.proc.CommandRegistration;
-import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
-import demetra.cli.helpers.XmlUtil;
-import ec.tstoolkit.design.VisibleForTesting;
 
 /**
  * Converts time series to a spreadsheet file.
  *
  * @author Philippe Charles
  */
-public final class Ts2SpreadSheet implements BasicCommand<Ts2SpreadSheet.Parameters> {
+public final class Ts2SpreadSheet {
 
     @CommandRegistration
-    public static void main(String[] args) {
-        BasicCliLauncher.run(args, Parser::new, Ts2SpreadSheet::new, o -> o.so);
-    }
+    static Command CMD = OptionsParsingCommand.<Options>builder()
+            .name("ts2spreadsheet")
+            .parser(Parser::new)
+            .executor(Executor::new)
+            .so(o -> o.so)
+            .build();
 
-    public static final class Parameters {
+    public static final class Options {
 
         StandardOptions so;
         public InputOptions input;
@@ -60,29 +67,37 @@ public final class Ts2SpreadSheet implements BasicCommand<Ts2SpreadSheet.Paramet
         public TsExportOptions exportOptions;
     }
 
-    @Override
-    public void exec(Parameters params) throws Exception {
-        TsCollectionInformation info = XmlUtil.readValue(params.input, XmlTsCollection.class);
-        Optional<Book.Factory> factory = getFactory(params.outputFile);
-        if (factory.isPresent()) {
-            ArraySheet sheet = SpreadSheetFactory.getDefault().fromTsCollectionInfo(info, params.exportOptions);
-            factory.get().store(params.outputFile, sheet.toBook());
-        } else {
-            throw new IllegalArgumentException("Cannot handle file '" + params.outputFile.toString() + "'");
-        }
-    }
+    @VisibleForTesting
+    static final class Executor implements OptionsExecutor<Options> {
 
-    private Optional<Book.Factory> getFactory(File file) {
-        for (Book.Factory o : ServiceLoader.load(Book.Factory.class)) {
-            if (o.canStore() && o.accept(file)) {
-                return Optional.of(o);
+        final SpreadSheetFactory sheetFactory = SpreadSheetFactory.getDefault();
+        final Supplier<Iterable<Book.Factory>> factories = () -> ServiceLoader.load(Book.Factory.class);
+
+        @Override
+        public void exec(Options params) throws Exception {
+            TsCollectionInformation info = XmlUtil.readValue(params.input, XmlTsCollection.class);
+            Optional<Book.Factory> factory = getFactory(params.outputFile);
+            if (factory.isPresent()) {
+                store(factory.get(), info, params.outputFile, params.exportOptions);
+            } else {
+                throw new IllegalArgumentException("Cannot handle file '" + params.outputFile.toString() + "'");
             }
         }
-        return Optional.absent();
+
+        private Optional<Book.Factory> getFactory(File file) {
+            return Streams.stream(factories.get())
+                    .filter(o -> o.canStore() && o.accept(file))
+                    .findFirst();
+        }
+
+        private void store(Book.Factory factory, TsCollectionInformation info, File outputFile, TsExportOptions exportOptions) throws IOException {
+            ArraySheet sheet = sheetFactory.fromTsCollectionInfo(info, exportOptions);
+            factory.store(outputFile, sheet.toBook());
+        }
     }
 
     @VisibleForTesting
-    static final class Parser extends JOptSimpleArgsParser<Parameters> {
+    static final class Parser extends JOptSimpleParser<Options> {
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
@@ -90,12 +105,12 @@ public final class Ts2SpreadSheet implements BasicCommand<Ts2SpreadSheet.Paramet
         private final ComposedOptionSpec<TsExportOptions> exportOptions = new TsExportOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet o) {
+        protected Options parse(OptionSet o) {
             File nonOptionFile = outputFile.value(o);
             if (nonOptionFile == null) {
                 throw new IllegalArgumentException("Missing output file");
             }
-            Parameters result = new Parameters();
+            Options result = new Options();
             result.input = input.value(o);
             result.outputFile = nonOptionFile;
             result.exportOptions = exportOptions.value(o);

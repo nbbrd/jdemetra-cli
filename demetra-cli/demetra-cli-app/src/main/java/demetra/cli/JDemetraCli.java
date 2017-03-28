@@ -37,10 +37,10 @@ public final class JDemetraCli {
         } catch (IOException ex) {
             log.warn("While loading system properties", ex);
         }
-        CommandRegistry.builder()
+        System.exit(CommandRegistry.builder()
                 .name(AppassemblerProperty.APP_NAME.value())
                 .commands(Lookup.getDefault().lookupAll(Command.class))
                 .build()
-                .exec(args);
+                .exec(args));
     }
 }
