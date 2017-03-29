@@ -50,15 +50,8 @@ import joptsimple.OptionSpec;
  */
 public final class Uri2Ts {
 
-    @CommandRegistration
-    static Command CMD = OptionsParsingCommand.<Options>builder()
-            .name("uri2ts")
-            .category(IO_CATEGORY)
-            .description("Retrieve time series from an URI")
-            .parser(Parser::new)
-            .executor(Executor::new)
-            .so(o -> o.so)
-            .build();
+    @CommandRegistration(name = "uri2ts", category = IO_CATEGORY, description = "Retrieve time series from an URI")
+    static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
     public static final class Options {
 

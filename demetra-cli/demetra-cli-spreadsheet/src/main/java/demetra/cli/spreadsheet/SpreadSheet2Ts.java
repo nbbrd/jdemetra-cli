@@ -51,15 +51,8 @@ import org.openide.util.NbBundle;
  */
 public final class SpreadSheet2Ts {
 
-    @CommandRegistration
-    static Command CMD = OptionsParsingCommand.<Options>builder()
-            .name("spreadsheet2ts")
-            .category(IO_CATEGORY)
-            .description("Retrieve time series from a spreadsheet file")
-            .parser(Parser::new)
-            .executor(Executor::new)
-            .so(o -> o.so)
-            .build();
+    @CommandRegistration(name = "spreadsheet2ts", category = IO_CATEGORY, description = "Retrieve time series from a spreadsheet file")
+    static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
     public static final class Options {
 

@@ -54,15 +54,8 @@ import org.openide.util.NbBundle;
  */
 public final class Txt2Ts {
 
-    @CommandRegistration
-    static Command CMD = OptionsParsingCommand.<Options>builder()
-            .name("txt2ts")
-            .category(IO_CATEGORY)
-            .description("Retrieve time series from a txt file")
-            .parser(Parser::new)
-            .executor(Executor::new)
-            .so(o -> o.so)
-            .build();
+    @CommandRegistration(name = "txt2ts", category = IO_CATEGORY, description = "Retrieve time series from a txt file")
+    static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
     public static final class Options {
 

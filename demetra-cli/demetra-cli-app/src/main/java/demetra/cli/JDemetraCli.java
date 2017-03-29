@@ -17,7 +17,7 @@
 package demetra.cli;
 
 import be.nbb.cli.util.AppassemblerProperty;
-import be.nbb.cli.command.Command;
+import be.nbb.cli.command.CommandReference;
 import be.nbb.cli.command.CommandRegistry;
 import be.nbb.cli.util.Utils;
 import demetra.cli.helpers.Categories;
@@ -38,7 +38,7 @@ public class JDemetraCli {
         int status = CommandRegistry.builder()
                 .name(AppassemblerProperty.APP_NAME.value())
                 .description("Command line interface for JDemetra+")
-                .commands(Lookup.getDefault().lookupAll(Command.class))
+                .commands(Lookup.getDefault().lookupAll(CommandReference.class))
                 .categories(JDemetraCli::getCategoryLabel)
                 .build()
                 .exec(args);

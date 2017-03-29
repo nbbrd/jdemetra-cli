@@ -50,15 +50,8 @@ import org.openide.util.NbBundle;
  */
 public final class Ts2Chart {
 
-    @CommandRegistration
-    static Command CMD = OptionsParsingCommand.<Options>builder()
-            .name("ts2chart")
-            .category(IO_CATEGORY)
-            .description("Generate a chart from time series")
-            .parser(Parser::new)
-            .executor(Executor::new)
-            .so(o -> o.so)
-            .build();
+    @CommandRegistration(name = "ts2chart", category = IO_CATEGORY, description = "Generate a chart from time series")
+    static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
     public static final class Options {
 

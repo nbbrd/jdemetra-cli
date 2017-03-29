@@ -48,21 +48,16 @@ import joptsimple.OptionSpec;
  */
 public final class WorkspaceUtil {
 
-    @CommandRegistration
-    static Command CMD = OptionsParsingCommand.<Options>builder()
-            .name("workspace")
-            .parser(Parser::new)
-            .executor(Executor::new)
-            .so(o -> o.so)
-            .build();
+    @CommandRegistration(name = "workspace")
+    static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
     public static final class Options {
 
         StandardOptions so;
-        File file;
-        boolean tree;
-        boolean check;
-        boolean monikers;
+        public File file;
+        public boolean tree;
+        public boolean check;
+        public boolean monikers;
     }
 
     @VisibleForTesting

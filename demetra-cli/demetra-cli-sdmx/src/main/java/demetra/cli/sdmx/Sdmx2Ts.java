@@ -49,15 +49,8 @@ import org.openide.util.NbBundle;
  */
 public final class Sdmx2Ts {
 
-    @CommandRegistration
-    static Command CMD = OptionsParsingCommand.<Options>builder()
-            .name("sdmx2ts")
-            .category(IO_CATEGORY)
-            .description("Retrieve time series from an SDMX file")
-            .parser(Parser::new)
-            .executor(Executor::new)
-            .so(o -> o.so)
-            .build();
+    @CommandRegistration(name = "sdmx2ts", category = IO_CATEGORY, description = "Retrieve time series from an SDMX file")
+    static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
     public static final class Options {
 

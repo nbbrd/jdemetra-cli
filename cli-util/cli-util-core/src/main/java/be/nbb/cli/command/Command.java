@@ -17,22 +17,12 @@
 package be.nbb.cli.command;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  *
  * @author Philippe Charles
  */
 public interface Command {
-
-    @Nonnull
-    String getName();
-
-    @Nullable
-    String getCategory();
-
-    @Nullable
-    String getDescription();
 
     int exec(@Nonnull String[] args);
 }

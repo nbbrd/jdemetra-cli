@@ -49,17 +49,11 @@ import org.openide.util.NbBundle;
  *
  * @author Philippe Charles
  */
+@NbBundle.Messages("odbc2ts.desc=Retrieve time series from an ODBC DSN")
 public final class Odbc2Ts {
 
-    @CommandRegistration
-    static Command CMD = OptionsParsingCommand.<Options>builder()
-            .name("odbc2ts")
-            .category(IO_CATEGORY)
-            .description("Retrieve time series from an ODBC DSN")
-            .parser(Parser::new)
-            .executor(Executor::new)
-            .so(o -> o.so)
-            .build();
+    @CommandRegistration(name = "odbc2ts", category = IO_CATEGORY, description = "#odbc2ts.desc")
+    static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
     public static final class Options {
 

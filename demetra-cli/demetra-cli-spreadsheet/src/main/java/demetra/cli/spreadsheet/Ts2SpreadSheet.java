@@ -52,15 +52,8 @@ import joptsimple.OptionSpec;
  */
 public final class Ts2SpreadSheet {
 
-    @CommandRegistration
-    static Command CMD = OptionsParsingCommand.<Options>builder()
-            .name("ts2spreadsheet")
-            .category(IO_CATEGORY)
-            .description("Generate a spreadsheet file from time series")
-            .parser(Parser::new)
-            .executor(Executor::new)
-            .so(o -> o.so)
-            .build();
+    @CommandRegistration(name = "ts2spreadsheet", category = IO_CATEGORY, description = "Generate a spreadsheet file from time series")
+    static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
     public static final class Options {
 

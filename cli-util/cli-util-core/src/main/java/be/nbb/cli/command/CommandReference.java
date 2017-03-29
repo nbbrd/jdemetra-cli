@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 National Bank of Belgium
+ * Copyright 2017 National Bank of Belgium
  * 
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved 
  * by the European Commission - subsequent versions of the EUPL (the "Licence");
@@ -14,24 +14,26 @@
  * See the Licence for the specific language governing permissions and 
  * limitations under the Licence.
  */
-package be.nbb.cli.command.proc;
+package be.nbb.cli.command;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  *
  * @author Philippe Charles
  */
-@Retention(RetentionPolicy.SOURCE)
-@Target({ElementType.METHOD, ElementType.FIELD})
-public @interface CommandRegistration {
+public interface CommandReference {
 
-    String name();
+    @Nonnull
+    String getName();
 
-    String category() default "";
+    @Nullable
+    String getCategory();
 
-    String description() default "";
+    @Nullable
+    String getDescription();
+
+    @Nonnull
+    Command getCommand();
 }

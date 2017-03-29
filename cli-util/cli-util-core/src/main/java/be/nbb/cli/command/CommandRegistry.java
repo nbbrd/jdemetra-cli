@@ -55,7 +55,7 @@ public final class CommandRegistry {
     String description;
 
     @lombok.NonNull
-    Collection<? extends Command> commands;
+    Collection<? extends CommandReference> commands;
 
     @lombok.NonNull
     UnaryOperator<String> categories;
@@ -67,9 +67,9 @@ public final class CommandRegistry {
             return 0;
         } else {
             String commandName = args[0];
-            Optional<? extends Command> cp = getCommandByName(commandName);
+            Optional<? extends CommandReference> cp = getCommandByName(commandName);
             if (cp.isPresent()) {
-                return cp.get().exec(Arrays.copyOfRange(args, 1, args.length));
+                return cp.get().getCommand().exec(Arrays.copyOfRange(args, 1, args.length));
             } else {
                 printNotFound(System.err, commandName);
                 return 0;
@@ -83,16 +83,16 @@ public final class CommandRegistry {
     }
 
     //<editor-fold defaultstate="collapsed" desc="Implementation details">
-    private Optional<? extends Command> getCommandByName(String commandName) {
+    private Optional<? extends CommandReference> getCommandByName(String commandName) {
         return commands.stream().filter(getFilterByName(commandName)).findFirst();
     }
 
-    private List<Command> getPossibleCommands(String query) {
+    private List<CommandReference> getPossibleCommands(String query) {
         return commands.stream().filter(getFilterByQuery(query)).collect(Collectors.toList());
     }
 
-    private SortedMap<String, List<Command>> getCommandsByCategory() {
-        return commands.stream().collect(Collectors.groupingBy((Command o) -> nullToEmpty(o.getCategory()), TreeMap::new, Collectors.toList()));
+    private SortedMap<String, List<CommandReference>> getCommandsByCategory() {
+        return commands.stream().collect(Collectors.groupingBy((CommandReference o) -> nullToEmpty(o.getCategory()), TreeMap::new, Collectors.toList()));
     }
 
     private void printUsage(PrintStream stream) {
@@ -106,13 +106,13 @@ public final class CommandRegistry {
         stream.println(Bundle.commandRegistry_available());
         getCommandsByCategory().forEach((category, list) -> {
             stream.println(categories.apply(category));
-            list.sort(Comparator.comparing(Command::getName));
+            list.sort(Comparator.comparing(CommandReference::getName));
             list.forEach(o -> printCommandSummary(stream, o, getSpacer(list)));
             stream.println();
         });
     }
 
-    private void printCommandSummary(PrintStream stream, Command command, BiConsumer<PrintStream, Command> spacer) {
+    private void printCommandSummary(PrintStream stream, CommandReference command, BiConsumer<PrintStream, CommandReference> spacer) {
         stream.append(PREFIX).append(command.getName());
         String commandDescription = command.getDescription();
         if (!isNullOrEmpty(commandDescription)) {
@@ -124,7 +124,7 @@ public final class CommandRegistry {
 
     private void printNotFound(PrintStream stream, String query) {
         stream.println(Bundle.commandRegistry_invalid(name, query));
-        List<Command> possibleCommands = getPossibleCommands(query);
+        List<CommandReference> possibleCommands = getPossibleCommands(query);
         if (possibleCommands.isEmpty()) {
             printAvailableCommands(stream);
         } else {
@@ -133,16 +133,16 @@ public final class CommandRegistry {
         }
     }
 
-    private static Predicate<Command> getFilterByName(String name) {
+    private static Predicate<CommandReference> getFilterByName(String name) {
         return o -> o.getName().equals(name);
     }
 
-    private static Predicate<Command> getFilterByQuery(String query) {
+    private static Predicate<CommandReference> getFilterByQuery(String query) {
         Predicate<String> bitapFilter = new BitapFilter(query, 1);
         return o -> bitapFilter.test(o.getName());
     }
 
-    private static BiConsumer<PrintStream, Command> getSpacer(List<Command> list) {
+    private static BiConsumer<PrintStream, CommandReference> getSpacer(List<CommandReference> list) {
         int maxLength = list.stream().mapToInt(o -> o.getName().length()).max().orElse(0);
         return (stream, o) -> {
             IntStream.range(0, maxLength - o.getName().length()).forEach(i -> stream.append(' '));

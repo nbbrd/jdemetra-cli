@@ -17,9 +17,9 @@
 package be.nbb.cli.command.proc;
 
 import be.nbb.cli.command.Command;
+import be.nbb.cli.command.CommandReference;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
@@ -86,7 +86,7 @@ public final class CommandRegistrationProcessor extends AbstractProcessor {
     @lombok.Value
     private static class GeneratorFromMethod implements Supplier<JavaFile> {
 
-        String commandName;
+        CommandRegistration registration;
         ClassName sourceType;
         String sourceMethod;
 
@@ -95,31 +95,21 @@ public final class CommandRegistrationProcessor extends AbstractProcessor {
             String pkg = findPackage(e);
             String cls = e.getEnclosingElement().getSimpleName().toString();
             String methodName = e.getSimpleName().toString();
-            return new GeneratorFromMethod(registration.name().trim().isEmpty() ? cls.toLowerCase() : registration.name(), ClassName.get(pkg, cls), methodName);
+            return new GeneratorFromMethod(registration, ClassName.get(pkg, cls), methodName);
         }
 
         @Override
         public JavaFile get() {
-            MethodSpec name = nameBuilder().addStatement("return $S", commandName).build();
-            MethodSpec category = categoryBuilder().addStatement("return null").build();
-            MethodSpec description = descriptionBuilder().addStatement("return null").build();
-            MethodSpec exec = execBuilder().addStatement("return $T.$L(args)", sourceType, sourceMethod).build();
-
-            TypeSpec command = commandBuilder(commandName + "Command")
-                    .addMethod(name)
-                    .addMethod(category)
-                    .addMethod(description)
-                    .addMethod(exec)
-                    .build();
-
-            return JavaFile.builder(sourceType.packageName(), command).build();
+            MethodSpec command = commandBuilder().addStatement("return $T.$L(args)", sourceType, sourceMethod).build();
+            TypeSpec result = commandRefBuilder(registration).addMethod(command).build();
+            return JavaFile.builder(sourceType.packageName(), result).build();
         }
     }
 
     @lombok.Value
     private static class GeneratorFromField implements Supplier<JavaFile> {
 
-        String commandName;
+        CommandRegistration registration;
         ClassName sourceType;
         String sourceField;
 
@@ -128,30 +118,14 @@ public final class CommandRegistrationProcessor extends AbstractProcessor {
             String pkg = findPackage(e);
             String cls = e.getEnclosingElement().getSimpleName().toString();
             String sourceField = e.getSimpleName().toString();
-            return new GeneratorFromField(registration.name().trim().isEmpty() ? cls.toLowerCase() : registration.name(), ClassName.get(pkg, cls), sourceField);
+            return new GeneratorFromField(registration, ClassName.get(pkg, cls), sourceField);
         }
 
         @Override
         public JavaFile get() {
-            FieldSpec delegate = FieldSpec.builder(Command.class, "delegate")
-                    .addModifiers(Modifier.PRIVATE, Modifier.FINAL)
-                    .initializer("$T.$L", sourceType, sourceField)
-                    .build();
-
-            MethodSpec name = nameBuilder().addStatement("return delegate.getName()").build();
-            MethodSpec category = categoryBuilder().addStatement("return delegate.getCategory()").build();
-            MethodSpec description = descriptionBuilder().addStatement("return delegate.getDescription()").build();
-            MethodSpec exec = execBuilder().addStatement("return delegate.exec(args)").build();
-
-            TypeSpec command = commandBuilder(commandName + "Command")
-                    .addField(delegate)
-                    .addMethod(name)
-                    .addMethod(category)
-                    .addMethod(description)
-                    .addMethod(exec)
-                    .build();
-
-            return JavaFile.builder(sourceType.packageName(), command).build();
+            MethodSpec command = commandBuilder().addStatement("return $T.$L", sourceType, sourceField).build();
+            TypeSpec result = commandRefBuilder(registration).addMethod(command).build();
+            return JavaFile.builder(sourceType.packageName(), result).build();
         }
     }
 
@@ -176,20 +150,36 @@ public final class CommandRegistrationProcessor extends AbstractProcessor {
                 .returns(String.class);
     }
 
-    private static MethodSpec.Builder execBuilder() {
-        return MethodSpec.methodBuilder("exec")
+    private static MethodSpec.Builder commandBuilder() {
+        return MethodSpec.methodBuilder("getCommand")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
-                .addParameter(String[].class, "args")
-                .returns(int.class);
+                .returns(Command.class);
     }
 
-    private static TypeSpec.Builder commandBuilder(String className) {
-        return TypeSpec.classBuilder(className)
+    private static boolean isDescriptionKey(CommandRegistration reg) {
+        return reg.description().startsWith("#");
+    }
+
+    private static String getDescriptionKey(CommandRegistration reg) {
+        return reg.description().substring(1).replace(".", "_");
+    }
+
+    private static TypeSpec.Builder commandRefBuilder(CommandRegistration reg) {
+        MethodSpec name = nameBuilder().addStatement("return $S", reg.name()).build();
+        MethodSpec category = categoryBuilder().addStatement("return $S", reg.category()).build();
+        MethodSpec description = isDescriptionKey(reg)
+                ? descriptionBuilder().addStatement("return Bundle.$N()", getDescriptionKey(reg)).build()
+                : descriptionBuilder().addStatement("return $S", reg.description()).build();
+
+        return TypeSpec.classBuilder(reg.name() + "Command")
                 .addAnnotation(newGeneratedAnnotation())
                 .addAnnotation(newServiceProviderAnnotation())
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addSuperinterface(Command.class);
+                .addSuperinterface(CommandReference.class)
+                .addMethod(name)
+                .addMethod(category)
+                .addMethod(description);
     }
 
     private static AnnotationSpec newGeneratedAnnotation() {
@@ -197,7 +187,7 @@ public final class CommandRegistrationProcessor extends AbstractProcessor {
     }
 
     private static AnnotationSpec newServiceProviderAnnotation() {
-        return AnnotationSpec.builder(ServiceProvider.class).addMember("service", "$T.class", Command.class).build();
+        return AnnotationSpec.builder(ServiceProvider.class).addMember("service", "$T.class", CommandReference.class).build();
     }
 
     private static String findPackage(Element e) {

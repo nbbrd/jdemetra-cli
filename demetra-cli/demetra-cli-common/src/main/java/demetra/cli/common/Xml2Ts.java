@@ -48,15 +48,8 @@ import joptsimple.OptionSpec;
  */
 public final class Xml2Ts {
 
-    @CommandRegistration
-    static Command CMD = OptionsParsingCommand.<Options>builder()
-            .name("xml2ts")
-            .category(IO_CATEGORY)
-            .description("Retrieve time series from an XML file")
-            .parser(Parser::new)
-            .executor(Executor::new)
-            .so(o -> o.so)
-            .build();
+    @CommandRegistration(name = "xml2ts", category = IO_CATEGORY, description = "Retrieve time series from an XML file")
+    static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
     public static final class Options {
 

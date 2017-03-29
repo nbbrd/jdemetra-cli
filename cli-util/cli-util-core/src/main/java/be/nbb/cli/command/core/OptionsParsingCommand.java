@@ -37,12 +37,13 @@ import javax.annotation.Nonnull;
 @lombok.Builder(builderClassName = "Builder")
 public final class OptionsParsingCommand<T> implements Command {
 
-    @lombok.NonNull
-    String name;
-
-    String category;
-
-    String description;
+    @Nonnull
+    public static <T> OptionsParsingCommand<T> of(
+            @Nonnull Supplier<OptionsParser<T>> parser,
+            @Nonnull Supplier<OptionsExecutor<T>> executor,
+            @Nonnull Function<T, StandardOptions> so) {
+        return OptionsParsingCommand.<T>builder().parser(parser).executor(executor).so(so).build();
+    }
 
     @lombok.NonNull
     Supplier<OptionsParser<T>> parser;

@@ -47,15 +47,8 @@ import joptsimple.OptionSpec;
  */
 public final class Random2Ts {
 
-    @CommandRegistration
-    static Command CMD = OptionsParsingCommand.<Options>builder()
-            .name("random2ts")
-            .category(IO_CATEGORY)
-            .description("Generate random time series")
-            .parser(Parser::new)
-            .executor(Executor::new)
-            .so(o -> o.so)
-            .build();
+    @CommandRegistration(name = "random2ts", category = IO_CATEGORY, description = "Generate random time series")
+    static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
     public static final class Options {
 

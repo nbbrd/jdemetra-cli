@@ -55,13 +55,8 @@ import joptsimple.OptionSpec;
  */
 public final class SsfDenton {
 
-    @CommandRegistration
-    static Command CMD = OptionsParsingCommand.<Options>builder()
-            .name("ssfdenton")
-            .parser(Parser::new)
-            .executor(Executor::new)
-            .so(o -> o.so)
-            .build();
+    @CommandRegistration(name = "ssfdenton")
+    static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
     @lombok.AllArgsConstructor
     public static final class Options {

@@ -46,13 +46,8 @@ import org.openide.util.NbBundle;
  */
 public final class Ts2SeasonalityTests {
 
-    @CommandRegistration
-    static Command CMD = OptionsParsingCommand.<Options>builder()
-            .name("ts2seasonalitytests")
-            .parser(Parser::new)
-            .executor(Executor::new)
-            .so(o -> o.so)
-            .build();
+    @CommandRegistration(name = "ts2seasonalitytests")
+    static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
     @lombok.AllArgsConstructor
     public static class Options {

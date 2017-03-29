@@ -51,13 +51,8 @@ import org.openide.util.NbBundle;
  */
 public final class Terror {
 
-    @CommandRegistration
-    static Command CMD = OptionsParsingCommand.<Options>builder()
-            .name("terror")
-            .parser(Parser::new)
-            .executor(Executor::new)
-            .so(o -> o.so)
-            .build();
+    @CommandRegistration(name = "terror")
+    static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
     @lombok.AllArgsConstructor
     public static class Options {

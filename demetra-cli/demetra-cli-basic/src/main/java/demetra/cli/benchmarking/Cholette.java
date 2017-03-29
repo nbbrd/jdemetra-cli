@@ -56,13 +56,8 @@ import joptsimple.OptionSpec;
  */
 public final class Cholette {
 
-    @CommandRegistration
-    static Command CMD = OptionsParsingCommand.<Options>builder()
-            .name("cholette")
-            .parser(Parser::new)
-            .executor(Executor::new)
-            .so(o -> o.so)
-            .build();
+    @CommandRegistration(name = "cholette")
+    static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
     @lombok.AllArgsConstructor
     public static final class Options {
