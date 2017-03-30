@@ -16,65 +16,71 @@
  */
 package demetra.cli.common;
 
-import be.nbb.demetra.toolset.ProviderTool;
-import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
-import com.google.common.primitives.Doubles;
-import be.nbb.cli.util.BasicCliLauncher;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
+import be.nbb.cli.command.Command;
+import be.nbb.cli.command.core.OptionsExecutor;
+import be.nbb.cli.command.core.OptionsParsingCommand;
+import be.nbb.cli.command.joptsimple.ComposedOptionSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
+import be.nbb.cli.command.joptsimple.JOptSimpleParser;
+import be.nbb.cli.command.proc.CommandRegistration;
 import be.nbb.cli.util.OutputOptions;
 import be.nbb.cli.util.StandardOptions;
+import be.nbb.demetra.toolset.ProviderTool;
+import com.google.common.primitives.Doubles;
+import static demetra.cli.helpers.Categories.IO_CATEGORY;
+import demetra.cli.helpers.XmlUtil;
 import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformationType;
 import ec.tss.tsproviders.common.random.RandomBean;
 import ec.tss.tsproviders.common.random.RandomProvider;
 import ec.tss.xml.XmlTsCollection;
+import ec.tstoolkit.design.VisibleForTesting;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import be.nbb.cli.util.BasicCommand;
-import be.nbb.cli.util.proc.CommandRegistration;
-import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
-import demetra.cli.helpers.XmlUtil;
-import ec.tstoolkit.design.VisibleForTesting;
 
 /**
  * Creates random time series.
  *
  * @author Philippe Charles
  */
-public final class Random2Ts implements BasicCommand<Random2Ts.Parameters> {
+public final class Random2Ts {
 
-    @CommandRegistration
-    public static void main(String[] args) {
-        BasicCliLauncher.run(args, Parser::new, Random2Ts::new, o -> o.so);
-    }
+    @CommandRegistration(name = "random2ts", category = IO_CATEGORY, description = "Generate random time series")
+    static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
-    public static final class Parameters {
+    public static final class Options {
 
         StandardOptions so;
         public RandomBean input;
         public OutputOptions output;
     }
 
-    @Override
-    public void exec(Parameters params) throws Exception {
-        try (RandomProvider p = new RandomProvider()) {
-            TsCollectionInformation result = ProviderTool.getDefault().getTsCollection(p, params.input, TsInformationType.All);
-            XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+    @VisibleForTesting
+    static final class Executor implements OptionsExecutor<Options> {
+
+        final ProviderTool tool = ProviderTool.getDefault();
+
+        @Override
+        public void exec(Options params) throws Exception {
+            try (RandomProvider p = new RandomProvider()) {
+                TsCollectionInformation result = tool.getTsCollection(p, params.input, TsInformationType.All);
+                XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+            }
         }
     }
 
     @VisibleForTesting
-    static final class Parser extends JOptSimpleArgsParser<Parameters> {
+    static final class Parser extends JOptSimpleParser<Options> {
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final ComposedOptionSpec<RandomBean> random = new RandomOptionsSpec(parser);
         private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet o) {
-            Parameters result = new Parameters();
+        protected Options parse(OptionSet o) {
+            Options result = new Options();
             result.input = random.value(o);
             result.output = output.value(o);
             result.so = so.value(o);

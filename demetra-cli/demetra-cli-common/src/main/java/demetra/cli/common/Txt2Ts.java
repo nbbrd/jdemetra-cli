@@ -16,73 +16,79 @@
  */
 package demetra.cli.common;
 
-import be.nbb.demetra.toolset.ProviderTool;
-import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
-import be.nbb.cli.util.BasicCliLauncher;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
+import be.nbb.cli.command.Command;
+import be.nbb.cli.command.core.OptionsExecutor;
+import be.nbb.cli.command.core.OptionsParsingCommand;
+import be.nbb.cli.command.joptsimple.ComposedOptionSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
+import be.nbb.cli.command.joptsimple.JOptSimpleParser;
+import be.nbb.cli.command.proc.CommandRegistration;
 import be.nbb.cli.util.OutputOptions;
 import be.nbb.cli.util.StandardOptions;
+import be.nbb.demetra.toolset.ProviderTool;
+import static demetra.cli.helpers.Categories.IO_CATEGORY;
+import demetra.cli.helpers.XmlUtil;
+import demetra.cli.tsproviders.TsDataBuild;
+import demetra.cli.tsproviders.TsProviderOptionSpecs;
 import ec.tss.TsCollectionInformation;
 import ec.tss.TsInformationType;
-import ec.tss.tsproviders.utils.DataFormat;
-import ec.tss.xml.XmlTsCollection;
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
-import joptsimple.OptionSpec;
-import be.nbb.cli.util.BasicCommand;
-import be.nbb.cli.util.proc.CommandRegistration;
 import ec.tss.tsproviders.common.txt.TxtBean;
 import ec.tss.tsproviders.common.txt.TxtBean.Delimiter;
 import ec.tss.tsproviders.common.txt.TxtBean.TextQualifier;
 import ec.tss.tsproviders.common.txt.TxtProvider;
+import ec.tss.tsproviders.utils.DataFormat;
+import ec.tss.xml.XmlTsCollection;
+import ec.tstoolkit.design.VisibleForTesting;
 import java.io.File;
 import java.nio.charset.Charset;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 import org.openide.util.NbBundle;
-import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
-import demetra.cli.helpers.XmlUtil;
-import demetra.cli.tsproviders.TsDataBuild;
-import demetra.cli.tsproviders.TsProviderOptionSpecs;
-import ec.tstoolkit.design.VisibleForTesting;
 
 /**
  * Retrieves time series from a text file such as CSV or TSV.
  *
  * @author Philippe Charles
  */
-public final class Txt2Ts implements BasicCommand<Txt2Ts.Parameters> {
+public final class Txt2Ts {
 
-    @CommandRegistration
-    public static void main(String[] args) {
-        BasicCliLauncher.run(args, Parser::new, Txt2Ts::new, o -> o.so);
-    }
+    @CommandRegistration(name = "txt2ts", category = IO_CATEGORY, description = "Retrieve time series from a txt file")
+    static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
-    public static final class Parameters {
+    public static final class Options {
 
         StandardOptions so;
         public TxtBean input;
         public OutputOptions output;
     }
 
-    @Override
-    public void exec(Parameters params) throws Exception {
-        try (TxtProvider p = new TxtProvider()) {
-            ProviderTool.getDefault().applyWorkingDir(p);
-            TsCollectionInformation result = ProviderTool.getDefault().getTsCollection(p, params.input, TsInformationType.All);
-            XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+    @VisibleForTesting
+    static final class Executor implements OptionsExecutor<Options> {
+
+        final ProviderTool tool = ProviderTool.getDefault();
+
+        @Override
+        public void exec(Options params) throws Exception {
+            try (TxtProvider p = new TxtProvider()) {
+                tool.applyWorkingDir(p);
+                TsCollectionInformation result = tool.getTsCollection(p, params.input, TsInformationType.All);
+                XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+            }
         }
     }
 
     @VisibleForTesting
-    static final class Parser extends JOptSimpleArgsParser<Parameters> {
+    static final class Parser extends JOptSimpleParser<Options> {
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final ComposedOptionSpec<TxtBean> input = new TxtOptionsSpec(parser);
         private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet o) {
-            Parameters result = new Parameters();
+        protected Options parse(OptionSet o) {
+            Options result = new Options();
             result.input = input.value(o);
             result.output = output.value(o);
             result.so = so.value(o);

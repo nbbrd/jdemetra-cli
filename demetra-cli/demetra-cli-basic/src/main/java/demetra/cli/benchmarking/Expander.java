@@ -16,19 +16,20 @@
  */
 package demetra.cli.benchmarking;
 
-import be.nbb.cli.util.BasicCliLauncher;
-import be.nbb.cli.util.BasicCommand;
+import be.nbb.cli.command.Command;
+import be.nbb.cli.command.core.OptionsExecutor;
+import be.nbb.cli.command.core.OptionsParsingCommand;
+import be.nbb.cli.command.joptsimple.ComposedOptionSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.optional;
+import be.nbb.cli.command.joptsimple.JOptSimpleParser;
+import be.nbb.cli.command.proc.CommandRegistration;
 import be.nbb.cli.util.InputOptions;
 import be.nbb.cli.util.MediaType;
 import be.nbb.cli.util.OutputOptions;
 import be.nbb.cli.util.StandardOptions;
 import be.nbb.cli.util.Utils;
-import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.optional;
-import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
-import be.nbb.cli.util.proc.CommandRegistration;
 import be.nbb.demetra.toolset.BenchmarkingTool;
 import be.nbb.demetra.toolset.BenchmarkingTool.ExpanderOptions;
 import static demetra.cli.benchmarking.Util.domainConverter;
@@ -55,15 +56,13 @@ import joptsimple.OptionSpec;
  *
  * @author Philippe Charles
  */
-public final class Expander implements BasicCommand<Expander.Parameters> {
+public final class Expander {
 
-    @CommandRegistration
-    public static void main(String[] args) {
-        BasicCliLauncher.run(args, Parser::new, Expander::new, o -> o.so);
-    }
+    @CommandRegistration(name = "expander")
+    static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
     @lombok.AllArgsConstructor
-    public static final class Parameters {
+    public static final class Options {
 
         StandardOptions so;
         public ExpanderInput input;
@@ -81,45 +80,49 @@ public final class Expander implements BasicCommand<Expander.Parameters> {
         private final MediaType mediaType;
     }
 
-    @Override
-    public void exec(Parameters p) throws Exception {
-        TsCollectionInformation y = readTsCollection(InputOptions.of(p.input.yFile, p.input.mediaType));
+    @VisibleForTesting
+    static final class Executor implements OptionsExecutor<Options> {
 
-        BenchmarkingTool tool = BenchmarkingTool.getDefault();
+        final BenchmarkingTool tool = BenchmarkingTool.getDefault();
 
-        if (p.input.domain.isPresent()) {
-            TsCollectionInformation result = y.items
-                    .parallelStream()
-                    .map(o -> exec(tool, p.input.domain.get(), o, p.options))
-                    .collect(toTsCollectionInformation());
+        @Override
+        public void exec(Options p) throws Exception {
+            TsCollectionInformation y = readTsCollection(InputOptions.of(p.input.yFile, p.input.mediaType));
 
-            writeTsCollection(p.output, result);
-        } else if (p.input.freq.isPresent()) {
-            TsCollectionInformation result = y.items
-                    .parallelStream()
-                    .map(o -> exec(tool, p.input.freq.get(), o, p.options))
-                    .collect(toTsCollectionInformation());
+            if (p.input.domain.isPresent()) {
+                TsCollectionInformation result = y.items
+                        .parallelStream()
+                        .map(o -> exec(tool, p.input.domain.get(), o, p.options))
+                        .collect(toTsCollectionInformation());
 
-            writeTsCollection(p.output, result);
+                writeTsCollection(p.output, result);
+            } else if (p.input.freq.isPresent()) {
+                TsCollectionInformation result = y.items
+                        .parallelStream()
+                        .map(o -> exec(tool, p.input.freq.get(), o, p.options))
+                        .collect(toTsCollectionInformation());
+
+                writeTsCollection(p.output, result);
+            }
+        }
+
+        private static TsInformation exec(BenchmarkingTool tool, TsFrequency freq, TsInformation info, ExpanderOptions options) {
+            TsInformation result = new TsInformation();
+            result.name = info.name;
+            result.data = tool.expand(freq, info.data, options);
+            return result;
+        }
+
+        private static TsInformation exec(BenchmarkingTool tool, TsDomain domain, TsInformation info, ExpanderOptions options) {
+            TsInformation result = new TsInformation();
+            result.name = info.name;
+            result.data = tool.expand(domain, info.data, options);
+            return result;
         }
     }
 
-    private static TsInformation exec(BenchmarkingTool tool, TsFrequency freq, TsInformation info, ExpanderOptions options) {
-        TsInformation result = new TsInformation();
-        result.name = info.name;
-        result.data = tool.expand(freq, info.data, options);
-        return result;
-    }
-
-    private static TsInformation exec(BenchmarkingTool tool, TsDomain domain, TsInformation info, ExpanderOptions options) {
-        TsInformation result = new TsInformation();
-        result.name = info.name;
-        result.data = tool.expand(domain, info.data, options);
-        return result;
-    }
-
     @VisibleForTesting
-    static final class Parser extends JOptSimpleArgsParser<Parameters> {
+    static final class Parser extends JOptSimpleParser<Options> {
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final InputSpec input = new InputSpec(parser);
@@ -127,8 +130,8 @@ public final class Expander implements BasicCommand<Expander.Parameters> {
         private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet o) {
-            return new Parameters(so.value(o), input.value(o), options.value(o), output.value(o));
+        protected Options parse(OptionSet o) {
+            return new Options(so.value(o), input.value(o), options.value(o), output.value(o));
         }
     }
 

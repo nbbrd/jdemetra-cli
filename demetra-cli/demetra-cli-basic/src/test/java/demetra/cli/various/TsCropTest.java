@@ -61,14 +61,14 @@ public class TsCropTest {
 
     @Test
     public void testExec() throws Exception {
-        TsCrop app = new TsCrop();
+        TsCrop.Executor app = new TsCrop.Executor();
 
         File in = folder.newFile();
         File out = folder.newFile();
 
         write(in, getSample());
 
-        TsCrop.Parameters options = new TsCrop.Parameters();
+        TsCrop.Options options = new TsCrop.Options();
         options.input = InputOptions.of(in, XML_UTF_8);
         options.output = OutputOptions.of(out, XML_UTF_8, false);
         options.so = new StandardOptions(false, false, false);

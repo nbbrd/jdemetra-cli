@@ -16,25 +16,26 @@
  */
 package demetra.cli.sa;
 
-import be.nbb.demetra.toolset.SaTool;
-import be.nbb.cli.util.joptsimple.JOptSimpleArgsParser;
-import be.nbb.cli.util.BasicCliLauncher;
+import be.nbb.cli.command.Command;
+import be.nbb.cli.command.core.OptionsExecutor;
+import be.nbb.cli.command.core.OptionsParsingCommand;
+import be.nbb.cli.command.joptsimple.ComposedOptionSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newInputOptionsSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
+import be.nbb.cli.command.joptsimple.JOptSimpleParser;
+import be.nbb.cli.command.proc.CommandRegistration;
 import be.nbb.cli.util.InputOptions;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newInputOptionsSpec;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
-import static be.nbb.cli.util.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
 import be.nbb.cli.util.OutputOptions;
 import be.nbb.cli.util.StandardOptions;
+import be.nbb.demetra.toolset.SaTool;
+import demetra.cli.helpers.XmlUtil;
 import ec.tss.TsCollectionInformation;
 import ec.tss.xml.XmlTsCollection;
+import ec.tstoolkit.design.VisibleForTesting;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import be.nbb.cli.util.BasicCommand;
-import be.nbb.cli.util.proc.CommandRegistration;
-import be.nbb.cli.util.joptsimple.ComposedOptionSpec;
-import demetra.cli.helpers.XmlUtil;
-import ec.tstoolkit.design.VisibleForTesting;
 import org.openide.util.NbBundle;
 
 /**
@@ -42,14 +43,12 @@ import org.openide.util.NbBundle;
  *
  * @author Philippe Charles
  */
-public final class Ts2Sa implements BasicCommand<Ts2Sa.Parameters> {
+public final class Ts2Sa {
 
-    @CommandRegistration
-    public static void main(String[] args) {
-        BasicCliLauncher.run(args, Parser::new, Ts2Sa::new, o -> o.so);
-    }
+    @CommandRegistration(name = "ts2sa")
+    static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
-    public static final class Parameters {
+    public static final class Options {
 
         StandardOptions so;
         public InputOptions input;
@@ -57,21 +56,27 @@ public final class Ts2Sa implements BasicCommand<Ts2Sa.Parameters> {
         public OutputOptions output;
     }
 
-    @Override
-    public void exec(Parameters params) throws Exception {
-        TsCollectionInformation input = XmlUtil.readValue(params.input, XmlTsCollection.class);
+    @VisibleForTesting
+    static final class Executor implements OptionsExecutor<Options> {
 
-        if (params.so.isVerbose()) {
-            System.err.println("Processing " + input.items.size() + " time series");
+        final SaTool tool = SaTool.getDefault();
+
+        @Override
+        public void exec(Options params) throws Exception {
+            TsCollectionInformation input = XmlUtil.readValue(params.input, XmlTsCollection.class);
+
+            if (params.so.isVerbose()) {
+                System.err.println("Processing " + input.items.size() + " time series");
+            }
+
+            SaTool.SaTsCollection output = tool.create(input, params.saOptions);
+
+            XmlUtil.writeValue(params.output, XmlSaTsCollection.class, output);
         }
-
-        SaTool.SaTsCollection output = SaTool.getDefault().create(input, params.saOptions);
-
-        XmlUtil.writeValue(params.output, XmlSaTsCollection.class, output);
     }
 
     @VisibleForTesting
-    static final class Parser extends JOptSimpleArgsParser<Parameters> {
+    static final class Parser extends JOptSimpleParser<Options> {
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final ComposedOptionSpec<InputOptions> input = newInputOptionsSpec(parser);
@@ -79,8 +84,8 @@ public final class Ts2Sa implements BasicCommand<Ts2Sa.Parameters> {
         private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected Parameters parse(OptionSet o) {
-            Parameters result = new Parameters();
+        protected Options parse(OptionSet o) {
+            Options result = new Options();
             result.input = input.value(o);
             result.saOptions = saOptions.value(o);
             result.output = output.value(o);
