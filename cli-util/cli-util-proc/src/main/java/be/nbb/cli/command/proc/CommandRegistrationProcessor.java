@@ -100,7 +100,9 @@ public final class CommandRegistrationProcessor extends AbstractProcessor {
 
         @Override
         public JavaFile get() {
-            MethodSpec command = commandBuilder().addStatement("return $T.$L(args)", sourceType, sourceMethod).build();
+            MethodSpec command = commandBuilder()
+                    .addCode("return new Command() { public int exec(String[] args){ $T.$L(args); return 0; } };", sourceType, sourceMethod)
+                    .build();
             TypeSpec result = commandRefBuilder(registration).addMethod(command).build();
             return JavaFile.builder(sourceType.packageName(), result).build();
         }
