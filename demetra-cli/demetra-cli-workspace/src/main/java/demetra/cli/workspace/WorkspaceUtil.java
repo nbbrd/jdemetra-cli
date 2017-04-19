@@ -20,10 +20,12 @@ import be.nbb.cli.command.Command;
 import be.nbb.cli.command.core.OptionsExecutor;
 import be.nbb.cli.command.core.OptionsParsingCommand;
 import be.nbb.cli.command.joptsimple.ComposedOptionSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newInputOptionsSpec;
 import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
 import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
 import be.nbb.cli.command.joptsimple.JOptSimpleParser;
 import be.nbb.cli.command.proc.CommandRegistration;
+import be.nbb.cli.util.InputOptions;
 import be.nbb.cli.util.OutputOptions;
 import be.nbb.cli.util.StandardOptions;
 import demetra.cli.tsproviders.TsProviderOptionSpecs;
@@ -38,9 +40,12 @@ import ec.tstoolkit.utilities.TreeOfIds;
 import ec.tstoolkit.utilities.Trees;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -64,6 +69,8 @@ public final class WorkspaceUtil {
         public boolean tree;
         public boolean check;
         public boolean map;
+        public boolean remap;
+        public InputOptions remapping;
     }
 
     @VisibleForTesting
@@ -80,14 +87,13 @@ public final class WorkspaceUtil {
             try (FileWorkspace ws = FileWorkspace.open(params.file.toPath())) {
                 if (params.tree) {
                     printTree(ws);
-                }
-                if (params.check) {
+                } else if (params.check) {
                     checkContent(ws);
-                }
-                if (params.map) {
+                } else if (params.map) {
                     mapMonikers(ws, params.output);
-                }
-                if (!params.tree && !params.check && !params.map) {
+                } else if (params.remap) {
+                    remapMonikers(ws, params.remapping);
+                } else {
                     printInfo(ws);
                 }
             }
@@ -118,8 +124,13 @@ public final class WorkspaceUtil {
         }
 
         private void mapMonikers(FileWorkspace ws, OutputOptions output) throws IOException {
-            Set<TsMoniker> result = tool.getMonikers(ws);
+            Set<TsMoniker> result = tool.mapMonikers(ws);
             output.write(XmlMonikerMap.class, XmlMonikerMap.of(result));
+        }
+
+        private void remapMonikers(FileWorkspace ws, InputOptions remapping) throws IOException {
+            Map<TsMoniker, TsMoniker> map = remapping.read(XmlMonikerMap.class).toMap();
+            tool.remapMonikers(ws, map);
         }
     }
 
@@ -127,6 +138,22 @@ public final class WorkspaceUtil {
     static final class XmlMonikerMap {
 
         public XmlMonikerEntry[] moniker;
+
+        Map<TsMoniker, TsMoniker> toMap() {
+            if (moniker == null) {
+                return Collections.emptyMap();
+            }
+            return Stream.of(moniker)
+                    .peek(o -> {
+                        if (o.origin == null) {
+                            throw new IllegalArgumentException("Origin must not be null");
+                        }
+                        if (o.destination == null) {
+                            throw new IllegalArgumentException("Destination must not be null");
+                        }
+                    })
+                    .collect(Collectors.toMap(o -> o.origin.toMoniker(), o -> o.destination.toMoniker()));
+        }
 
         static XmlMonikerMap of(Set<TsMoniker> list) {
             XmlMonikerMap result = new XmlMonikerMap();
@@ -158,6 +185,10 @@ public final class WorkspaceUtil {
         @XmlAttribute
         public String id;
 
+        TsMoniker toMoniker() {
+            return TsMoniker.create(source, id);
+        }
+
         static XmlMoniker of(TsMoniker o) {
             XmlMoniker result = new XmlMoniker();
             result.source = o.getSource();
@@ -175,6 +206,8 @@ public final class WorkspaceUtil {
         private final OptionSpec<Void> tree = parser.accepts("tree");
         private final OptionSpec<Void> check = parser.accepts("check");
         private final OptionSpec<Void> map = parser.accepts("map-monikers");
+        private final OptionSpec<Void> remap = parser.accepts("remap-monikers");
+        private final ComposedOptionSpec<InputOptions> remapping = newInputOptionsSpec(parser);
 
         @Override
         protected Options parse(OptionSet o) {
@@ -185,6 +218,8 @@ public final class WorkspaceUtil {
             result.tree = o.has(tree);
             result.check = o.has(check);
             result.map = o.has(map);
+            result.remap = o.has(remap);
+            result.remapping = remapping.value(o);
             return result;
         }
     }

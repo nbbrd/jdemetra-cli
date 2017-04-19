@@ -22,6 +22,7 @@ import ec.tss.TsMoniker;
 import ec.tstoolkit.utilities.TreeOfIds;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -34,7 +35,9 @@ public interface WorkspaceTool {
 
     List<CheckResult> checkContent(FileWorkspace ws) throws IOException;
 
-    Set<TsMoniker> getMonikers(FileWorkspace ws) throws IOException;
+    Set<TsMoniker> mapMonikers(FileWorkspace ws) throws IOException;
+
+    void remapMonikers(FileWorkspace ws, Map<TsMoniker, TsMoniker> remapping) throws IOException;
 
     @lombok.Value
     static class CheckResult {
