@@ -35,9 +35,10 @@ import ec.tstoolkit.utilities.TreeOfIds;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -63,49 +64,49 @@ final class WorkspaceToolImpl implements WorkspaceTool {
     }
 
     @Override
-    public List<MonikerRef> getMonikers(FileWorkspace ws) throws IOException {
-        List<MonikerRef> result = new ArrayList<>();
+    public Set<TsMoniker> getMonikers(FileWorkspace ws) throws IOException {
+        Set<TsMoniker> result = new HashSet<>();
         for (WorkspaceItem item : ws.getItems()) {
             getMonikers(ws, item).forEach(result::add);
         }
         return result;
     }
 
-    private static Stream<MonikerRef> getMonikers(FileWorkspace ws, WorkspaceItem item) throws IOException {
+    private static Stream<TsMoniker> getMonikers(FileWorkspace ws, WorkspaceItem item) throws IOException {
         WorkspaceFamily family = item.getFamily();
         if (family.equals(WorkspaceFamily.UTIL_VAR)) {
             TsVariables value = (TsVariables) ws.load(item);
             return Stream.of(value.getNames())
                     .map(value::get)
                     .filter(DynamicTsVariable.class::isInstance)
-                    .map(o -> new MonikerRef(item, ((DynamicTsVariable) o).getMoniker()));
+                    .map(o -> ((DynamicTsVariable) o).getMoniker());
         }
         if (family.equals(WorkspaceFamily.SA_MULTI)) {
             SaProcessing value = (SaProcessing) ws.load(item);
             return value.stream()
-                    .map(o -> new MonikerRef(item, getUnfreezedMoniker(o.getTs())));
+                    .map(o -> getUnfreezedMoniker(o.getTs()));
         }
         if (family.equals(WorkspaceFamily.SA_DOC_TRAMOSEATS)) {
             TramoSeatsDocument value = (TramoSeatsDocument) ws.load(item);
-            return monikerRef(item, value);
+            return moniker(value);
         }
         if (family.equals(WorkspaceFamily.SA_DOC_X13)) {
             X13Document value = (X13Document) ws.load(item);
-            return monikerRef(item, value);
+            return moniker(value);
         }
         if (family.equals(WorkspaceFamily.MOD_DOC_REGARIMA)) {
             RegArimaDocument value = (RegArimaDocument) ws.load(item);
-            return monikerRef(item, value);
+            return moniker(value);
         }
         if (family.equals(WorkspaceFamily.MOD_DOC_TRAMO)) {
             TramoDocument value = (TramoDocument) ws.load(item);
-            return monikerRef(item, value);
+            return moniker(value);
         }
         return Stream.empty();
     }
 
-    private static Stream<MonikerRef> monikerRef(WorkspaceItem item, TsDocument<?, ?> doc) {
-        return Stream.of(new MonikerRef(item, getUnfreezedMoniker(doc.getInput())));
+    private static Stream<TsMoniker> moniker(TsDocument<?, ?> doc) {
+        return Stream.of(getUnfreezedMoniker(doc.getInput()));
     }
 
     private static TsMoniker getUnfreezedMoniker(Ts ts) {

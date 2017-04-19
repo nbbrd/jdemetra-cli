@@ -22,6 +22,7 @@ import ec.tss.TsMoniker;
 import ec.tstoolkit.utilities.TreeOfIds;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -33,19 +34,12 @@ public interface WorkspaceTool {
 
     List<CheckResult> checkContent(FileWorkspace ws) throws IOException;
 
-    List<MonikerRef> getMonikers(FileWorkspace ws) throws IOException;
+    Set<TsMoniker> getMonikers(FileWorkspace ws) throws IOException;
 
     @lombok.Value
     static class CheckResult {
 
         WorkspaceItem item;
         String reason;
-    }
-
-    @lombok.Value
-    static class MonikerRef {
-
-        WorkspaceItem item;
-        TsMoniker moniker;
     }
 }

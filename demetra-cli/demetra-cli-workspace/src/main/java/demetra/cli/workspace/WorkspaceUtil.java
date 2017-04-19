@@ -20,12 +20,15 @@ import be.nbb.cli.command.Command;
 import be.nbb.cli.command.core.OptionsExecutor;
 import be.nbb.cli.command.core.OptionsParsingCommand;
 import be.nbb.cli.command.joptsimple.ComposedOptionSpec;
+import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newOutputOptionsSpec;
 import static be.nbb.cli.command.joptsimple.ComposedOptionSpec.newStandardOptionsSpec;
 import be.nbb.cli.command.joptsimple.JOptSimpleParser;
 import be.nbb.cli.command.proc.CommandRegistration;
+import be.nbb.cli.util.OutputOptions;
 import be.nbb.cli.util.StandardOptions;
 import demetra.cli.tsproviders.TsProviderOptionSpecs;
 import ec.demetra.workspace.file.FileWorkspace;
+import ec.tss.TsMoniker;
 import ec.tss.sa.ISaProcessingFactory;
 import ec.tss.sa.SaManager;
 import ec.tstoolkit.design.VisibleForTesting;
@@ -37,8 +40,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.ServiceLoader;
-import java.util.stream.Collectors;
+import java.util.Set;
 import java.util.stream.Stream;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
@@ -55,17 +60,18 @@ public final class WorkspaceUtil {
 
         StandardOptions so;
         public File file;
+        public OutputOptions output;
         public boolean tree;
         public boolean check;
-        public boolean monikers;
+        public boolean map;
     }
 
     @VisibleForTesting
     static final class Executor implements OptionsExecutor<Options> {
 
-        final WorkspaceTool tool = new WorkspaceToolImpl();
+        private final WorkspaceTool tool = new WorkspaceToolImpl();
 
-        public Executor() {
+        Executor() {
             ServiceLoader.load(ISaProcessingFactory.class).forEach(SaManager.instance::add);
         }
 
@@ -73,23 +79,27 @@ public final class WorkspaceUtil {
         public void exec(Options params) throws Exception {
             try (FileWorkspace ws = FileWorkspace.open(params.file.toPath())) {
                 if (params.tree) {
-                    printTree(tool, ws);
+                    printTree(ws);
                 }
                 if (params.check) {
-                    checkContent(tool, ws);
+                    checkContent(ws);
                 }
-                if (params.monikers) {
-                    printMonikers(tool, ws);
+                if (params.map) {
+                    mapMonikers(ws, params.output);
                 }
-                if (!params.tree && !params.check && !params.monikers) {
-                    System.out.println("File: " + ws.getFile());
-                    System.out.println("Root folder: " + ws.getRootFolder());
-                    System.out.println("File format: " + ws.getFileFormat());
+                if (!params.tree && !params.check && !params.map) {
+                    printInfo(ws);
                 }
             }
         }
 
-        private static void printTree(WorkspaceTool tool, FileWorkspace ws) throws IOException {
+        private void printInfo(FileWorkspace ws) throws IOException {
+            System.out.println("Index file: " + ws.getFile());
+            System.out.println("Root folder: " + ws.getRootFolder());
+            System.out.println("File format: " + ws.getFileFormat());
+        }
+
+        private void printTree(FileWorkspace ws) throws IOException {
             Id root = new LinearId(ws.getName());
             TreeOfIds tree = tool.getItemTree(ws);
             Trees.prettyPrint(root,
@@ -98,7 +108,7 @@ public final class WorkspaceUtil {
                     o -> o == root ? root.tail() : o.tail(), System.out);
         }
 
-        private static void checkContent(WorkspaceTool tool, FileWorkspace ws) throws IOException {
+        private void checkContent(FileWorkspace ws) throws IOException {
             List<WorkspaceTool.CheckResult> result = tool.checkContent(ws);
             if (result.isEmpty()) {
                 System.out.println("Content is valid");
@@ -107,18 +117,52 @@ public final class WorkspaceUtil {
             }
         }
 
-        private static void printMonikers(WorkspaceTool tool, FileWorkspace ws) throws IOException {
-            List<WorkspaceTool.MonikerRef> result = tool.getMonikers(ws);
-            if (result.isEmpty()) {
-                System.out.println("No moniker found");
-            } else {
-                result.stream()
-                        .collect(Collectors.groupingBy(WorkspaceTool.MonikerRef::getItem))
-                        .forEach((k, v) -> {
-                            System.out.println(k.getLabel());
-                            v.forEach(o -> System.out.println(" " + o.getMoniker()));
-                        });
-            }
+        private void mapMonikers(FileWorkspace ws, OutputOptions output) throws IOException {
+            Set<TsMoniker> result = tool.getMonikers(ws);
+            output.write(XmlMonikerMap.class, XmlMonikerMap.of(result));
+        }
+    }
+
+    @XmlRootElement(name = "monikers")
+    static final class XmlMonikerMap {
+
+        public XmlMonikerEntry[] moniker;
+
+        static XmlMonikerMap of(Set<TsMoniker> list) {
+            XmlMonikerMap result = new XmlMonikerMap();
+            result.moniker = list.stream()
+                    .filter(o -> !o.isAnonymous())
+                    .sorted()
+                    .map(XmlMonikerEntry::of)
+                    .toArray(XmlMonikerEntry[]::new);
+            return result;
+        }
+    }
+
+    static final class XmlMonikerEntry {
+
+        public XmlMoniker origin;
+        public XmlMoniker destination;
+
+        static XmlMonikerEntry of(TsMoniker o) {
+            XmlMonikerEntry result = new XmlMonikerEntry();
+            result.origin = XmlMoniker.of(o);
+            return result;
+        }
+    }
+
+    static final class XmlMoniker {
+
+        @XmlAttribute
+        public String source;
+        @XmlAttribute
+        public String id;
+
+        static XmlMoniker of(TsMoniker o) {
+            XmlMoniker result = new XmlMoniker();
+            result.source = o.getSource();
+            result.id = o.getId();
+            return result;
         }
     }
 
@@ -127,18 +171,20 @@ public final class WorkspaceUtil {
 
         private final ComposedOptionSpec<StandardOptions> so = newStandardOptionsSpec(parser);
         private final ComposedOptionSpec<File> file = TsProviderOptionSpecs.newInputFileSpec(parser);
+        private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
         private final OptionSpec<Void> tree = parser.accepts("tree");
         private final OptionSpec<Void> check = parser.accepts("check");
-        private final OptionSpec<Void> monikers = parser.accepts("monikers");
+        private final OptionSpec<Void> map = parser.accepts("map-monikers");
 
         @Override
         protected Options parse(OptionSet o) {
             Options result = new Options();
             result.so = so.value(o);
             result.file = file.value(o);
+            result.output = output.value(o);
             result.tree = o.has(tree);
             result.check = o.has(check);
-            result.monikers = o.has(monikers);
+            result.map = o.has(map);
             return result;
         }
     }
