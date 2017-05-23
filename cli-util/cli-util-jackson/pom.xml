@@ -12,7 +12,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <jackson.version>2.8.5</jackson.version>
+        <jackson.version>2.8.8</jackson.version>
     </properties>
 
     <dependencies>
@@ -52,12 +52,7 @@
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
             <version>${jackson.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.yaml</groupId>
-                    <artifactId>snakeyaml</artifactId>
-                </exclusion>
-            </exclusions>
+            <optional>true</optional>
         </dependency>
     </dependencies>
     
@@ -80,6 +75,7 @@
                     <artifactSet>
                         <includes>
                             <include>com.fasterxml.jackson*:*</include>
+                            <include>org.yaml:snakeyaml:*</include>
                         </includes>
                     </artifactSet>
                 </configuration>
