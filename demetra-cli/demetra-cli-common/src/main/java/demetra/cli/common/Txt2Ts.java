@@ -52,11 +52,14 @@ import org.openide.util.NbBundle;
  *
  * @author Philippe Charles
  */
+@lombok.experimental.UtilityClass
 public final class Txt2Ts {
 
     @CommandRegistration(name = "txt2ts", category = IO_CATEGORY, description = "Retrieve time series from a txt file")
     static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
+    @lombok.AllArgsConstructor
+    @lombok.NoArgsConstructor
     public static final class Options {
 
         StandardOptions so;
@@ -70,11 +73,11 @@ public final class Txt2Ts {
         final ProviderTool tool = ProviderTool.getDefault();
 
         @Override
-        public void exec(Options params) throws Exception {
+        public void exec(Options o) throws Exception {
             try (TxtProvider p = new TxtProvider()) {
                 tool.applyWorkingDir(p);
-                TsCollectionInformation result = tool.getTsCollection(p, params.input, TsInformationType.All);
-                XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+                TsCollectionInformation result = tool.getTsCollection(p, o.input, TsInformationType.All);
+                XmlUtil.writeValue(o.output, XmlTsCollection.class, result);
             }
         }
     }
@@ -88,11 +91,7 @@ public final class Txt2Ts {
 
         @Override
         protected Options parse(OptionSet o) {
-            Options result = new Options();
-            result.input = input.value(o);
-            result.output = output.value(o);
-            result.so = so.value(o);
-            return result;
+            return new Options(so.value(o), input.value(o), output.value(o));
         }
     }
 

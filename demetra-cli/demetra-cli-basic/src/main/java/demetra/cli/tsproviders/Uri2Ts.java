@@ -48,11 +48,14 @@ import joptsimple.OptionSpec;
  *
  * @author Philippe Charles
  */
+@lombok.experimental.UtilityClass
 public final class Uri2Ts {
 
     @CommandRegistration(name = "uri2ts", category = IO_CATEGORY, description = "Retrieve time series from an URI")
     static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
+    @lombok.AllArgsConstructor
+    @lombok.NoArgsConstructor
     public static final class Options {
 
         StandardOptions so;
@@ -67,13 +70,13 @@ public final class Uri2Ts {
         final Supplier<Iterable<ITsProvider>> providers = () -> ServiceLoader.load(ITsProvider.class);
 
         @Override
-        public void exec(Options params) throws Exception {
+        public void exec(Options o) throws Exception {
             List<ITsProvider> providerList = ImmutableList.copyOf(providers.get());
             providerList.stream()
                     .filter(IFileLoader.class::isInstance)
-                    .forEach(o -> tool.applyWorkingDir((IFileLoader) o));
-            TsCollectionInformation result = tool.getTsCollection(providerList, params.uri, TsInformationType.All);
-            XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+                    .forEach(z -> tool.applyWorkingDir((IFileLoader) z));
+            TsCollectionInformation result = tool.getTsCollection(providerList, o.uri, TsInformationType.All);
+            XmlUtil.writeValue(o.output, XmlTsCollection.class, result);
         }
     }
 
@@ -86,11 +89,7 @@ public final class Uri2Ts {
 
         @Override
         protected Options parse(OptionSet o) {
-            Options result = new Options();
-            result.uri = o.has(uri) ? uri.value(o) : null;
-            result.output = output.value(o);
-            result.so = so.value(o);
-            return result;
+            return new Options(so.value(o), o.has(uri) ? uri.value(o) : null, output.value(o));
         }
     }
 }

@@ -43,11 +43,14 @@ import org.openide.util.NbBundle;
  *
  * @author Philippe Charles
  */
+@lombok.experimental.UtilityClass
 public final class Ts2Sa {
 
     @CommandRegistration(name = "ts2sa")
     static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
+    @lombok.AllArgsConstructor
+    @lombok.NoArgsConstructor
     public static final class Options {
 
         StandardOptions so;
@@ -62,16 +65,16 @@ public final class Ts2Sa {
         final SaTool tool = SaTool.getDefault();
 
         @Override
-        public void exec(Options params) throws Exception {
-            TsCollectionInformation input = XmlUtil.readValue(params.input, XmlTsCollection.class);
+        public void exec(Options o) throws Exception {
+            TsCollectionInformation input = XmlUtil.readValue(o.input, XmlTsCollection.class);
 
-            if (params.so.isVerbose()) {
+            if (o.so.isVerbose()) {
                 System.err.println("Processing " + input.items.size() + " time series");
             }
 
-            SaTool.SaTsCollection output = tool.create(input, params.saOptions);
+            SaTool.SaTsCollection output = tool.create(input, o.saOptions);
 
-            XmlUtil.writeValue(params.output, XmlSaTsCollection.class, output);
+            XmlUtil.writeValue(o.output, XmlSaTsCollection.class, output);
         }
     }
 
@@ -85,12 +88,7 @@ public final class Ts2Sa {
 
         @Override
         protected Options parse(OptionSet o) {
-            Options result = new Options();
-            result.input = input.value(o);
-            result.saOptions = saOptions.value(o);
-            result.output = output.value(o);
-            result.so = so.value(o);
-            return result;
+            return new Options(so.value(o), input.value(o), saOptions.value(o), output.value(o));
         }
     }
 

@@ -56,11 +56,14 @@ import joptsimple.OptionSpec;
  *
  * @author Philippe Charles
  */
+@lombok.experimental.UtilityClass
 public final class WorkspaceUtil {
 
     @CommandRegistration(name = "workspace")
     static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
+    @lombok.AllArgsConstructor
+    @lombok.NoArgsConstructor
     public static final class Options {
 
         StandardOptions so;
@@ -83,16 +86,16 @@ public final class WorkspaceUtil {
         }
 
         @Override
-        public void exec(Options params) throws Exception {
-            try (FileWorkspace ws = FileWorkspace.open(params.file.toPath())) {
-                if (params.tree) {
+        public void exec(Options o) throws Exception {
+            try (FileWorkspace ws = FileWorkspace.open(o.file.toPath())) {
+                if (o.tree) {
                     printTree(ws);
-                } else if (params.check) {
+                } else if (o.check) {
                     checkContent(ws);
-                } else if (params.map) {
-                    mapMonikers(ws, params.output);
-                } else if (params.remap) {
-                    remapMonikers(ws, params.remapping);
+                } else if (o.map) {
+                    mapMonikers(ws, o.output);
+                } else if (o.remap) {
+                    remapMonikers(ws, o.remapping);
                 } else {
                     printInfo(ws);
                 }
@@ -211,16 +214,7 @@ public final class WorkspaceUtil {
 
         @Override
         protected Options parse(OptionSet o) {
-            Options result = new Options();
-            result.so = so.value(o);
-            result.file = file.value(o);
-            result.output = output.value(o);
-            result.tree = o.has(tree);
-            result.check = o.has(check);
-            result.map = o.has(map);
-            result.remap = o.has(remap);
-            result.remapping = remapping.value(o);
-            return result;
+            return new Options(so.value(o), file.value(o), output.value(o), o.has(tree), o.has(check), o.has(map), o.has(remap), remapping.value(o));
         }
     }
 }

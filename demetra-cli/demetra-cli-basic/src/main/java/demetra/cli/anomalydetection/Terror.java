@@ -49,12 +49,14 @@ import org.openide.util.NbBundle;
  *
  * @author Philippe Charles
  */
+@lombok.experimental.UtilityClass
 public final class Terror {
 
     @CommandRegistration(name = "terror")
     static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
     @lombok.AllArgsConstructor
+    @lombok.NoArgsConstructor
     public static class Options {
 
         StandardOptions so;
@@ -69,16 +71,16 @@ public final class Terror {
         final AnomalyDetectionTool tool = AnomalyDetectionTool.getDefault();
 
         @Override
-        public void exec(Options params) throws Exception {
-            TsCollectionInformation input = XmlUtil.readValue(params.input, XmlTsCollection.class);
+        public void exec(Options o) throws Exception {
+            TsCollectionInformation input = XmlUtil.readValue(o.input, XmlTsCollection.class);
 
-            if (params.so.isVerbose()) {
+            if (o.so.isVerbose()) {
                 System.err.println("Processing " + input.items.size() + " time series");
             }
 
-            List<InformationSet> output = tool.getCheckLast(input, params.spec);
+            List<InformationSet> output = tool.getCheckLast(input, o.spec);
 
-            params.output.write(output, items(params.spec.getNBacks()), false);
+            o.output.write(output, items(o.spec.getNBacks()), false);
         }
 
         private List<String> items(int n) {

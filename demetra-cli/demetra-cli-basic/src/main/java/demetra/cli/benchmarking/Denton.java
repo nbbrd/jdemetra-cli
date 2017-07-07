@@ -55,12 +55,14 @@ import joptsimple.OptionSpec;
  *
  * @author Philippe Charles
  */
+@lombok.experimental.UtilityClass
 public final class Denton {
 
     @CommandRegistration(name = "denton")
     static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
     @lombok.AllArgsConstructor
+    @lombok.NoArgsConstructor
     public static final class Options {
 
         StandardOptions so;
@@ -85,25 +87,25 @@ public final class Denton {
         final BenchmarkingTool tool = BenchmarkingTool.getDefault();
 
         @Override
-        public void exec(Options p) throws Exception {
-            TsCollectionInformation y = readTsCollection(InputOptions.of(p.input.yFile, p.input.mediaType));
+        public void exec(Options o) throws Exception {
+            TsCollectionInformation y = readTsCollection(InputOptions.of(o.input.yFile, o.input.mediaType));
 
-            if (p.input.xFile.isPresent()) {
-                TsCollectionInformation x = readTsCollection(InputOptions.of(p.input.xFile.get(), p.input.mediaType));
+            if (o.input.xFile.isPresent()) {
+                TsCollectionInformation x = readTsCollection(InputOptions.of(o.input.xFile.get(), o.input.mediaType));
 
                 TsCollectionInformation result = zip(x.items, y.items)
                         .parallelStream()
-                        .map(o -> exec(tool, o, p.options))
+                        .map(z -> exec(tool, z, o.options))
                         .collect(toTsCollectionInformation());
 
-                writeTsCollection(p.output, result);
-            } else if (p.input.freq.isPresent()) {
+                writeTsCollection(o.output, result);
+            } else if (o.input.freq.isPresent()) {
                 TsCollectionInformation result = y.items
                         .parallelStream()
-                        .map(o -> exec(tool, p.input.freq.get(), o, p.options))
+                        .map(z -> exec(tool, o.input.freq.get(), z, o.options))
                         .collect(toTsCollectionInformation());
 
-                writeTsCollection(p.output, result);
+                writeTsCollection(o.output, result);
             }
         }
 

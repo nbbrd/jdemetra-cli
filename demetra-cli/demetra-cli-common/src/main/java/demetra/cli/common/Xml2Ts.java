@@ -46,11 +46,14 @@ import joptsimple.OptionSpec;
  *
  * @author Philippe Charles
  */
+@lombok.experimental.UtilityClass
 public final class Xml2Ts {
 
     @CommandRegistration(name = "xml2ts", category = IO_CATEGORY, description = "Retrieve time series from an XML file")
     static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
+    @lombok.AllArgsConstructor
+    @lombok.NoArgsConstructor
     public static final class Options {
 
         StandardOptions so;
@@ -64,11 +67,11 @@ public final class Xml2Ts {
         final ProviderTool tool = ProviderTool.getDefault();
 
         @Override
-        public void exec(Options params) throws Exception {
+        public void exec(Options o) throws Exception {
             try (XmlProvider p = new XmlProvider()) {
                 tool.applyWorkingDir(p);
-                TsCollectionInformation result = tool.getTsCollection(p, params.xml, TsInformationType.All);
-                XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+                TsCollectionInformation result = tool.getTsCollection(p, o.xml, TsInformationType.All);
+                XmlUtil.writeValue(o.output, XmlTsCollection.class, result);
             }
         }
     }
@@ -81,12 +84,8 @@ public final class Xml2Ts {
         private final ComposedOptionSpec<OutputOptions> output = newOutputOptionsSpec(parser);
 
         @Override
-        protected Options parse(OptionSet options) {
-            Options result = new Options();
-            result.xml = xml.value(options);
-            result.output = output.value(options);
-            result.so = so.value(options);
-            return result;
+        protected Options parse(OptionSet o) {
+            return new Options(so.value(o), xml.value(o), output.value(o));
         }
     }
 

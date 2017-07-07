@@ -50,11 +50,14 @@ import joptsimple.OptionSpec;
  *
  * @author Philippe Charles
  */
+@lombok.experimental.UtilityClass
 public final class Ts2SpreadSheet {
 
     @CommandRegistration(name = "ts2spreadsheet", category = IO_CATEGORY, description = "Generate a spreadsheet file from time series")
     static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
+    @lombok.AllArgsConstructor
+    @lombok.NoArgsConstructor
     public static final class Options {
 
         StandardOptions so;
@@ -70,14 +73,11 @@ public final class Ts2SpreadSheet {
         final Supplier<Iterable<Book.Factory>> factories = () -> ServiceLoader.load(Book.Factory.class);
 
         @Override
-        public void exec(Options params) throws Exception {
-            TsCollectionInformation info = XmlUtil.readValue(params.input, XmlTsCollection.class);
-            Optional<Book.Factory> factory = getFactory(params.outputFile);
-            if (factory.isPresent()) {
-                store(factory.get(), info, params.outputFile, params.exportOptions);
-            } else {
-                throw new IllegalArgumentException("Cannot handle file '" + params.outputFile.toString() + "'");
-            }
+        public void exec(Options o) throws Exception {
+            TsCollectionInformation info = XmlUtil.readValue(o.input, XmlTsCollection.class);
+            Book.Factory factory = getFactory(o.outputFile)
+                    .orElseThrow(() -> new IllegalArgumentException("Cannot handle file '" + o.outputFile.toString() + "'"));
+            store(factory, info, o.outputFile, o.exportOptions);
         }
 
         private Optional<Book.Factory> getFactory(File file) {
@@ -106,12 +106,7 @@ public final class Ts2SpreadSheet {
             if (nonOptionFile == null) {
                 throw new IllegalArgumentException("Missing output file");
             }
-            Options result = new Options();
-            result.input = input.value(o);
-            result.outputFile = nonOptionFile;
-            result.exportOptions = exportOptions.value(o);
-            result.so = so.value(o);
-            return result;
+            return new Options(so.value(o), input.value(o), nonOptionFile, exportOptions.value(o));
         }
     }
 

@@ -54,12 +54,14 @@ import joptsimple.OptionSpec;
  *
  * @author Philippe Charles
  */
+@lombok.experimental.UtilityClass
 public final class Cholette {
 
     @CommandRegistration(name = "cholette")
     static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
     @lombok.AllArgsConstructor
+    @lombok.NoArgsConstructor
     public static final class Options {
 
         StandardOptions so;
@@ -83,16 +85,16 @@ public final class Cholette {
         final BenchmarkingTool tool = BenchmarkingTool.getDefault();
 
         @Override
-        public void exec(Options p) throws Exception {
-            TsCollectionInformation y = readTsCollection(InputOptions.of(p.input.yFile, p.input.mediaType));
-            TsCollectionInformation x = readTsCollection(InputOptions.of(p.input.xFile, p.input.mediaType));
+        public void exec(Options o) throws Exception {
+            TsCollectionInformation y = readTsCollection(InputOptions.of(o.input.yFile, o.input.mediaType));
+            TsCollectionInformation x = readTsCollection(InputOptions.of(o.input.xFile, o.input.mediaType));
 
             TsCollectionInformation result = zip(x.items, y.items)
                     .parallelStream()
-                    .map(o -> exec(tool, o, p.options))
+                    .map(z -> exec(tool, z, o.options))
                     .collect(toTsCollectionInformation());
 
-            writeTsCollection(p.output, result);
+            writeTsCollection(o.output, result);
         }
 
         private static TsInformation exec(BenchmarkingTool tool, Map.Entry<TsInformation, TsInformation> input, CholetteOptions options) {
