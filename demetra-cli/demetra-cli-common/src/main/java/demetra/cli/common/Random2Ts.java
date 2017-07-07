@@ -31,7 +31,6 @@ import com.google.common.primitives.Doubles;
 import static demetra.cli.helpers.Categories.IO_CATEGORY;
 import demetra.cli.helpers.XmlUtil;
 import ec.tss.TsCollectionInformation;
-import ec.tss.TsInformationType;
 import ec.tss.tsproviders.common.random.RandomBean;
 import ec.tss.tsproviders.common.random.RandomProvider;
 import ec.tss.xml.XmlTsCollection;
@@ -63,12 +62,10 @@ public final class Random2Ts {
     @VisibleForTesting
     static final class Executor implements OptionsExecutor<Options> {
 
-        final ProviderTool tool = ProviderTool.getDefault();
-
         @Override
         public void exec(Options o) throws Exception {
             try (RandomProvider p = new RandomProvider()) {
-                TsCollectionInformation result = tool.getTsCollection(p, o.input, TsInformationType.All);
+                TsCollectionInformation result = ProviderTool.of(p).get(p.getSource(), o.input);
                 XmlUtil.writeValue(o.output, XmlTsCollection.class, result);
             }
         }

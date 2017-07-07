@@ -33,7 +33,6 @@ import demetra.cli.helpers.XmlUtil;
 import demetra.cli.tsproviders.TsDataBuild;
 import demetra.cli.tsproviders.TsProviderOptionSpecs;
 import ec.tss.TsCollectionInformation;
-import ec.tss.TsInformationType;
 import ec.tss.tsproviders.odbc.OdbcBean;
 import ec.tss.tsproviders.odbc.OdbcProvider;
 import ec.tss.tsproviders.utils.DataFormat;
@@ -68,12 +67,10 @@ public final class Odbc2Ts {
     @VisibleForTesting
     static final class Executor implements OptionsExecutor<Options> {
 
-        final ProviderTool tool = ProviderTool.getDefault();
-
         @Override
         public void exec(Options o) throws Exception {
             try (OdbcProvider p = new OdbcProvider()) {
-                TsCollectionInformation result = tool.getTsCollection(p, o.input, TsInformationType.All);
+                TsCollectionInformation result = ProviderTool.of(p).get(p.getSource(), o.input);
                 XmlUtil.writeValue(o.output, XmlTsCollection.class, result);
             }
         }

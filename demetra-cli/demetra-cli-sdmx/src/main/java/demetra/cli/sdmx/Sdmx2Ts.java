@@ -31,7 +31,6 @@ import static demetra.cli.helpers.Categories.IO_CATEGORY;
 import demetra.cli.helpers.XmlUtil;
 import demetra.cli.tsproviders.TsProviderOptionSpecs;
 import ec.tss.TsCollectionInformation;
-import ec.tss.TsInformationType;
 import ec.tss.tsproviders.sdmx.SdmxBean;
 import ec.tss.tsproviders.sdmx.SdmxProvider;
 import ec.tss.xml.XmlTsCollection;
@@ -65,14 +64,11 @@ public final class Sdmx2Ts {
     @VisibleForTesting
     static final class Executor implements OptionsExecutor<Options> {
 
-        final ProviderTool tool = ProviderTool.getDefault();
-
         @Override
         public void exec(Options o) throws Exception {
             try (SdmxProvider p = new SdmxProvider()) {
                 p.setCompactNaming(true);
-                tool.applyWorkingDir(p);
-                TsCollectionInformation result = tool.getTsCollection(p, o.sdmx, TsInformationType.All);
+                TsCollectionInformation result = ProviderTool.of(p).withWorkingDir().get(p.getSource(), o.sdmx);
                 XmlUtil.writeValue(o.output, XmlTsCollection.class, result);
             }
         }

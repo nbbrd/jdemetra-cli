@@ -32,7 +32,6 @@ import demetra.cli.helpers.XmlUtil;
 import demetra.cli.tsproviders.TsDataBuild;
 import demetra.cli.tsproviders.TsProviderOptionSpecs;
 import ec.tss.TsCollectionInformation;
-import ec.tss.TsInformationType;
 import ec.tss.tsproviders.spreadsheet.SpreadSheetBean;
 import ec.tss.tsproviders.spreadsheet.SpreadSheetProvider;
 import ec.tss.tsproviders.utils.DataFormat;
@@ -67,13 +66,10 @@ public final class SpreadSheet2Ts {
     @VisibleForTesting
     static final class Executor implements OptionsExecutor<Options> {
 
-        final ProviderTool tool = ProviderTool.getDefault();
-
         @Override
         public void exec(Options o) throws Exception {
             try (SpreadSheetProvider p = new SpreadSheetProvider()) {
-                tool.applyWorkingDir(p);
-                TsCollectionInformation result = tool.getTsCollection(p, o.input, TsInformationType.All);
+                TsCollectionInformation result = ProviderTool.of(p).withWorkingDir().get(p.getSource(), o.input);
                 XmlUtil.writeValue(o.output, XmlTsCollection.class, result);
             }
         }

@@ -32,7 +32,6 @@ import demetra.cli.helpers.XmlUtil;
 import demetra.cli.tsproviders.TsDataBuild;
 import demetra.cli.tsproviders.TsProviderOptionSpecs;
 import ec.tss.TsCollectionInformation;
-import ec.tss.TsInformationType;
 import ec.tss.tsproviders.common.txt.TxtBean;
 import ec.tss.tsproviders.common.txt.TxtBean.Delimiter;
 import ec.tss.tsproviders.common.txt.TxtBean.TextQualifier;
@@ -70,13 +69,10 @@ public final class Txt2Ts {
     @VisibleForTesting
     static final class Executor implements OptionsExecutor<Options> {
 
-        final ProviderTool tool = ProviderTool.getDefault();
-
         @Override
         public void exec(Options o) throws Exception {
             try (TxtProvider p = new TxtProvider()) {
-                tool.applyWorkingDir(p);
-                TsCollectionInformation result = tool.getTsCollection(p, o.input, TsInformationType.All);
+                TsCollectionInformation result = ProviderTool.of(p).withWorkingDir().get(p.getSource(), o.input);
                 XmlUtil.writeValue(o.output, XmlTsCollection.class, result);
             }
         }

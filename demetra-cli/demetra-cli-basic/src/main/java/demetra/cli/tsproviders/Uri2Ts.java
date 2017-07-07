@@ -27,17 +27,13 @@ import be.nbb.cli.command.proc.CommandRegistration;
 import be.nbb.cli.util.OutputOptions;
 import be.nbb.cli.util.StandardOptions;
 import be.nbb.demetra.toolset.ProviderTool;
-import com.google.common.collect.ImmutableList;
 import static demetra.cli.helpers.Categories.IO_CATEGORY;
 import demetra.cli.helpers.XmlUtil;
 import ec.tss.ITsProvider;
 import ec.tss.TsCollectionInformation;
-import ec.tss.TsInformationType;
-import ec.tss.tsproviders.IFileLoader;
 import ec.tss.xml.XmlTsCollection;
 import ec.tstoolkit.design.VisibleForTesting;
 import java.net.URI;
-import java.util.List;
 import java.util.ServiceLoader;
 import java.util.function.Supplier;
 import joptsimple.OptionSet;
@@ -66,16 +62,11 @@ public final class Uri2Ts {
     @VisibleForTesting
     static final class Executor implements OptionsExecutor<Options> {
 
-        final ProviderTool tool = ProviderTool.getDefault();
         final Supplier<Iterable<ITsProvider>> providers = () -> ServiceLoader.load(ITsProvider.class);
 
         @Override
         public void exec(Options o) throws Exception {
-            List<ITsProvider> providerList = ImmutableList.copyOf(providers.get());
-            providerList.stream()
-                    .filter(IFileLoader.class::isInstance)
-                    .forEach(z -> tool.applyWorkingDir((IFileLoader) z));
-            TsCollectionInformation result = tool.getTsCollection(providerList, o.uri, TsInformationType.All);
+            TsCollectionInformation result = ProviderTool.of(providers.get()).withWorkingDir().get(o.uri);
             XmlUtil.writeValue(o.output, XmlTsCollection.class, result);
         }
     }
