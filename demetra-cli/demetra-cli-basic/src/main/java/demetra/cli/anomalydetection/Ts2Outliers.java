@@ -55,12 +55,14 @@ import org.openide.util.NbBundle;
  *
  * @author Philippe Charles
  */
+@lombok.experimental.UtilityClass
 public final class Ts2Outliers {
 
     @CommandRegistration(name = "ts2outliers")
     static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
     @lombok.AllArgsConstructor
+    @lombok.NoArgsConstructor
     public static class Options {
 
         StandardOptions so;
@@ -76,13 +78,13 @@ public final class Ts2Outliers {
 
         @Override
         public void exec(Options params) throws Exception {
-            TsCollectionInformation input = XmlUtil.readValue(params.input, XmlTsCollection.class);
+            TsCollectionInformation o = XmlUtil.readValue(params.input, XmlTsCollection.class);
 
             if (params.so.isVerbose()) {
-                System.err.println("Processing " + input.items.size() + " time series");
+                System.err.println("Processing " + o.items.size() + " time series");
             }
 
-            OutliersTsCollection output = tool.getOutliers(input, params.spec);
+            OutliersTsCollection output = tool.getOutliers(o, params.spec);
 
             XmlUtil.writeValue(params.output, XmlOutliersTsCollection.class, output);
         }

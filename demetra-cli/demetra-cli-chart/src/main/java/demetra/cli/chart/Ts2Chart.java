@@ -48,11 +48,14 @@ import org.openide.util.NbBundle;
  *
  * @author Philippe Charles
  */
+@lombok.experimental.UtilityClass
 public final class Ts2Chart {
 
     @CommandRegistration(name = "ts2chart", category = IO_CATEGORY, description = "Generate a chart from time series")
     static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
+    @lombok.AllArgsConstructor
+    @lombok.NoArgsConstructor
     public static final class Options {
 
         StandardOptions so;
@@ -67,11 +70,11 @@ public final class Ts2Chart {
         final ChartTool tool = ChartTool.getDefault();
 
         @Override
-        public void exec(Options params) throws Exception {
-            TsCollectionInformation input = XmlUtil.readValue(params.input, XmlTsCollection.class);
+        public void exec(Options o) throws Exception {
+            TsCollectionInformation input = XmlUtil.readValue(o.input, XmlTsCollection.class);
 
-            try (OutputStream stream = Files.newOutputStream(params.outputFile.toPath())) {
-                tool.writeChart(input, params.chart, stream, Utils.getMediaType(params.outputFile).orElse(MediaType.SVG_UTF_8));
+            try (OutputStream stream = Files.newOutputStream(o.outputFile.toPath())) {
+                tool.writeChart(input, o.chart, stream, Utils.getMediaType(o.outputFile).orElse(MediaType.SVG_UTF_8));
             }
         }
     }
@@ -90,12 +93,7 @@ public final class Ts2Chart {
             if (nonOptionFile == null) {
                 throw new IllegalArgumentException("Missing output file");
             }
-            Options result = new Options();
-            result.so = so.value(o);
-            result.input = input.value(o);
-            result.outputFile = nonOptionFile;
-            result.chart = chart.value(o);
-            return result;
+            return new Options(so.value(o), input.value(o), outputFile.value(o), chart.value(o));
         }
     }
 

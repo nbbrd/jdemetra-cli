@@ -27,17 +27,13 @@ import be.nbb.cli.command.proc.CommandRegistration;
 import be.nbb.cli.util.OutputOptions;
 import be.nbb.cli.util.StandardOptions;
 import be.nbb.demetra.toolset.ProviderTool;
-import com.google.common.collect.ImmutableList;
 import static demetra.cli.helpers.Categories.IO_CATEGORY;
 import demetra.cli.helpers.XmlUtil;
 import ec.tss.ITsProvider;
 import ec.tss.TsCollectionInformation;
-import ec.tss.TsInformationType;
-import ec.tss.tsproviders.IFileLoader;
 import ec.tss.xml.XmlTsCollection;
 import ec.tstoolkit.design.VisibleForTesting;
 import java.net.URI;
-import java.util.List;
 import java.util.ServiceLoader;
 import java.util.function.Supplier;
 import joptsimple.OptionSet;
@@ -48,11 +44,14 @@ import joptsimple.OptionSpec;
  *
  * @author Philippe Charles
  */
+@lombok.experimental.UtilityClass
 public final class Uri2Ts {
 
     @CommandRegistration(name = "uri2ts", category = IO_CATEGORY, description = "Retrieve time series from an URI")
     static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
+    @lombok.AllArgsConstructor
+    @lombok.NoArgsConstructor
     public static final class Options {
 
         StandardOptions so;
@@ -63,17 +62,12 @@ public final class Uri2Ts {
     @VisibleForTesting
     static final class Executor implements OptionsExecutor<Options> {
 
-        final ProviderTool tool = ProviderTool.getDefault();
         final Supplier<Iterable<ITsProvider>> providers = () -> ServiceLoader.load(ITsProvider.class);
 
         @Override
-        public void exec(Options params) throws Exception {
-            List<ITsProvider> providerList = ImmutableList.copyOf(providers.get());
-            providerList.stream()
-                    .filter(IFileLoader.class::isInstance)
-                    .forEach(o -> tool.applyWorkingDir((IFileLoader) o));
-            TsCollectionInformation result = tool.getTsCollection(providerList, params.uri, TsInformationType.All);
-            XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+        public void exec(Options o) throws Exception {
+            TsCollectionInformation result = ProviderTool.of(providers.get()).withWorkingDir().get(o.uri);
+            XmlUtil.writeValue(o.output, XmlTsCollection.class, result);
         }
     }
 
@@ -86,11 +80,7 @@ public final class Uri2Ts {
 
         @Override
         protected Options parse(OptionSet o) {
-            Options result = new Options();
-            result.uri = o.has(uri) ? uri.value(o) : null;
-            result.output = output.value(o);
-            result.so = so.value(o);
-            return result;
+            return new Options(so.value(o), o.has(uri) ? uri.value(o) : null, output.value(o));
         }
     }
 }

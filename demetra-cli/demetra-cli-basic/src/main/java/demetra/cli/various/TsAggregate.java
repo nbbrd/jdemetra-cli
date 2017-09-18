@@ -50,11 +50,14 @@ import org.openide.util.NbBundle;
  *
  * @author Philippe Charles
  */
+@lombok.experimental.UtilityClass
 public final class TsAggregate {
 
     @CommandRegistration(name = "tsaggregate")
     static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
+    @lombok.AllArgsConstructor
+    @lombok.NoArgsConstructor
     public static final class Options {
 
         StandardOptions so;
@@ -67,22 +70,22 @@ public final class TsAggregate {
     static final class Executor implements OptionsExecutor<Options> {
 
         @Override
-        public void exec(Options params) throws Exception {
-            TsCollectionInformation input = XmlUtil.readValue(params.input, XmlTsCollection.class);
+        public void exec(Options o) throws Exception {
+            TsCollectionInformation input = XmlUtil.readValue(o.input, XmlTsCollection.class);
 
-            if (!params.weights.isEmpty() && input.items.size() != params.weights.size()) {
+            if (!o.weights.isEmpty() && input.items.size() != o.weights.size()) {
                 throw new IllegalArgumentException("Invalid weights list size");
             }
 
             TsCollectionInformation result = new TsCollectionInformation();
 
-            if (!params.weights.isEmpty()) {
-                result.items.add(process(input.items, params.weights));
+            if (!o.weights.isEmpty()) {
+                result.items.add(process(input.items, o.weights));
             } else {
                 result.items.add(process(input.items, null));
             }
 
-            XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+            XmlUtil.writeValue(o.output, XmlTsCollection.class, result);
         }
 
         @VisibleForTesting
@@ -137,12 +140,7 @@ public final class TsAggregate {
 
         @Override
         protected TsAggregate.Options parse(OptionSet o) {
-            Options result = new Options();
-            result.input = input.value(o);
-            result.weights = weights.value(o);
-            result.output = output.value(o);
-            result.so = so.value(o);
-            return result;
+            return new Options(so.value(o), input.value(o), weights.value(o), output.value(o));
         }
     }
 

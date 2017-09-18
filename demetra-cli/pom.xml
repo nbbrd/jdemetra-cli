@@ -26,7 +26,7 @@
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
         <!-- dependencies -->
-        <demetra.version>2.2.0-RC2</demetra.version>
+        <demetra.version>2.2.0</demetra.version>
         <lombok.version>1.16.12</lombok.version>
         <assertj.version>3.8.0</assertj.version>
     </properties>

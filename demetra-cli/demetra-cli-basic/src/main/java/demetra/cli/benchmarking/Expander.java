@@ -56,12 +56,14 @@ import joptsimple.OptionSpec;
  *
  * @author Philippe Charles
  */
+@lombok.experimental.UtilityClass
 public final class Expander {
 
     @CommandRegistration(name = "expander")
     static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
     @lombok.AllArgsConstructor
+    @lombok.NoArgsConstructor
     public static final class Options {
 
         StandardOptions so;
@@ -86,23 +88,23 @@ public final class Expander {
         final BenchmarkingTool tool = BenchmarkingTool.getDefault();
 
         @Override
-        public void exec(Options p) throws Exception {
-            TsCollectionInformation y = readTsCollection(InputOptions.of(p.input.yFile, p.input.mediaType));
+        public void exec(Options o) throws Exception {
+            TsCollectionInformation y = readTsCollection(InputOptions.of(o.input.yFile, o.input.mediaType));
 
-            if (p.input.domain.isPresent()) {
+            if (o.input.domain.isPresent()) {
                 TsCollectionInformation result = y.items
                         .parallelStream()
-                        .map(o -> exec(tool, p.input.domain.get(), o, p.options))
+                        .map(z -> exec(tool, o.input.domain.get(), z, o.options))
                         .collect(toTsCollectionInformation());
 
-                writeTsCollection(p.output, result);
-            } else if (p.input.freq.isPresent()) {
+                writeTsCollection(o.output, result);
+            } else if (o.input.freq.isPresent()) {
                 TsCollectionInformation result = y.items
                         .parallelStream()
-                        .map(o -> exec(tool, p.input.freq.get(), o, p.options))
+                        .map(z -> exec(tool, o.input.freq.get(), z, o.options))
                         .collect(toTsCollectionInformation());
 
-                writeTsCollection(p.output, result);
+                writeTsCollection(o.output, result);
             }
         }
 

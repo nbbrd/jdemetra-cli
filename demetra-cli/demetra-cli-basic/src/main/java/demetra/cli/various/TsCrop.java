@@ -46,11 +46,14 @@ import joptsimple.OptionSpec;
  *
  * @author Philippe Charles
  */
+@lombok.experimental.UtilityClass
 public final class TsCrop {
 
     @CommandRegistration(name = "tscrop")
     static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
+    @lombok.AllArgsConstructor
+    @lombok.NoArgsConstructor
     public static final class Options {
 
         StandardOptions so;
@@ -64,17 +67,17 @@ public final class TsCrop {
     static final class Executor implements OptionsExecutor<Options> {
 
         @Override
-        public void exec(Options params) throws Exception {
-            TsCollectionInformation result = XmlUtil.readValue(params.input, XmlTsCollection.class);
-            if (params.periodSelector.getType() != PeriodSelectorType.All) {
-                selectPeriods(result, params.periodSelector);
-            }
-            XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+        public void exec(Options o) throws Exception {
+            TsCollectionInformation result = XmlUtil.readValue(o.input, XmlTsCollection.class);
+            applySelector(result, o.periodSelector);
+            XmlUtil.writeValue(o.output, XmlTsCollection.class, result);
         }
 
         @VisibleForTesting
-        static void selectPeriods(TsCollectionInformation info, TsPeriodSelector selector) {
-            info.items.forEach(o -> o.data = o.hasData() ? o.data.select(selector) : null);
+        static void applySelector(TsCollectionInformation info, TsPeriodSelector selector) {
+            if (selector.getType() != PeriodSelectorType.All) {
+                info.items.forEach(o -> o.data = o.hasData() ? o.data.select(selector) : null);
+            }
         }
     }
 
@@ -88,12 +91,7 @@ public final class TsCrop {
 
         @Override
         protected Options parse(OptionSet o) {
-            Options result = new Options();
-            result.input = input.value(o);
-            result.periodSelector = periodSelector.value(o);
-            result.output = output.value(o);
-            result.so = so.value(o);
-            return result;
+            return new Options(so.value(o), input.value(o), periodSelector.value(o), output.value(o));
         }
     }
 

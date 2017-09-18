@@ -31,7 +31,6 @@ import com.google.common.primitives.Doubles;
 import static demetra.cli.helpers.Categories.IO_CATEGORY;
 import demetra.cli.helpers.XmlUtil;
 import ec.tss.TsCollectionInformation;
-import ec.tss.TsInformationType;
 import ec.tss.tsproviders.common.random.RandomBean;
 import ec.tss.tsproviders.common.random.RandomProvider;
 import ec.tss.xml.XmlTsCollection;
@@ -45,11 +44,14 @@ import joptsimple.OptionSpec;
  *
  * @author Philippe Charles
  */
+@lombok.experimental.UtilityClass
 public final class Random2Ts {
 
     @CommandRegistration(name = "random2ts", category = IO_CATEGORY, description = "Generate random time series")
     static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
+    @lombok.AllArgsConstructor
+    @lombok.NoArgsConstructor
     public static final class Options {
 
         StandardOptions so;
@@ -60,13 +62,11 @@ public final class Random2Ts {
     @VisibleForTesting
     static final class Executor implements OptionsExecutor<Options> {
 
-        final ProviderTool tool = ProviderTool.getDefault();
-
         @Override
-        public void exec(Options params) throws Exception {
+        public void exec(Options o) throws Exception {
             try (RandomProvider p = new RandomProvider()) {
-                TsCollectionInformation result = tool.getTsCollection(p, params.input, TsInformationType.All);
-                XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+                TsCollectionInformation result = ProviderTool.of(p).get(p.getSource(), o.input);
+                XmlUtil.writeValue(o.output, XmlTsCollection.class, result);
             }
         }
     }
@@ -80,11 +80,7 @@ public final class Random2Ts {
 
         @Override
         protected Options parse(OptionSet o) {
-            Options result = new Options();
-            result.input = random.value(o);
-            result.output = output.value(o);
-            result.so = so.value(o);
-            return result;
+            return new Options(so.value(o), random.value(o), output.value(o));
         }
     }
 

@@ -33,7 +33,6 @@ import demetra.cli.helpers.XmlUtil;
 import demetra.cli.tsproviders.TsDataBuild;
 import demetra.cli.tsproviders.TsProviderOptionSpecs;
 import ec.tss.TsCollectionInformation;
-import ec.tss.TsInformationType;
 import ec.tss.tsproviders.odbc.OdbcBean;
 import ec.tss.tsproviders.odbc.OdbcProvider;
 import ec.tss.tsproviders.utils.DataFormat;
@@ -49,12 +48,15 @@ import org.openide.util.NbBundle;
  *
  * @author Philippe Charles
  */
+@lombok.experimental.UtilityClass
 @NbBundle.Messages("odbc2ts.desc=Retrieve time series from an ODBC DSN")
 public final class Odbc2Ts {
 
     @CommandRegistration(name = "odbc2ts", category = IO_CATEGORY, description = "#odbc2ts.desc")
     static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
+    @lombok.AllArgsConstructor
+    @lombok.NoArgsConstructor
     public static final class Options {
 
         StandardOptions so;
@@ -65,13 +67,11 @@ public final class Odbc2Ts {
     @VisibleForTesting
     static final class Executor implements OptionsExecutor<Options> {
 
-        final ProviderTool tool = ProviderTool.getDefault();
-
         @Override
-        public void exec(Options params) throws Exception {
+        public void exec(Options o) throws Exception {
             try (OdbcProvider p = new OdbcProvider()) {
-                TsCollectionInformation result = tool.getTsCollection(p, params.input, TsInformationType.All);
-                XmlUtil.writeValue(params.output, XmlTsCollection.class, result);
+                TsCollectionInformation result = ProviderTool.of(p).get(p.getSource(), o.input);
+                XmlUtil.writeValue(o.output, XmlTsCollection.class, result);
             }
         }
     }
@@ -85,11 +85,7 @@ public final class Odbc2Ts {
 
         @Override
         protected Options parse(OptionSet o) {
-            Options result = new Options();
-            result.input = input.value(o);
-            result.output = output.value(o);
-            result.so = so.value(o);
-            return result;
+            return new Options(so.value(o), input.value(o), output.value(o));
         }
     }
 

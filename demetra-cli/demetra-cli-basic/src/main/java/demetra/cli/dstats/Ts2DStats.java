@@ -45,11 +45,14 @@ import org.openide.util.NbBundle;
  *
  * @author Philippe Charles
  */
+@lombok.experimental.UtilityClass
 public final class Ts2DStats {
 
     @CommandRegistration(name = "ts2dstats")
     static final Command CMD = OptionsParsingCommand.of(Parser::new, Executor::new, o -> o.so);
 
+    @lombok.AllArgsConstructor
+    @lombok.NoArgsConstructor
     public static final class Options {
 
         StandardOptions so;
@@ -62,11 +65,11 @@ public final class Ts2DStats {
     static final class Executor implements OptionsExecutor<Options> {
 
         @Override
-        public void exec(Options params) throws Exception {
-            XmlTsCollection col = params.input.read(XmlTsCollection.class);
+        public void exec(Options o) throws Exception {
+            XmlTsCollection col = o.input.read(XmlTsCollection.class);
             XmlDStatsTsCollection result = process(col);
-            filter(result, params.items);
-            params.output.write(XmlDStatsTsCollection.class, result);
+            filter(result, o.items);
+            o.output.write(XmlDStatsTsCollection.class, result);
         }
 
         @VisibleForTesting
@@ -139,12 +142,7 @@ public final class Ts2DStats {
 
         @Override
         protected Options parse(OptionSet o) {
-            Options result = new Options();
-            result.input = input.value(o);
-            result.items = items.value(o);
-            result.output = output.value(o);
-            result.so = so.value(o);
-            return result;
+            return new Options(so.value(o), input.value(o), items.value(o), output.value(o));
         }
     }
 
@@ -157,17 +155,17 @@ public final class Ts2DStats {
         private final OptionSpec<DStatsItem> items;
 
         public ItemsToIncludeOptionsSpec(OptionParser p) {
-            Joiner joiner = Joiner.on(", ");
             this.items = p
-                    .accepts("include", Bundle.ts2dstats_items(joiner.join(DStatsItem.values())))
+                    .accepts("include", Bundle.ts2dstats_items(Joiner.on(", ").join(DStatsItem.values())))
                     .withRequiredArg()
                     .ofType(DStatsItem.class)
-                    .withValuesSeparatedBy(',');
+                    .withValuesSeparatedBy(',')
+                    .defaultsTo(DStatsItem.values());
         }
 
         @Override
         public EnumSet<DStatsItem> value(OptionSet o) {
-            return o.has(items) ? EnumSet.copyOf(items.values(o)) : EnumSet.allOf(DStatsItem.class);
+            return EnumSet.copyOf(items.values(o));
         }
     }
 }
