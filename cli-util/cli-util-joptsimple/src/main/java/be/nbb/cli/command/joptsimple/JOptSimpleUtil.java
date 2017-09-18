@@ -19,6 +19,7 @@ package be.nbb.cli.command.joptsimple;
 import java.util.Objects;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
+import joptsimple.ValueConversionException;
 import joptsimple.ValueConverter;
 
 /**
@@ -35,7 +36,11 @@ public class JOptSimpleUtil {
         return new ValueConverter<T>() {
             @Override
             public T convert(String value) {
-                return parser.apply(value);
+                try {
+                    return parser.apply(value);
+                } catch (RuntimeException ex) {
+                    throw new ValueConversionException("Failed to convert '" + value + "' to type '" + type + "'", ex);
+                }
             }
 
             @Override
